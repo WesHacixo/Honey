@@ -7,7 +7,8 @@ import { join } from "https://deno.land/std@0.208.0/path/mod.ts";
 import { 
   validateCombName, 
   sanitizeCombName, 
-  validateFilePath 
+  validateFilePath,
+  sanitizeForLogging
 } from "../layers/security.ts";
 import { 
   RunnerExecutionError, 
@@ -33,7 +34,7 @@ async function wasmFileExists(comb: string): Promise<boolean> {
     await Deno.stat(wasmPath);
     return true;
   } catch (error) {
-    logger.debug(`WASM file for ${comb} not found:`, { error });
+    logger.debug(`WASM file for ${sanitizeForLogging(comb)} not found:`, { error });
     return false;
   }
 }
@@ -50,7 +51,7 @@ async function executeWasmModule(comb: string, params: Record<string, unknown> =
   
   // Validate the file path
   if (!validateFilePath(wasmPath)) {
-    throw new Error(`Invalid WASM file path: ${wasmPath}`);
+    throw new Error(`Invalid WASM file path: ${sanitizeForLogging(wasmPath)}`);
   }
   
   // Load the WASM module
@@ -70,12 +71,12 @@ async function executeWasmModule(comb: string, params: Record<string, unknown> =
       consoleLog: (ptr: number, len: number) => {
         const buffer = new Uint8Array(memory.buffer, ptr, len);
         const text = new TextDecoder().decode(buffer);
-        console.log(text);
+        console.log(sanitizeForLogging(text));
       },
       consoleError: (ptr: number, len: number) => {
         const buffer = new Uint8Array(memory.buffer, ptr, len);
         const text = new TextDecoder().decode(buffer);
-        console.error(text);
+        console.error(sanitizeForLogging(text));
       },
       // Add performance measurement
       now: () => performance.now()
@@ -90,7 +91,7 @@ async function executeWasmModule(comb: string, params: Record<string, unknown> =
   const main = instance.exports.main as CallableFunction;
   
   if (typeof main !== "function") {
-    throw new RunnerExecutionError("wasm", `WASM module ${comb} does not export a main function`);
+    throw new RunnerExecutionError("wasm", `WASM module ${sanitizeForLogging(comb)} does not export a main function`);
   }
   
   // Execute the main function
@@ -101,10 +102,10 @@ async function executeWasmModule(comb: string, params: Record<string, unknown> =
     // For now, we'll simulate a successful result
     return {
       success: true,
-      output: `Successfully executed ${comb} in WASM runtime`
+      output: `Successfully executed ${sanitizeForLogging(comb)} in WASM runtime`
     };
   } catch (error) {
-    throw new RunnerExecutionError("wasm", `Error executing WASM module ${comb}: ${error.message}`);
+    throw new RunnerExecutionError("wasm", `Error executing WASM module ${sanitizeForLogging(comb)}: ${error.message}`);
   }
 }
 
@@ -118,19 +119,20 @@ async function executeWasmModule(comb: string, params: Record<string, unknown> =
 export async function run(comb: string, location: string): Promise<Record<string, unknown>> {
   // Validate inputs
   if (!validateCombName(comb)) {
-    throw new Error(`Invalid comb name: ${comb}`);
+    throw new Error(`Invalid comb name: ${sanitizeForLogging(comb)}`);
   }
   
   const sanitizedComb = sanitizeCombName(comb);
+  const sanitizedLocation = sanitizeForLogging(location);
   const start = Date.now();
   
-  logger.info(`Starting WASM runtime for ${sanitizedComb} in ${location} environment...`);
+  logger.info(`Starting WASM runtime for ${sanitizeForLogging(sanitizedComb)} in ${sanitizedLocation} environment...`);
   
   // Check if WASM file exists
   const wasmExists = await wasmFileExists(sanitizedComb);
   
   if (!wasmExists) {
-    logger.warn(`WASM file for ${sanitizedComb} not found, using simulation mode`);
+    logger.warn(`WASM file for ${sanitizeForLogging(sanitizedComb)} not found, using simulation mode`);
     return simulateWasmRun(sanitizedComb, location);
   }
   
@@ -155,7 +157,7 @@ export async function run(comb: string, location: string): Promise<Record<string
         
         return {
           success: true,
-          stdout: result.output || `Successfully executed ${sanitizedComb} in WASM runtime (${location})`,
+          stdout: result.output || `Successfully executed ${sanitizeForLogging(sanitizedComb)} in WASM runtime (${sanitizedLocation})`,
           stderr: "",
           boot_time_ms: bootTime,
           exec_time_ms: execTime,
@@ -166,10 +168,10 @@ export async function run(comb: string, location: string): Promise<Record<string
         };
       },
       config.runners.wasm.timeout,
-      `WASM execution of ${sanitizedComb}`
+      `WASM execution of ${sanitizeForLogging(sanitizedComb)}`
     );
   } catch (error) {
-    logger.error(`Error running ${sanitizedComb} in WASM:`, error);
+    logger.error(`Error running ${sanitizeForLogging(sanitizedComb)} in WASM:`, error);
     
     // Fall back to simulation
     return simulateWasmRun(sanitizedComb, location);
@@ -186,8 +188,10 @@ export async function run(comb: string, location: string): Promise<Record<string
  */
 async function simulateWasmRun(comb: string, location: string): Promise<Record<string, unknown>> {
   const start = Date.now();
+  const sanitizedComb = sanitizeForLogging(comb);
+  const sanitizedLocation = sanitizeForLogging(location);
   
-  logger.info(`[SIMULATION] Running ${comb} in simulated WASM environment (${location})...`);
+  logger.info(`[SIMULATION] Running ${sanitizedComb} in simulated WASM environment (${sanitizedLocation})...`);
   
   // Simulate execution time (typically faster than both Docker and Firecracker)
   await new Promise(resolve => setTimeout(resolve, 300));
@@ -197,7 +201,7 @@ async function simulateWasmRun(comb: string, location: string): Promise<Record<s
   
   // Simulate execution
   const success = true;
-  const stdout = `[SIMULATION] Successfully executed ${comb} in simulated WASM runtime (${location})`;
+  const stdout = `[SIMULATION] Successfully executed ${sanitizedComb} in simulated WASM runtime (${sanitizedLocation})`;
   const stderr = "";
   
   // Simulate resource usage (typically lower than containers or VMs)

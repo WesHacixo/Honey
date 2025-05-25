@@ -9,7 +9,8 @@ import {
   validateCombName, 
   sanitizeCombName, 
   generateSecureContainerName,
-  validateDockerEnvironment
+  validateDockerEnvironment,
+  sanitizeForLogging
 } from "../layers/security.ts";
 import { 
   RunnerExecutionError, 
@@ -35,20 +36,21 @@ const logger = createLogger("docker-runner");
 export async function run(comb: string, location: string): Promise<Record<string, unknown>> {
   // Validate inputs
   if (!validateCombName(comb)) {
-    throw new Error(`Invalid comb name: ${comb}`);
+    throw new Error(`Invalid comb name: ${sanitizeForLogging(comb)}`);
   }
   
   const sanitizedComb = sanitizeCombName(comb);
+  const sanitizedLocation = sanitizeForLogging(location);
   const start = Date.now();
   const containerName = generateSecureContainerName(sanitizedComb);
   
-  logger.info(`Starting Docker container for ${sanitizedComb} in ${location} environment...`);
+  logger.info(`Starting Docker container for ${sanitizeForLogging(sanitizedComb)} in ${sanitizedLocation} environment...`);
   
   // Check if Docker is available
   const dockerAvailable = await validateDockerEnvironment();
   
   if (!dockerAvailable) {
-    logger.warn(`Docker not available, using direct execution for ${sanitizedComb}`);
+    logger.warn(`Docker not available, using direct execution for ${sanitizeForLogging(sanitizedComb)}`);
     return runDirectly(sanitizedComb, location);
   }
   
@@ -60,7 +62,7 @@ export async function run(comb: string, location: string): Promise<Record<string
     const result = await withTimeout(
       () => runDockerContainer(containerName, sanitizedComb, location),
       config.runners.docker.timeout,
-      `Docker execution of ${sanitizedComb}`
+      `Docker execution of ${sanitizeForLogging(sanitizedComb)}`
     );
     
     const bootTime = result.bootTime;
@@ -80,7 +82,7 @@ export async function run(comb: string, location: string): Promise<Record<string
       location
     };
   } catch (error) {
-    logger.error(`Error running ${sanitizedComb} in Docker:`, error);
+    logger.error(`Error running ${sanitizeForLogging(sanitizedComb)} in Docker:`, error);
     
     // Fall back to direct execution
     if (error instanceof RunnerNotAvailableError) {
@@ -114,6 +116,8 @@ async function runDockerContainer(
   cpuUsage: string;
 }> {
   const bootStart = Date.now();
+  const sanitizedComb = sanitizeForLogging(comb);
+  const sanitizedLocation = sanitizeForLogging(location);
   
   try {
     // Run the container with security options and resource limits
@@ -148,10 +152,10 @@ async function runDockerContainer(
     });
     
     // Wait for the main process to complete
-    const [stdout, stderr, status] = await Promise.all([
+    const [status, stdout, stderr] = await Promise.all([
+      proc.status(),
       proc.output(),
-      proc.stderrOutput(),
-      proc.status()
+      proc.stderrOutput()
     ]);
     
     // Get the stats output
@@ -168,28 +172,28 @@ async function runDockerContainer(
       cpuUsage = cpu;
     }
     
-    // Clean up
+    // Clean up processes
     proc.close();
     statsProc.close();
     
-    // Check for execution errors
+    // Check if the execution was successful
     if (!status.success) {
       const stdoutText = new TextDecoder().decode(stdout);
       const stderrText = new TextDecoder().decode(stderr);
       
       throw new RunnerExecutionError(
         "docker",
-        `Container exited with code ${status.code}`,
-        stdoutText,
-        stderrText,
+        `Container execution failed with exit code ${status.code}`,
+        sanitizeForLogging(stdoutText),
+        sanitizeForLogging(stderrText),
         status.code
       );
     }
     
     return {
-      success: status.success,
-      stdout: new TextDecoder().decode(stdout),
-      stderr: new TextDecoder().decode(stderr),
+      success: true,
+      stdout: sanitizeForLogging(new TextDecoder().decode(stdout)),
+      stderr: sanitizeForLogging(new TextDecoder().decode(stderr)),
       bootTime,
       memoryUsage,
       cpuUsage
@@ -197,15 +201,15 @@ async function runDockerContainer(
   } catch (error) {
     // Clean up the container if it's still running
     try {
-      const cleanup = Deno.run({
+      const cleanupProc = Deno.run({
         cmd: ["docker", "rm", "-f", containerName],
         stdout: "piped",
         stderr: "piped"
       });
-      await cleanup.status();
-      cleanup.close();
+      await cleanupProc.status();
+      cleanupProc.close();
     } catch (cleanupError) {
-      logger.debug(`Error cleaning up container ${containerName}:`, { error: cleanupError });
+      logger.debug(`Error cleaning up container ${sanitizeForLogging(containerName)}:`, { error: cleanupError });
     }
     
     // Re-throw the original error
@@ -214,57 +218,49 @@ async function runDockerContainer(
 }
 
 /**
- * Run a comb directly in the current Deno process
- * Used when Docker is not available
+ * Run a comb directly in the current process
+ * Used as a fallback when Docker is not available
  * 
  * @param comb The name of the comb to run
- * @param location The location to run the comb (local or cloud)
+ * @param location The location to run the comb
  * @returns Performance metrics and execution results
  */
 async function runDirectly(comb: string, location: string): Promise<Record<string, unknown>> {
   const start = Date.now();
+  const sanitizedComb = sanitizeForLogging(comb);
+  const sanitizedLocation = sanitizeForLogging(location);
   
-  logger.info(`[DIRECT] Running ${comb} directly in Deno (${location})...`);
-  
-  // No real boot time for direct execution
-  const bootTime = 0;
+  logger.info(`[DIRECT] Running ${sanitizedComb} directly in current process (${sanitizedLocation})...`);
   
   try {
     // Execute the comb directly
     const result = await executeComb(comb, { location });
     
-    // Calculate total execution time
+    // Calculate execution time
     const execTime = Date.now() - start;
-    
-    // We don't have real resource usage metrics for direct execution
-    const memoryUsage = "N/A";
-    const cpuUsage = "N/A";
     
     return {
-      success: result !== null,
-      stdout: result ? JSON.stringify(result, null, 2) : "",
-      stderr: result ? "" : "Failed to execute comb",
-      boot_time_ms: bootTime,
+      success: true,
+      stdout: `[DIRECT] ${result.output || `Successfully executed ${sanitizedComb} directly`}`,
+      stderr: "",
+      boot_time_ms: 0, // No boot time for direct execution
       exec_time_ms: execTime,
-      memory_usage: memoryUsage,
-      cpu_usage: cpuUsage,
+      memory_usage: "N/A", // We don't measure memory usage for direct execution
+      cpu_usage: "N/A", // We don't measure CPU usage for direct execution
       runner: "docker",
       location,
-      direct: true,
-      result
+      direct: true
     };
   } catch (error) {
-    logger.error(`Error running ${comb} directly:`, error);
-    
-    // Calculate total execution time
-    const execTime = Date.now() - start;
+    logger.error(`Error running ${sanitizedComb} directly:`, error);
     
     return {
       success: false,
+      error: error.message,
       stdout: "",
-      stderr: error.toString(),
-      boot_time_ms: bootTime,
-      exec_time_ms: execTime,
+      stderr: error.stack || "",
+      boot_time_ms: 0,
+      exec_time_ms: Date.now() - start,
       memory_usage: "N/A",
       cpu_usage: "N/A",
       runner: "docker",

@@ -7,7 +7,8 @@ import { runComb } from "../queen/deploy.ts";
 import { recordMetrics, summarizeResults } from "./metrics.ts";
 import { 
   validateCombName, 
-  sanitizeCombName 
+  sanitizeCombName,
+  sanitizeForLogging
 } from "../layers/security.ts";
 import { 
   ValidationError, 
@@ -59,7 +60,7 @@ export async function runBenchmark(comb: string, options: Record<string, unknown
   const sanitizedComb = sanitizeCombName(comb);
   
   logger.info(`\n🍯 HONEY BENCHMARK SWARM 🐝`);
-  logger.info(`Running benchmark for comb: ${sanitizedComb}\n`);
+  logger.info(`Running benchmark for comb: ${sanitizeForLogging(sanitizedComb)}\n`);
   
   // Filter runners if specified
   const runners = options.runner ? [options.runner as string] : RUNNERS;
@@ -72,7 +73,11 @@ export async function runBenchmark(comb: string, options: Record<string, unknown
   // Run the comb in each environment
   for (const runner of runners) {
     for (const location of locations) {
-      logger.info(`\n[ RUNNING ] ${runner.toUpperCase()} @ ${location}`);
+      // Sanitize inputs for logging
+      const sanitizedRunner = sanitizeForLogging(runner);
+      const sanitizedLocation = sanitizeForLogging(location);
+      
+      logger.info(`\n[ RUNNING ] ${sanitizedRunner.toUpperCase()} @ ${sanitizedLocation}`);
       
       try {
         // Run the comb
@@ -94,18 +99,18 @@ export async function runBenchmark(comb: string, options: Record<string, unknown
         // Log success or failure
         if (result.success) {
           logger.success(
-            `[ SUCCESS ] ${runner}@${location} - ${formatDuration(result.exec_time_ms as number)}`,
+            `[ SUCCESS ] ${sanitizedRunner}@${sanitizedLocation} - ${formatDuration(result.exec_time_ms as number)}`,
             { exec_time_ms: result.exec_time_ms }
           );
         } else {
           logger.error(
-            `[ FAILED  ] ${runner}@${location} - ${result.error}`,
+            `[ FAILED  ] ${sanitizedRunner}@${sanitizedLocation} - ${sanitizeForLogging(result.error as string)}`,
             undefined,
             { error: result.error }
           );
         }
       } catch (error) {
-        logger.error(`[ FAILED  ] ${runner}@${location}`, error);
+        logger.error(`[ FAILED  ] ${sanitizedRunner}@${sanitizedLocation}`, error);
         
         // Add failure to results
         results.push({
@@ -150,14 +155,21 @@ export async function runBenchmark(comb: string, options: Record<string, unknown
       mostMemoryEfficient = memoryResults[0];
     }
     
-    logger.success(`\n🏆 RECOMMENDED ENVIRONMENT: ${fastest.runner}@${fastest.location}`);
+    // Sanitize for logging
+    const sanitizedFastestRunner = sanitizeForLogging(fastest.runner as string);
+    const sanitizedFastestLocation = sanitizeForLogging(fastest.location as string);
+    
+    logger.success(`\n🏆 RECOMMENDED ENVIRONMENT: ${sanitizedFastestRunner}@${sanitizedFastestLocation}`);
     logger.info(`   Boot Time: ${formatDuration(fastest.boot_time_ms as number)}`);
     logger.info(`   Exec Time: ${formatDuration(fastest.exec_time_ms as number)}`);
     logger.info(`   Memory: ${fastest.memory_usage}`);
     logger.info(`   CPU: ${fastest.cpu_usage}`);
     
     if (mostMemoryEfficient && mostMemoryEfficient !== fastest) {
-      logger.info(`\n💾 MOST MEMORY-EFFICIENT: ${mostMemoryEfficient.runner}@${mostMemoryEfficient.location}`);
+      const sanitizedMemRunner = sanitizeForLogging(mostMemoryEfficient.runner as string);
+      const sanitizedMemLocation = sanitizeForLogging(mostMemoryEfficient.location as string);
+      
+      logger.info(`\n💾 MOST MEMORY-EFFICIENT: ${sanitizedMemRunner}@${sanitizedMemLocation}`);
       logger.info(`   Memory: ${mostMemoryEfficient.memory_usage}`);
     }
   } else {
@@ -179,7 +191,7 @@ export async function listAvailableCombs(): Promise<void> {
   }
   
   for (const comb of combs) {
-    logger.info(`- ${comb}`);
+    logger.info(`- ${sanitizeForLogging(comb)}`);
   }
   
   logger.info("\nRun a benchmark with: deno run --allow-all bench/index.ts <comb-name>");
@@ -206,8 +218,8 @@ if (import.meta.main) {
     
     // Extract options
     const options: Record<string, unknown> = {};
-    if (args.runner) options.runner = args.runner;
-    if (args.location) options.location = args.location;
+    if (args.runner) options.runner = sanitizeForLogging(args.runner);
+    if (args.location) options.location = sanitizeForLogging(args.location);
     
     // Run the benchmark
     await runBenchmark(comb, options);

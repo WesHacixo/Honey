@@ -6,7 +6,7 @@
 import * as Docker from "../runners/docker.ts";
 import * as Firecracker from "../runners/firecracker.ts";
 import * as Wasm from "../runners/wasm.ts";
-import { validateCombParams } from "../layers/security.ts";
+import { validateCombParams, sanitizeForLogging } from "../layers/security.ts";
 import { 
   createErrorResult, 
   withTimeout, 
@@ -44,7 +44,12 @@ export async function runComb({ comb, runner, location, params = {} }: CombParam
     throw new ValidationError(validation.error || "Invalid parameters");
   }
   
-  logger.info(`Queen deploying ${comb} to ${runner} in ${location} environment...`, { contextId });
+  // Sanitize inputs for logging
+  const sanitizedComb = sanitizeForLogging(comb);
+  const sanitizedRunner = sanitizeForLogging(runner);
+  const sanitizedLocation = sanitizeForLogging(location);
+  
+  logger.info(`Queen deploying ${sanitizedComb} to ${sanitizedRunner} in ${sanitizedLocation} environment...`, { contextId });
   
   let result;
   try {
@@ -62,19 +67,19 @@ export async function runComb({ comb, runner, location, params = {} }: CombParam
         } else if (runner === "wasm") {
           return await Wasm.run(comb, location);
         } else {
-          throw new ValidationError(`Unknown runner: ${runner}`);
+          throw new ValidationError(`Unknown runner: ${sanitizedRunner}`);
         }
       },
       timeoutMs,
-      `${runner} execution of ${comb}`
+      `${sanitizedRunner} execution of ${sanitizedComb}`
     );
     
-    logger.success(`${comb} execution completed successfully in ${runner}@${location}`, { 
+    logger.success(`${sanitizedComb} execution completed successfully in ${sanitizedRunner}@${sanitizedLocation}`, { 
       contextId,
       exec_time_ms: result.exec_time_ms
     });
   } catch (error) {
-    logger.error(`${comb} execution failed in ${runner}@${location}:`, error, { contextId });
+    logger.error(`${sanitizedComb} execution failed in ${sanitizedRunner}@${sanitizedLocation}:`, error, { contextId });
     
     // Create standardized error result
     result = createErrorResult(error, runner, location, comb);

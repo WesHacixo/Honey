@@ -5,6 +5,7 @@
 import { join } from "https://deno.land/std@0.208.0/path/mod.ts";
 import { createLogger } from "./logging.ts";
 import { CombNotFoundError } from "./errors.ts";
+import { sanitizeForLogging } from "./security.ts";
 
 // Create a logger for this module
 const logger = createLogger("utils");
@@ -18,11 +19,12 @@ const logger = createLogger("utils");
  */
 export async function loadComb(comb: string): Promise<Record<string, unknown>> {
   try {
+    const sanitizedComb = sanitizeForLogging(comb);
     const combPath = join(Deno.cwd(), "combs", `${comb}.egg.ts`);
     const module = await import(`file://${combPath}`);
     return module;
   } catch (error) {
-    logger.error(`Error loading comb ${comb}:`, error);
+    logger.error(`Error loading comb ${sanitizeForLogging(comb)}:`, error);
     throw new CombNotFoundError(comb);
   }
 }
@@ -40,13 +42,13 @@ export async function executeComb(comb: string, params: Record<string, unknown> 
   const module = await loadComb(comb);
   
   if (typeof module.main !== "function") {
-    throw new Error(`Comb ${comb} does not export a main function`);
+    throw new Error(`Comb ${sanitizeForLogging(comb)} does not export a main function`);
   }
   
   try {
     return await module.main(params);
   } catch (error) {
-    logger.error(`Error executing comb ${comb}:`, error);
+    logger.error(`Error executing comb ${sanitizeForLogging(comb)}:`, error);
     throw error;
   }
 }
@@ -119,7 +121,7 @@ export function formatBytes(bytes: number): string {
  * @returns Number of bytes or null if invalid
  */
 export function parseMemory(memoryString: string): number | null {
-  const match = memoryString.match(/^(\\d+(?:\\.\\d+)?)\\s*([KMGT]?B)$/i);
+  const match = memoryString.match(/^(\d+(?:\.\d+)?)\s*([KMGT]?B)$/i);
   
   if (!match) {
     return null;
@@ -183,7 +185,7 @@ export async function isCommandAvailable(command: string): Promise<boolean> {
     
     return status.success;
   } catch (error) {
-    logger.debug(`Command ${command} not available:`, { error });
+    logger.debug(`Command ${sanitizeForLogging(command)} not available:`, { error });
     return false;
   }
 }
@@ -223,7 +225,10 @@ export async function runCommand(cmd: string, args: string[] = []): Promise<{
       code: status.code
     };
   } catch (error) {
-    logger.error(`Error running command ${cmd} ${args.join(" ")}:`, error);
+    // Sanitize command and args for logging
+    const sanitizedCmd = sanitizeForLogging(cmd);
+    const sanitizedArgs = args.map(arg => sanitizeForLogging(arg));
+    logger.error(`Error running command ${sanitizedCmd} ${sanitizedArgs.join(" ")}:`, error);
     
     return {
       success: false,
