@@ -3,23 +3,27 @@
  * Measures and compares performance metrics to determine optimal execution environment
  */
 
-import { runComb } from "../queen/deploy.ts";
-import { recordMetrics, summarizeResults } from "./metrics.ts";
-import { sanitizeCombName, sanitizeForLogging, validateCombName } from "../layers/security.ts";
-import { logError, ValidationError } from "../layers/errors.ts";
-import { createLogger, setLogLevel } from "../layers/logging.ts";
-import { formatDuration, listCombs, parseMemory } from "../layers/utils.ts";
-import config from "../layers/config.ts";
-import { parse } from "https://deno.land/std@0.208.0/flags/mod.ts";
+import { runComb } from '../queen/deploy.ts';
+import { recordMetrics, summarizeResults } from './metrics.ts';
+import {
+  sanitizeCombName,
+  sanitizeForLogging,
+  validateCombName,
+} from '../layers/security.ts';
+import { logError, ValidationError } from '../layers/errors.ts';
+import { createLogger, setLogLevel } from '../layers/logging.ts';
+import { formatDuration, listCombs, parseMemory } from '../layers/utils.ts';
+import config from '../layers/config.ts';
+import { parse } from 'https://deno.land/std@0.208.0/flags/mod.ts';
 
 // Create a logger for this module
-const logger = createLogger("benchmark");
+const logger = createLogger('benchmark');
 
 // Set log level from config
 setLogLevel(config.logLevel);
 
 // Default comb to benchmark
-const DEFAULT_COMB = "build-static-site";
+const DEFAULT_COMB = 'build-static-site';
 
 // Available runners (from config)
 const RUNNERS = Object.keys(config.runners).filter(
@@ -28,7 +32,8 @@ const RUNNERS = Object.keys(config.runners).filter(
 
 // Available locations (from config)
 const LOCATIONS = Object.keys(config.locations).filter(
-  (location) => config.locations[location as keyof typeof config.locations].enabled,
+  (location) =>
+    config.locations[location as keyof typeof config.locations].enabled,
 );
 
 /**
@@ -49,7 +54,9 @@ export async function runBenchmark(
   const sanitizedComb = sanitizeCombName(comb);
 
   logger.info(`\n🍯 HONEY BENCHMARK SWARM 🐝`);
-  logger.info(`Running benchmark for comb: ${sanitizeForLogging(sanitizedComb)}\n`);
+  logger.info(
+    `Running benchmark for comb: ${sanitizeForLogging(sanitizedComb)}\n`,
+  );
 
   // Filter runners if specified
   const runners = options.runner ? [options.runner as string] : RUNNERS;
@@ -66,7 +73,9 @@ export async function runBenchmark(
       const sanitizedRunner = sanitizeForLogging(runner);
       const sanitizedLocation = sanitizeForLogging(location);
 
-      logger.info(`\n[ RUNNING ] ${sanitizedRunner.toUpperCase()} @ ${sanitizedLocation}`);
+      logger.info(
+        `\n[ RUNNING ] ${sanitizedRunner.toUpperCase()} @ ${sanitizedLocation}`,
+      );
 
       try {
         // Run the comb
@@ -103,7 +112,10 @@ export async function runBenchmark(
           );
         }
       } catch (error) {
-        logger.error(`[ FAILED  ] ${sanitizedRunner}@${sanitizedLocation}`, error);
+        logger.error(
+          `[ FAILED  ] ${sanitizedRunner}@${sanitizedLocation}`,
+          error,
+        );
 
         // Add failure to results
         results.push({
@@ -129,13 +141,15 @@ export async function runBenchmark(
   const successfulResults = results.filter((r) => r.success);
   if (successfulResults.length > 0) {
     // Sort by execution time
-    successfulResults.sort((a, b) => (a.exec_time_ms as number) - (b.exec_time_ms as number));
+    successfulResults.sort((a, b) =>
+      (a.exec_time_ms as number) - (b.exec_time_ms as number)
+    );
     const fastest = successfulResults[0];
 
     // Sort by memory usage if available
     const memoryResults = successfulResults.filter((r) => {
       const mem = r.memory_usage as string;
-      return mem && mem !== "N/A" && parseMemory(mem) !== null;
+      return mem && mem !== 'N/A' && parseMemory(mem) !== null;
     });
 
     let mostMemoryEfficient = null;
@@ -150,25 +164,39 @@ export async function runBenchmark(
 
     // Sanitize for logging
     const sanitizedFastestRunner = sanitizeForLogging(fastest.runner as string);
-    const sanitizedFastestLocation = sanitizeForLogging(fastest.location as string);
+    const sanitizedFastestLocation = sanitizeForLogging(
+      fastest.location as string,
+    );
 
     logger.success(
       `\n🏆 RECOMMENDED ENVIRONMENT: ${sanitizedFastestRunner}@${sanitizedFastestLocation}`,
     );
-    logger.info(`   Boot Time: ${formatDuration(fastest.boot_time_ms as number)}`);
-    logger.info(`   Exec Time: ${formatDuration(fastest.exec_time_ms as number)}`);
+    logger.info(
+      `   Boot Time: ${formatDuration(fastest.boot_time_ms as number)}`,
+    );
+    logger.info(
+      `   Exec Time: ${formatDuration(fastest.exec_time_ms as number)}`,
+    );
     logger.info(`   Memory: ${fastest.memory_usage}`);
     logger.info(`   CPU: ${fastest.cpu_usage}`);
 
     if (mostMemoryEfficient && mostMemoryEfficient !== fastest) {
-      const sanitizedMemRunner = sanitizeForLogging(mostMemoryEfficient.runner as string);
-      const sanitizedMemLocation = sanitizeForLogging(mostMemoryEfficient.location as string);
+      const sanitizedMemRunner = sanitizeForLogging(
+        mostMemoryEfficient.runner as string,
+      );
+      const sanitizedMemLocation = sanitizeForLogging(
+        mostMemoryEfficient.location as string,
+      );
 
-      logger.info(`\n💾 MOST MEMORY-EFFICIENT: ${sanitizedMemRunner}@${sanitizedMemLocation}`);
+      logger.info(
+        `\n💾 MOST MEMORY-EFFICIENT: ${sanitizedMemRunner}@${sanitizedMemLocation}`,
+      );
       logger.info(`   Memory: ${mostMemoryEfficient.memory_usage}`);
     }
   } else {
-    logger.error(`\n❌ No successful executions. Please check the logs for errors.`);
+    logger.error(
+      `\n❌ No successful executions. Please check the logs for errors.`,
+    );
   }
 }
 
@@ -178,10 +206,10 @@ export async function runBenchmark(
 export function listAvailableCombs(): void {
   const combs = listCombs();
 
-  logger.info("\n🍯 Available Combs:");
+  logger.info('\n🍯 Available Combs:');
 
   if (combs.length === 0) {
-    logger.info("No combs found.");
+    logger.info('No combs found.');
     return;
   }
 
@@ -189,7 +217,9 @@ export function listAvailableCombs(): void {
     logger.info(`- ${sanitizeForLogging(comb)}`);
   }
 
-  logger.info("\nRun a benchmark with: deno run --allow-all bench/index.ts <comb-name>");
+  logger.info(
+    '\nRun a benchmark with: deno run --allow-all bench/index.ts <comb-name>',
+  );
 }
 
 // Run the benchmark if this file is executed directly
@@ -197,8 +227,8 @@ if (import.meta.main) {
   try {
     // Parse command line arguments
     const args = parse(Deno.args, {
-      string: ["runner", "location"],
-      boolean: ["list"],
+      string: ['runner', 'location'],
+      boolean: ['list'],
       default: { list: false },
     });
 
@@ -219,7 +249,7 @@ if (import.meta.main) {
     // Run the benchmark
     await runBenchmark(comb, options);
   } catch (error) {
-    logError(error, { component: "benchmark" });
+    logError(error, { component: 'benchmark' });
     Deno.exit(1);
   }
 }

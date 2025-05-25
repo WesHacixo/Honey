@@ -55,10 +55,15 @@ export class Assert {
     }
   }
 
-  static async throwsAsync(fn: () => Promise<void>, message?: string): Promise<void> {
+  static async throwsAsync(
+    fn: () => Promise<void>,
+    message?: string,
+  ): Promise<void> {
     try {
       await fn();
-      throw new Error(message || "Expected async function to throw, but it didn't");
+      throw new Error(
+        message || "Expected async function to throw, but it didn't",
+      );
     } catch (_error) {
       // Expected behavior
     }
@@ -78,7 +83,9 @@ export class Assert {
 
   static match(value: string, pattern: RegExp, message?: string): void {
     if (!pattern.test(value)) {
-      throw new Error(message || `Expected "${value}" to match pattern ${pattern}`);
+      throw new Error(
+        message || `Expected "${value}" to match pattern ${pattern}`,
+      );
     }
   }
 }
@@ -92,7 +99,10 @@ export class TestRunner {
   /**
    * Run a test function
    */
-  async runTest(name: string, testFn: () => Promise<void> | void): Promise<TestResult> {
+  async runTest(
+    name: string,
+    testFn: () => Promise<void> | void,
+  ): Promise<TestResult> {
     const startTime = performance.now();
 
     try {
@@ -153,14 +163,14 @@ export class TestRunner {
     let totalFailed = 0;
     let totalDuration = 0;
 
-    console.log("\n🧪 Test Results\n");
+    console.log('\n🧪 Test Results\n');
 
     for (const suite of this.suites.values()) {
       totalPassed += suite.passed;
       totalFailed += suite.failed;
       totalDuration += suite.duration;
 
-      const status = suite.failed === 0 ? "✅" : "❌";
+      const status = suite.failed === 0 ? '✅' : '❌';
       console.log(
         `${status} ${suite.name} (${suite.passed}/${suite.tests.length} passed, ${
           suite.duration.toFixed(2)
@@ -168,8 +178,10 @@ export class TestRunner {
       );
 
       for (const test of suite.tests) {
-        const testStatus = test.passed ? "  ✓" : "  ✗";
-        console.log(`${testStatus} ${test.name} (${test.duration.toFixed(2)}ms)`);
+        const testStatus = test.passed ? '  ✓' : '  ✗';
+        console.log(
+          `${testStatus} ${test.name} (${test.duration.toFixed(2)}ms)`,
+        );
 
         if (!test.passed && test.error) {
           console.log(`    Error: ${test.error}`);
@@ -203,14 +215,19 @@ export const testRunner = new TestRunner();
 /**
  * Helper function to define a test suite
  */
-export function describe(suiteName: string, tests: Record<string, () => Promise<void> | void>) {
+export function describe(
+  suiteName: string,
+  tests: Record<string, () => Promise<void> | void>,
+) {
   return testRunner.runSuite(suiteName, tests);
 }
 
 /**
  * Helper function for setup/teardown
  */
-export async function beforeEach(fn: () => Promise<void> | void): Promise<void> {
+export async function beforeEach(
+  fn: () => Promise<void> | void,
+): Promise<void> {
   await fn();
 }
 

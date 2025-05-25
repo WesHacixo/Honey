@@ -2,23 +2,95 @@
   "name": "honey",
   "version": "0.1.0",
   "description": "Benchmark system for evaluating different runtime environments",
+  "exports": "./mod.ts",
   "tasks": {
     "benchmark": "deno run --allow-run --allow-net --allow-env --allow-read bench/index.ts",
     "benchmark:docker": "deno run --allow-run --allow-net --allow-env --allow-read bench/index.ts --runner=docker",
     "benchmark:firecracker": "deno run --allow-run --allow-net --allow-env --allow-read bench/index.ts --runner=firecracker",
     "benchmark:wasm": "deno run --allow-run --allow-net --allow-env --allow-read bench/index.ts --runner=wasm",
-    "test": "deno test --allow-run --allow-net --allow-env --allow-read"
+    "test": "deno test --allow-run --allow-net --allow-env --allow-read",
+    "lint": "deno lint",
+    "lint:fix": "deno lint --fix",
+    "fmt": "deno fmt",
+    "fmt:check": "deno fmt --check",
+    "check": "deno check **/*.ts"
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"],
+      "include": [
+        "ban-untagged-todo",
+        "camelcase",
+        "eqeqeq",
+        "no-const-assign",
+        "no-debugger",
+        "no-eval",
+        "no-implicit-declare-namespace-export",
+        "no-sparse-arrays",
+        "no-sync-fn-in-async-fn",
+        "no-throw-literal",
+        "no-unreachable",
+        "no-unsafe-finally",
+        "no-unused-vars",
+        "no-var",
+        "prefer-const",
+        "prefer-namespace-keyword",
+        "require-await",
+        "single-var-declarator"
+      ],
+      "exclude": [
+        "no-explicit-any",
+        "no-console",
+        "explicit-function-return-type",
+        "no-non-null-assertion",
+        "no-top-level-await",
+        "no-undef",
+        "prefer-ascii",
+        "no-await-in-loop",
+        "no-control-regex"
+      ]
+    },
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
+    "exclude": [
+      "node_modules/",
+      "dist/",
+      "build/",
+      "coverage/",
+      "*.min.js",
+      "lint_output.txt"
+    ]
   },
   "fmt": {
-    "files": {
-      "include": ["**/*.ts"]
-    },
-    "options": {
-      "useTabs": false,
-      "lineWidth": 100,
-      "indentWidth": 2,
-      "singleQuote": false,
-      "proseWrap": "preserve"
-    }
+    "useTabs": false,
+    "lineWidth": 80,
+    "indentWidth": 2,
+    "singleQuote": true,
+    "semiColons": true,
+    "proseWrap": "preserve",
+    "include": [
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.js",
+      "**/*.jsx",
+      "**/*.json",
+      "**/*.md"
+    ],
+    "exclude": [
+      "node_modules/",
+      "dist/",
+      "build/",
+      "coverage/",
+      "*.min.js",
+      "lint_output.txt",
+      "CHANGELOG.md"
+    ]
+  },
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   }
 }

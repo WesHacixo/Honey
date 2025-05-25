@@ -10,7 +10,7 @@
  * @returns Execution result
  */
 export async function main(params?: Record<string, unknown>) {
-  console.log("Starting API server...");
+  console.log('Starting API server...');
 
   // Get port from params or use default
   const port = (params?.port as number) || 8080;
@@ -64,27 +64,27 @@ function handleRequest(request: Request): Response {
   const path = url.pathname;
 
   // Handle different routes
-  if (path === "/" || path === "/health") {
-    return new Response(JSON.stringify({ status: "ok" }), {
+  if (path === '/' || path === '/health') {
+    return new Response(JSON.stringify({ status: 'ok' }), {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
-  } else if (path === "/info") {
+  } else if (path === '/info') {
     return new Response(
       JSON.stringify({
-        name: "Honey API Server",
-        version: "1.0.0",
+        name: 'Honey API Server',
+        version: '1.0.0',
         timestamp: new Date().toISOString(),
       }),
       {
         status: 200,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       },
     );
   } else {
-    return new Response(JSON.stringify({ error: "Not found" }), {
+    return new Response(JSON.stringify({ error: 'Not found' }), {
       status: 404,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 }
@@ -95,7 +95,7 @@ function handleRequest(request: Request): Response {
  * @param server Server to stop
  */
 async function stopServer(server: Deno.HttpServer): Promise<void> {
-  console.log("Stopping server...");
+  console.log('Stopping server...');
   await server.shutdown();
 }
 

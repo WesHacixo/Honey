@@ -14,12 +14,12 @@ export function validateCombName(combName: string): boolean {
   if (!combName || combName.length === 0) {
     return false;
   }
-  
+
   // Check length limit (max 100 characters)
   if (combName.length > 100) {
     return false;
   }
-  
+
   // Only allow alphanumeric characters, hyphens, and underscores
   // Prevent path traversal and command injection
   const validNamePattern = /^[a-zA-Z0-9-_]+$/;
@@ -35,8 +35,8 @@ export function validateCombName(combName: string): boolean {
 export function sanitizeCombName(combName: string): string {
   // Replace any non-alphanumeric characters with underscores, then collapse consecutive underscores to max 2
   return combName
-    .replace(/[^a-zA-Z0-9-_]/g, "_")
-    .replace(/_{3,}/g, "__");
+    .replace(/[^a-zA-Z0-9-_]/g, '_')
+    .replace(/_{3,}/g, '__');
 }
 
 /**
@@ -47,7 +47,7 @@ export function sanitizeCombName(combName: string): string {
  */
 export function validateLocation(location: string): boolean {
   // Only allow specific location values
-  const validLocations = ["local", "cloud"];
+  const validLocations = ['local', 'cloud'];
   return validLocations.includes(location);
 }
 
@@ -59,7 +59,7 @@ export function validateLocation(location: string): boolean {
  */
 export function validateRunner(runner: string): boolean {
   // Only allow specific runner values
-  const validRunners = ["docker", "firecracker", "wasm"];
+  const validRunners = ['docker', 'firecracker', 'wasm'];
   return validRunners.includes(runner);
 }
 
@@ -71,7 +71,9 @@ export function validateRunner(runner: string): boolean {
  */
 export function validateContainerName(containerName: string): boolean {
   // Docker container names must match this pattern and be within length limits
-  if (!containerName || containerName.length === 0 || containerName.length > 100) {
+  if (
+    !containerName || containerName.length === 0 || containerName.length > 100
+  ) {
     return false;
   }
   const validNamePattern = /^[a-zA-Z0-9][a-zA-Z0-9_.-]*$/;
@@ -121,12 +123,12 @@ export function validatePort(port: number): boolean {
  */
 export function validateFilePath(path: string): boolean {
   // Prevent path traversal attacks and other dangerous patterns
-  return path.length > 0 && 
-         !path.includes("..") && 
-         !path.includes("~") && 
-         !path.startsWith("/") &&
-         !path.includes("\n") &&
-         !path.includes("\r");
+  return path.length > 0 &&
+    !path.includes('..') &&
+    !path.includes('~') &&
+    !path.startsWith('/') &&
+    !path.includes('\n') &&
+    !path.includes('\r');
 }
 
 /**
@@ -136,22 +138,22 @@ export function validateFilePath(path: string): boolean {
  * @returns Sanitized string
  */
 export function sanitizeForLogging(input: unknown): string {
-  if (typeof input !== "string") {
+  if (typeof input !== 'string') {
     // Convert non-string inputs to JSON string first
     const stringified = JSON.stringify(input);
     return stringified
-      .replace(/[\n\r\t\v\f]/g, " ") // Replace newlines, tabs, etc. with spaces
-      .replace(/[\x00-\x1F\x7F-\x9F]/g, " ") // Replace control characters and extended control chars
-      .replace(/[\u2028\u2029]/g, " ") // Replace line/paragraph separators
-      .replace(/[\\'"]/g, "\\$&"); // Escape quotes and backslashes
+      .replace(/[\n\r\t\v\f]/g, ' ') // Replace newlines, tabs, etc. with spaces
+      .replace(/[\x00-\x1F\x7F-\x9F]/g, ' ') // Replace control characters and extended control chars
+      .replace(/[\u2028\u2029]/g, ' ') // Replace line/paragraph separators
+      .replace(/[\\'"]/g, '\\$&'); // Escape quotes and backslashes
   }
 
   // Remove or replace control characters and other potentially dangerous characters
   return input
-    .replace(/[\n\r\t\v\f]/g, " ") // Replace newlines, tabs, etc. with spaces
-    .replace(/[\x00-\x1F\x7F-\x9F]/g, " ") // Replace control characters and extended control chars
-    .replace(/[\u2028\u2029]/g, " ") // Replace line/paragraph separators
-    .replace(/[\\'"]/g, "\\$&"); // Escape quotes and backslashes
+    .replace(/[\n\r\t\v\f]/g, ' ') // Replace newlines, tabs, etc. with spaces
+    .replace(/[\x00-\x1F\x7F-\x9F]/g, ' ') // Replace control characters and extended control chars
+    .replace(/[\u2028\u2029]/g, ' ') // Replace line/paragraph separators
+    .replace(/[\\'"]/g, '\\$&'); // Escape quotes and backslashes
 }
 
 /**
@@ -161,16 +163,16 @@ export function sanitizeForLogging(input: unknown): string {
  */
 export async function validateDockerEnvironment(): Promise<boolean> {
   try {
-    const process = new Deno.Command("docker", {
-      args: ["--version"],
-      stdout: "piped",
-      stderr: "piped",
+    const process = new Deno.Command('docker', {
+      args: ['--version'],
+      stdout: 'piped',
+      stderr: 'piped',
     });
     const result = await process.output();
     const output = new TextDecoder().decode(result.stdout);
 
     if (!result.success) {
-      console.error("Docker is not available");
+      console.error('Docker is not available');
       return false;
     }
 
@@ -187,7 +189,7 @@ export async function validateDockerEnvironment(): Promise<boolean> {
 
     return true;
   } catch (error) {
-    console.error("Error validating Docker environment:", error);
+    console.error('Error validating Docker environment:', error);
     return false;
   }
 }
@@ -202,31 +204,37 @@ export function validateCombParams(
   params: Record<string, unknown>,
 ): { valid: boolean; error?: string } {
   // Validate required parameters
-  if (!params.comb || typeof params.comb !== "string") {
-    return { valid: false, error: "Missing or invalid comb name" };
+  if (!params.comb || typeof params.comb !== 'string') {
+    return { valid: false, error: 'Missing or invalid comb name' };
   }
 
-  if (!params.runner || typeof params.runner !== "string") {
-    return { valid: false, error: "Missing or invalid runner" };
+  if (!params.runner || typeof params.runner !== 'string') {
+    return { valid: false, error: 'Missing or invalid runner' };
   }
 
-  if (!params.location || typeof params.location !== "string") {
-    return { valid: false, error: "Missing or invalid location" };
+  if (!params.location || typeof params.location !== 'string') {
+    return { valid: false, error: 'Missing or invalid location' };
   }
 
   // Validate comb name
   if (!validateCombName(params.comb as string)) {
-    return { valid: false, error: "Invalid comb name format" };
+    return { valid: false, error: 'Invalid comb name format' };
   }
 
   // Validate runner
   if (!validateRunner(params.runner as string)) {
-    return { valid: false, error: "Invalid runner. Must be one of: docker, firecracker, wasm" };
+    return {
+      valid: false,
+      error: 'Invalid runner. Must be one of: docker, firecracker, wasm',
+    };
   }
 
   // Validate location
   if (!validateLocation(params.location as string)) {
-    return { valid: false, error: "Invalid location. Must be one of: local, cloud" };
+    return {
+      valid: false,
+      error: 'Invalid location. Must be one of: local, cloud',
+    };
   }
 
   return { valid: true };

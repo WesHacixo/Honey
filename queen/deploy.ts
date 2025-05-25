@@ -3,16 +3,20 @@
  * Deploys worker bee into specified runtime and tracks execution
  */
 
-import * as Docker from "../runners/docker.ts";
-import * as Firecracker from "../runners/firecracker.ts";
-import * as Wasm from "../runners/wasm.ts";
-import { sanitizeForLogging, validateCombParams } from "../layers/security.ts";
-import { createErrorResult, ValidationError, withTimeout } from "../layers/errors.ts";
-import { createLogger } from "../layers/logging.ts";
-import config from "../layers/config.ts";
+import * as Docker from '../runners/docker.ts';
+import * as Firecracker from '../runners/firecracker.ts';
+import * as Wasm from '../runners/wasm.ts';
+import { sanitizeForLogging, validateCombParams } from '../layers/security.ts';
+import {
+  createErrorResult,
+  ValidationError,
+  withTimeout,
+} from '../layers/errors.ts';
+import { createLogger } from '../layers/logging.ts';
+import config from '../layers/config.ts';
 
 // Create a logger for this module
-const logger = createLogger("queen");
+const logger = createLogger('queen');
 
 /**
  * Interface for comb execution parameters
@@ -39,7 +43,7 @@ export async function runComb(
   // Validate parameters
   const validation = validateCombParams({ comb, runner, location });
   if (!validation.valid) {
-    throw new ValidationError(validation.error || "Invalid parameters");
+    throw new ValidationError(validation.error || 'Invalid parameters');
   }
 
   // Sanitize inputs for logging
@@ -55,17 +59,18 @@ export async function runComb(
   let result;
   try {
     // Run with timeout based on the runner
-    const timeoutMs = config.security.timeouts[runner as keyof typeof config.security.timeouts] ||
+    const timeoutMs = config.security
+      .timeouts[runner as keyof typeof config.security.timeouts] ||
       config.security.timeouts.default;
 
     result = await withTimeout(
       async () => {
         // Select the appropriate runner
-        if (runner === "docker") {
+        if (runner === 'docker') {
           return await Docker.run(comb, location);
-        } else if (runner === "firecracker") {
+        } else if (runner === 'firecracker') {
           return await Firecracker.run(comb, location);
-        } else if (runner === "wasm") {
+        } else if (runner === 'wasm') {
           return await Wasm.run(comb, location);
         } else {
           throw new ValidationError(`Unknown runner: ${sanitizedRunner}`);

@@ -2,13 +2,13 @@
  * Utility functions for Honey Benchmark Swarm
  */
 
-import { join } from "https://deno.land/std@0.208.0/path/mod.ts";
-import { createLogger } from "./logging.ts";
-import { CombNotFoundError } from "./errors.ts";
-import { sanitizeForLogging } from "./security.ts";
+import { join } from 'https://deno.land/std@0.208.0/path/mod.ts';
+import { createLogger } from './logging.ts';
+import { CombNotFoundError } from './errors.ts';
+import { sanitizeForLogging } from './security.ts';
 
 // Create a logger for this module
-const logger = createLogger("utils");
+const logger = createLogger('utils');
 
 /**
  * Load a comb module by name
@@ -20,7 +20,7 @@ const logger = createLogger("utils");
 export async function loadComb(comb: string): Promise<Record<string, unknown>> {
   try {
     const _sanitizedComb = sanitizeForLogging(comb);
-    const combPath = join(Deno.cwd(), "combs", `${comb}.egg.ts`);
+    const combPath = join(Deno.cwd(), 'combs', `${comb}.egg.ts`);
     const module = await import(`file://${combPath}`);
     return module;
   } catch (_error) {
@@ -44,8 +44,10 @@ export async function executeComb(
 ): Promise<Record<string, unknown>> {
   const module = await loadComb(comb);
 
-  if (typeof module.main !== "function") {
-    throw new Error(`Comb ${sanitizeForLogging(comb)} does not export a main function`);
+  if (typeof module.main !== 'function') {
+    throw new Error(
+      `Comb ${sanitizeForLogging(comb)} does not export a main function`,
+    );
   }
 
   try {
@@ -63,20 +65,20 @@ export async function executeComb(
  */
 export function listCombs(): string[] {
   try {
-    const combsDir = join(Deno.cwd(), "combs");
+    const combsDir = join(Deno.cwd(), 'combs');
     const entries = Deno.readDirSync(combsDir);
 
     const combs = [];
 
     for (const entry of entries) {
-      if (entry.isFile && entry.name.endsWith(".egg.ts")) {
-        combs.push(entry.name.replace(".egg.ts", ""));
+      if (entry.isFile && entry.name.endsWith('.egg.ts')) {
+        combs.push(entry.name.replace('.egg.ts', ''));
       }
     }
 
     return combs;
   } catch (_error) {
-    logger.error("Error listing combs:", error);
+    logger.error('Error listing combs:', error);
     return [];
   }
 }
@@ -89,7 +91,7 @@ export function listCombs(): string[] {
  */
 export function formatDuration(ms: number): string {
   if (ms < 0) {
-    return "0ms"; // Return 0ms for negative values
+    return '0ms'; // Return 0ms for negative values
   } else if (ms < 1000) {
     return `${Math.ceil(ms)}ms`; // Round up for sub-millisecond values
   } else if (ms < 60000) {
@@ -136,15 +138,15 @@ export function parseMemory(memoryString: string): number | null {
   const unit = match[2].toUpperCase();
 
   switch (unit) {
-    case "B":
+    case 'B':
       return value;
-    case "KB":
+    case 'KB':
       return value * 1024;
-    case "MB":
+    case 'MB':
       return value * 1024 * 1024;
-    case "GB":
+    case 'GB':
       return value * 1024 * 1024 * 1024;
-    case "TB":
+    case 'TB':
       return value * 1024 * 1024 * 1024 * 1024;
     default:
       return null;
@@ -179,16 +181,18 @@ export function deepClone<T>(obj: T): T {
  */
 export async function isCommandAvailable(command: string): Promise<boolean> {
   try {
-    const process = new Deno.Command("which", {
+    const process = new Deno.Command('which', {
       args: [command],
-      stdout: "piped",
-      stderr: "piped",
+      stdout: 'piped',
+      stderr: 'piped',
     });
     const result = await process.output();
 
     return result.success;
   } catch (error) {
-    logger.debug(`Command ${sanitizeForLogging(command)} not available:`, { error });
+    logger.debug(`Command ${sanitizeForLogging(command)} not available:`, {
+      error,
+    });
     return false;
   }
 }
@@ -209,8 +213,8 @@ export async function runCommand(cmd: string, args: string[] = []): Promise<{
   try {
     const process = new Deno.Command(cmd, {
       args: args,
-      stdout: "piped",
-      stderr: "piped",
+      stdout: 'piped',
+      stderr: 'piped',
     });
     const result = await process.output();
 
@@ -224,11 +228,14 @@ export async function runCommand(cmd: string, args: string[] = []): Promise<{
     // Sanitize command and args for logging
     const sanitizedCmd = sanitizeForLogging(cmd);
     const sanitizedArgs = args.map((arg) => sanitizeForLogging(arg));
-    logger.error(`Error running command ${sanitizedCmd} ${sanitizedArgs.join(" ")}:`, error);
+    logger.error(
+      `Error running command ${sanitizedCmd} ${sanitizedArgs.join(' ')}:`,
+      error,
+    );
 
     return {
       success: false,
-      stdout: "",
+      stdout: '',
       stderr: error.toString(),
       code: -1,
     };
@@ -301,13 +308,13 @@ export async function ensureDirectory(path: string): Promise<void> {
  * Formats memory in bytes to human readable format
  */
 export function formatMemory(bytes: number): string {
-  if (bytes <= 0) return "0B";
-  
-  const units = ["B", "KB", "MB", "GB", "TB"];
+  if (bytes <= 0) return '0B';
+
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
   const base = 1024;
   const index = Math.floor(Math.log(bytes) / Math.log(base));
   const value = bytes / Math.pow(base, index);
-  
+
   if (index === 0) return `${bytes}B`;
   return `${value.toFixed(2)}${units[index]}`;
 }
@@ -348,25 +355,25 @@ export function isValidUrl(url: string): boolean {
  */
 export function sanitizeFilename(filename: string): string {
   if (!filename) {
-    return "unnamed";
+    return 'unnamed';
   }
-  
+
   let sanitized = filename
     .replace(/[<>:"/\\|?*]/g, '_')
     .replace(/\s+/g, '_');
-  
+
   // Remove leading/trailing dots and underscores
   sanitized = sanitized.replace(/^[._]+|[._]+$/g, '');
-  
+
   // If empty after sanitization, return default name
   if (!sanitized) {
-    return "unnamed";
+    return 'unnamed';
   }
-  
+
   // Truncate to 255 characters (common filesystem limit)
   if (sanitized.length > 255) {
     sanitized = sanitized.substring(0, 255);
   }
-  
+
   return sanitized;
 }

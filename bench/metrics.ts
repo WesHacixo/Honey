@@ -3,13 +3,13 @@
  * Handles benchmark result storage and vector embeddings
  */
 
-import { createLogger } from "../layers/logging.ts";
-import { formatDuration } from "../layers/utils.ts";
-import { sanitizeForLogging } from "../layers/security.ts";
-import config from "../layers/config.ts";
+import { createLogger } from '../layers/logging.ts';
+import { formatDuration } from '../layers/utils.ts';
+import { sanitizeForLogging } from '../layers/security.ts';
+import config from '../layers/config.ts';
 
 // Create a logger for this module
-const logger = createLogger("metrics");
+const logger = createLogger('metrics');
 
 // Import database layers
 // These would be imported from the agent_data_layer in the final integration
@@ -24,17 +24,26 @@ function storeInMongoDB(_metrics: BenchmarkMetrics): string {
   return contextId;
 }
 
-function embedToPinecone(text: string, metadata: Record<string, string>): string {
+function embedToPinecone(
+  text: string,
+  metadata: Record<string, string>,
+): string {
   if (!config.metrics.pinecone.enabled) {
     logger.debug(
-      `Pinecone metrics disabled, skipping embedding for ${sanitizeForLogging(metadata.contextId)}`,
+      `Pinecone metrics disabled, skipping embedding for ${
+        sanitizeForLogging(metadata.contextId)
+      }`,
     );
     return crypto.randomUUID();
   }
 
   // Sanitize text for logging
   const sanitizedText = sanitizeForLogging(text);
-  logger.info(`Embedding benchmark summary in Pinecone: ${sanitizedText.substring(0, 50)}...`);
+  logger.info(
+    `Embedding benchmark summary in Pinecone: ${
+      sanitizedText.substring(0, 50)
+    }...`,
+  );
 
   try {
     // In a real implementation, this would connect to Pinecone and embed the text
@@ -54,7 +63,7 @@ function embedToPinecone(text: string, metadata: Record<string, string>): string
 export function recordMetrics(result: Record<string, unknown>): void {
   const record = {
     ...result,
-    agentId: "honey-benchmark",
+    agentId: 'honey-benchmark',
     timestamp: new Date().toISOString(),
   };
 
@@ -63,14 +72,17 @@ export function recordMetrics(result: Record<string, unknown>): void {
   const sanitizedRunner = sanitizeForLogging(record.runner as string);
   const sanitizedLocation = sanitizeForLogging(record.location as string);
 
-  logger.info(`Recording metrics for ${sanitizedComb} on ${sanitizedRunner}@${sanitizedLocation}`);
+  logger.info(
+    `Recording metrics for ${sanitizedComb} on ${sanitizedRunner}@${sanitizedLocation}`,
+  );
 
   try {
     // Store the full result in MongoDB
     storeInMongoDB(record);
 
     // Create a summary for vector embedding
-    const summary = `Benchmark: ${sanitizedComb} on ${sanitizedRunner}@${sanitizedLocation} - ` +
+    const summary =
+      `Benchmark: ${sanitizedComb} on ${sanitizedRunner}@${sanitizedLocation} - ` +
       `Boot: ${formatDuration(record.boot_time_ms as number)}, ` +
       `Exec: ${formatDuration(record.exec_time_ms as number)}, ` +
       `Memory: ${record.memory_usage}, CPU: ${record.cpu_usage}, ` +
@@ -98,7 +110,7 @@ export function recordMetrics(result: Record<string, unknown>): void {
  * @returns A formatted summary string
  */
 export function summarizeResults(results: Record<string, unknown>[]): string {
-  const summary = ["# Benchmark Results Summary\n"];
+  const summary = ['# Benchmark Results Summary\n'];
 
   // Group results by comb
   const combResults: Record<string, Record<string, unknown>[]> = {};
@@ -114,8 +126,12 @@ export function summarizeResults(results: Record<string, unknown>[]): string {
   // Generate summary for each comb
   for (const [comb, combData] of Object.entries(combResults)) {
     summary.push(`\n## ${sanitizeForLogging(comb)}\n`);
-    summary.push("| Runner | Location | Boot Time | Exec Time | Memory | CPU | Success |");
-    summary.push("|--------|----------|-----------|-----------|--------|-----|---------|");
+    summary.push(
+      '| Runner | Location | Boot Time | Exec Time | Memory | CPU | Success |',
+    );
+    summary.push(
+      '|--------|----------|-----------|-----------|--------|-----|---------|',
+    );
 
     // Sort by execution time
     combData.sort((a, b) => {
@@ -145,15 +161,17 @@ export function summarizeResults(results: Record<string, unknown>[]): string {
     if (successfulResults.length > 0) {
       const fastest = successfulResults[0];
       summary.push(
-        `\n**Fastest Runner:** ${sanitizeForLogging(fastest.runner as string)}@${
-          sanitizeForLogging(fastest.location as string)
-        } (${formatDuration(fastest.exec_time_ms as number)})`,
+        `\n**Fastest Runner:** ${
+          sanitizeForLogging(fastest.runner as string)
+        }@${sanitizeForLogging(fastest.location as string)} (${
+          formatDuration(fastest.exec_time_ms as number)
+        })`,
       );
 
       // Find the most memory-efficient runner (if we have actual numbers)
       const memoryResults = successfulResults.filter((r) => {
         const mem = r.memory_usage as string;
-        return mem && mem !== "N/A" && /^\d+(\.\d+)?[KMG]?B$/.test(mem);
+        return mem && mem !== 'N/A' && /^\d+(\.\d+)?[KMG]?B$/.test(mem);
       });
 
       if (memoryResults.length > 0) {
@@ -174,7 +192,7 @@ export function summarizeResults(results: Record<string, unknown>[]): string {
           const unitB = matchB[3];
 
           // Compare units first
-          const unitOrder = { "B": 0, "KB": 1, "MB": 2, "GB": 3 };
+          const unitOrder = { 'B': 0, 'KB': 1, 'MB': 2, 'GB': 3 };
           if (unitA !== unitB) {
             return (unitOrder[unitA as keyof typeof unitOrder] || 0) -
               (unitOrder[unitB as keyof typeof unitOrder] || 0);
@@ -186,7 +204,9 @@ export function summarizeResults(results: Record<string, unknown>[]): string {
 
         const mostMemoryEfficient = memoryResults[0];
         summary.push(
-          `**Most Memory-Efficient:** ${sanitizeForLogging(mostMemoryEfficient.runner as string)}@${
+          `**Most Memory-Efficient:** ${
+            sanitizeForLogging(mostMemoryEfficient.runner as string)
+          }@${
             sanitizeForLogging(mostMemoryEfficient.location as string)
           } (${mostMemoryEfficient.memory_usage})`,
         );
@@ -196,5 +216,5 @@ export function summarizeResults(results: Record<string, unknown>[]): string {
     }
   }
 
-  return summary.join("\n");
+  return summary.join('\n');
 }

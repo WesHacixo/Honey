@@ -195,14 +195,14 @@ Simulates training a simple machine learning model.
    export async function main(
      params: Record<string, unknown> = {},
    ): Promise<Record<string, unknown>> {
-     console.log("🚀 Running my first comb!");
+     console.log('🚀 Running my first comb!');
 
      // Simulate some work
      await new Promise((resolve) => setTimeout(resolve, 100));
 
      return {
        success: true,
-       message: "Hello from my first comb!",
+       message: 'Hello from my first comb!',
        processingTime: 100,
      };
    }

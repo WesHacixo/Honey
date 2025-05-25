@@ -232,14 +232,16 @@ make test          # Run tests
 
 ```typescript
 // combs/my-comb.egg.ts
-export async function main(params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
-  console.log("Running my comb...");
+export async function main(
+  params: Record<string, unknown> = {},
+): Promise<Record<string, unknown>> {
+  console.log('Running my comb...');
 
   // Your comb implementation here
 
   return {
     success: true,
-    output: "My comb completed successfully",
+    output: 'My comb completed successfully',
   };
 }
 

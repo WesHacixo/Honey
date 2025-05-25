@@ -3,24 +3,24 @@
  * Executes a comb in a WASM runtime and measures performance metrics
  */
 
-import { join } from "https://deno.land/std@0.208.0/path/mod.ts";
+import { join } from 'https://deno.land/std@0.208.0/path/mod.ts';
 import {
   sanitizeCombName,
   sanitizeForLogging,
   validateCombName,
   validateFilePath,
-} from "../layers/security.ts";
+} from '../layers/security.ts';
 import {
   RunnerExecutionError,
   RunnerNotAvailableError as _RunnerNotAvailableError,
   withRetry as _withRetry,
   withTimeout,
-} from "../layers/errors.ts";
-import { createLogger } from "../layers/logging.ts";
-import config from "../layers/config.ts";
+} from '../layers/errors.ts';
+import { createLogger } from '../layers/logging.ts';
+import config from '../layers/config.ts';
 
 // Create a logger for this module
-const logger = createLogger("wasm-runner");
+const logger = createLogger('wasm-runner');
 
 /**
  * Check if a WASM file exists for the given comb
@@ -30,11 +30,13 @@ const logger = createLogger("wasm-runner");
  */
 async function wasmFileExists(comb: string): Promise<boolean> {
   try {
-    const wasmPath = join(Deno.cwd(), "combs", `${comb}.wasm`);
+    const wasmPath = join(Deno.cwd(), 'combs', `${comb}.wasm`);
     await Deno.stat(wasmPath);
     return true;
   } catch (error) {
-    logger.debug(`WASM file for ${sanitizeForLogging(comb)} not found:`, { error });
+    logger.debug(`WASM file for ${sanitizeForLogging(comb)} not found:`, {
+      error,
+    });
     return false;
   }
 }
@@ -50,7 +52,7 @@ async function executeWasmModule(
   comb: string,
   params: Record<string, unknown> = {},
 ): Promise<Record<string, unknown>> {
-  const wasmPath = join(Deno.cwd(), "combs", `${comb}.wasm`);
+  const wasmPath = join(Deno.cwd(), 'combs', `${comb}.wasm`);
 
   // Validate the file path
   if (!validateFilePath(wasmPath)) {
@@ -93,9 +95,9 @@ async function executeWasmModule(
   // Get the main function
   const main = instance.exports.main as CallableFunction;
 
-  if (typeof main !== "function") {
+  if (typeof main !== 'function') {
     throw new RunnerExecutionError(
-      "wasm",
+      'wasm',
       `WASM module ${sanitizeForLogging(comb)} does not export a main function`,
     );
   }
@@ -108,12 +110,16 @@ async function executeWasmModule(
     // For now, we'll simulate a successful result
     return {
       success: true,
-      output: `Successfully executed ${sanitizeForLogging(comb)} in WASM runtime`,
+      output: `Successfully executed ${
+        sanitizeForLogging(comb)
+      } in WASM runtime`,
     };
   } catch (error) {
     throw new RunnerExecutionError(
-      "wasm",
-      `Error executing WASM module ${sanitizeForLogging(comb)}: ${error.message}`,
+      'wasm',
+      `Error executing WASM module ${
+        sanitizeForLogging(comb)
+      }: ${error.message}`,
     );
   }
 }
@@ -125,7 +131,10 @@ async function executeWasmModule(
  * @param location The location to run the comb (local or cloud)
  * @returns Performance metrics and execution results
  */
-export async function run(comb: string, location: string): Promise<Record<string, unknown>> {
+export async function run(
+  comb: string,
+  location: string,
+): Promise<Record<string, unknown>> {
   // Validate inputs
   if (!validateCombName(comb)) {
     throw new Error(`Invalid comb name: ${sanitizeForLogging(comb)}`);
@@ -146,7 +155,9 @@ export async function run(comb: string, location: string): Promise<Record<string
 
   if (!wasmExists) {
     logger.warn(
-      `WASM file for ${sanitizeForLogging(sanitizedComb)} not found, using simulation mode`,
+      `WASM file for ${
+        sanitizeForLogging(sanitizedComb)
+      } not found, using simulation mode`,
     );
     return simulateWasmRun(sanitizedComb, location);
   }
@@ -164,8 +175,8 @@ export async function run(comb: string, location: string): Promise<Record<string
         const bootTime = Date.now() - bootStart;
 
         // Simulate resource usage (typically very low for WASM)
-        const memoryUsage = "15MB";
-        const cpuUsage = "3%";
+        const memoryUsage = '15MB';
+        const cpuUsage = '3%';
 
         // Calculate total execution time
         const execTime = Date.now() - start;
@@ -176,12 +187,12 @@ export async function run(comb: string, location: string): Promise<Record<string
             `Successfully executed ${
               sanitizeForLogging(sanitizedComb)
             } in WASM runtime (${sanitizedLocation})`,
-          stderr: "",
+          stderr: '',
           boot_time_ms: bootTime,
           exec_time_ms: execTime,
           memory_usage: memoryUsage,
           cpu_usage: cpuUsage,
-          runner: "wasm",
+          runner: 'wasm',
           location,
         };
       },
@@ -189,7 +200,10 @@ export async function run(comb: string, location: string): Promise<Record<string
       `WASM execution of ${sanitizeForLogging(sanitizedComb)}`,
     );
   } catch (error) {
-    logger.error(`Error running ${sanitizeForLogging(sanitizedComb)} in WASM:`, error);
+    logger.error(
+      `Error running ${sanitizeForLogging(sanitizedComb)} in WASM:`,
+      error,
+    );
 
     // Fall back to simulation
     return simulateWasmRun(sanitizedComb, location);
@@ -204,7 +218,10 @@ export async function run(comb: string, location: string): Promise<Record<string
  * @param location The location to run the comb (local or cloud)
  * @returns Simulated performance metrics and execution results
  */
-async function simulateWasmRun(comb: string, location: string): Promise<Record<string, unknown>> {
+async function simulateWasmRun(
+  comb: string,
+  location: string,
+): Promise<Record<string, unknown>> {
   const start = Date.now();
   const sanitizedComb = sanitizeForLogging(comb);
   const sanitizedLocation = sanitizeForLogging(location);
@@ -223,11 +240,11 @@ async function simulateWasmRun(comb: string, location: string): Promise<Record<s
   const success = true;
   const stdout =
     `[SIMULATION] Successfully executed ${sanitizedComb} in simulated WASM runtime (${sanitizedLocation})`;
-  const stderr = "";
+  const stderr = '';
 
   // Simulate resource usage (typically lower than containers or VMs)
-  const memoryUsage = "15MB";
-  const cpuUsage = "3%";
+  const memoryUsage = '15MB';
+  const cpuUsage = '3%';
 
   // Calculate total execution time
   const execTime = Date.now() - start;
@@ -240,7 +257,7 @@ async function simulateWasmRun(comb: string, location: string): Promise<Record<s
     exec_time_ms: execTime,
     memory_usage: memoryUsage,
     cpu_usage: cpuUsage,
-    runner: "wasm",
+    runner: 'wasm',
     location,
     simulated: true,
   };

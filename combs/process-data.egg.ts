@@ -9,8 +9,10 @@
  * @param params Optional parameters for the data processing
  * @returns Processing result
  */
-export async function main(params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
-  console.log("Processing data...");
+export async function main(
+  params: Record<string, unknown> = {},
+): Promise<Record<string, unknown>> {
+  console.log('Processing data...');
 
   // Get dataset size from params or use default
   const datasetSize = params.datasetSize as number || 1000;
@@ -23,7 +25,7 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
 
   return {
     success: true,
-    output: "Data processing completed successfully",
+    output: 'Data processing completed successfully',
     stats: result,
     processed_items: datasetSize,
   };
@@ -44,7 +46,7 @@ function generateDataset(size: number): Array<Record<string, unknown>> {
     dataset.push({
       id: i,
       value: Math.random() * 100,
-      category: ["A", "B", "C"][Math.floor(Math.random() * 3)],
+      category: ['A', 'B', 'C'][Math.floor(Math.random() * 3)],
       timestamp: new Date().toISOString(),
     });
   }
@@ -61,7 +63,7 @@ function generateDataset(size: number): Array<Record<string, unknown>> {
 async function processDataset(
   dataset: Array<Record<string, unknown>>,
 ): Promise<Record<string, unknown>> {
-  console.log("Processing dataset...");
+  console.log('Processing dataset...');
 
   // Simulate processing steps
   await simulateProcessingSteps(dataset);
@@ -77,24 +79,26 @@ async function processDataset(
  *
  * @param dataset Array of data items to process
  */
-async function simulateProcessingSteps(_dataset: Array<Record<string, unknown>>): Promise<void> {
+async function simulateProcessingSteps(
+  _dataset: Array<Record<string, unknown>>,
+): Promise<void> {
   // Step 1: Data cleaning
-  console.log("Step 1: Cleaning data...");
+  console.log('Step 1: Cleaning data...');
   await new Promise((resolve) => setTimeout(resolve, 100));
 
   // Step 2: Feature extraction
-  console.log("Step 2: Extracting features...");
+  console.log('Step 2: Extracting features...');
   await new Promise((resolve) => setTimeout(resolve, 150));
 
   // Step 3: Normalization
-  console.log("Step 3: Normalizing data...");
+  console.log('Step 3: Normalizing data...');
   await new Promise((resolve) => setTimeout(resolve, 100));
 
   // Step 4: Aggregation
-  console.log("Step 4: Aggregating results...");
+  console.log('Step 4: Aggregating results...');
   await new Promise((resolve) => setTimeout(resolve, 200));
 
-  console.log("Processing completed!");
+  console.log('Processing completed!');
 }
 
 /**
@@ -103,7 +107,9 @@ async function simulateProcessingSteps(_dataset: Array<Record<string, unknown>>)
  * @param dataset Array of data items
  * @returns Statistical summary
  */
-function calculateStatistics(dataset: Array<Record<string, unknown>>): Record<string, unknown> {
+function calculateStatistics(
+  dataset: Array<Record<string, unknown>>,
+): Record<string, unknown> {
   // Calculate average value
   const sum = dataset.reduce((acc, item) => acc + (item.value as number), 0);
   const average = sum / dataset.length;
