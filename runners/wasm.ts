@@ -70,7 +70,66 @@ async function executeWasmModule(comb: string, params: Record<string, unknown> =
       consoleLog: (ptr: number, len: number) => {
         const buffer = new Uint8Array(memory.buffer, ptr, len);
         const text = new TextDecoder().decode(buffer);
-        console.log(text);
+const wasmBytes = await Deno.readFile(wasmPath);
+  
+  // Create a memory buffer for the WASM module
+  const memory = new WebAssembly.Memory({
+    initial: config.runners.wasm.memory.initial,
+    maximum: config.runners.wasm.memory.maximum
+  });
+  
+  // Create imports for the WASM module
+  const imports = {
+    env: {
+      memory,
+      // Add console logging functions
+      consoleLog: (ptr: number, len: number) => {
+        const buffer = new Uint8Array(memory.buffer, ptr, len);
+        const text = new TextDecoder().decode(buffer);
+        console.log(sanitizeLogMessage(text)); // Use sanitizeLogMessage function to prevent log injection
+      },
+      consoleError: (ptr: number, len: number) => {
+        const buffer = new Uint8Array(memory.buffer, ptr, len);
+        const text = new TextDecoder().decode(buffer);
+        console.error(sanitizeLogMessage(text)); // Use sanitizeLogMessage function to prevent log injection
+      },
+      // Add performance measurement
+      now: () => performance.now()
+    }
+  };
+  
+  // Compile and instantiate the WASM module
+  const module = await WebAssembly.compile(wasmBytes);
+  const instance = await WebAssembly.instantiate(module, imports);
+  
+  // Get the main function
+  const main = instance.exports.main as CallableFunction;
+  
+  if (typeof main !== "function") {
+    throw new RunnerExecutionError("wasm", `WASM module ${comb} does not export a main function`);
+  }
+  
+  // Execute the main function
+  try {
+    const result = await main(JSON.stringify(params));
+    
+    // In a real implementation, the result would be properly marshalled between WASM and JS
+    // For now, we'll simulate a successful result
+    return {
+      success: true,
+      output: `Successfully executed ${comb} in WASM runtime`
+    };
+  } catch (error) {
+    throw new RunnerExecutionError("wasm", `Error executing WASM module ${comb}: ${error.message}`);
+  }
+}
+
+// Helper function to sanitize log messages
+function sanitizeLogMessage(message: string): string {
+  // Remove or encode newline characters and other potentially harmful characters
+  return message.replace(/[
+\r\t]/g, '');
+}
       },
       consoleError: (ptr: number, len: number) => {
         const buffer = new Uint8Array(memory.buffer, ptr, len);
