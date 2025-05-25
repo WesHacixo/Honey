@@ -122,7 +122,7 @@ await describe("Error Handling Module", {
 
   "withRetry should succeed on first try": async () => {
     let attempts = 0;
-    const result = await withRetry(async () => {
+    const result = await withRetry(() => {
       attempts++;
       return "success";
     }, 3);
@@ -134,7 +134,7 @@ await describe("Error Handling Module", {
   "withRetry should retry on failure": async () => {
     let attempts = 0;
     const result = await withRetry(
-      async () => {
+      () => {
         attempts++;
         if (attempts < 3) {
           throw new Error("temporary failure");
@@ -153,7 +153,7 @@ await describe("Error Handling Module", {
     let attempts = 0;
     await Assert.throwsAsync(async () => {
       await withRetry(
-        async () => {
+        () => {
           attempts++;
           throw new Error("persistent failure");
         },

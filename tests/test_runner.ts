@@ -50,7 +50,7 @@ export class Assert {
     try {
       fn();
       throw new Error(message || "Expected function to throw, but it didn't");
-    } catch (error) {
+    } catch (_error) {
       // Expected behavior
     }
   }
@@ -59,7 +59,7 @@ export class Assert {
     try {
       await fn();
       throw new Error(message || "Expected async function to throw, but it didn't");
-    } catch (error) {
+    } catch (_error) {
       // Expected behavior
     }
   }
@@ -103,7 +103,7 @@ export class TestRunner {
         passed: true,
         duration,
       };
-    } catch (error) {
+    } catch (_error) {
       const duration = performance.now() - startTime;
       return {
         name,

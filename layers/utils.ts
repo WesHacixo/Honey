@@ -19,11 +19,11 @@ const logger = createLogger("utils");
  */
 export async function loadComb(comb: string): Promise<Record<string, unknown>> {
   try {
-    const sanitizedComb = sanitizeForLogging(comb);
+    const _sanitizedComb = sanitizeForLogging(comb);
     const combPath = join(Deno.cwd(), "combs", `${comb}.egg.ts`);
     const module = await import(`file://${combPath}`);
     return module;
-  } catch (error) {
+  } catch (_error) {
     logger.error(`Error loading comb ${sanitizeForLogging(comb)}:`, error);
     throw new CombNotFoundError(comb);
   }
@@ -50,7 +50,7 @@ export async function executeComb(
 
   try {
     return await module.main(params);
-  } catch (error) {
+  } catch (_error) {
     logger.error(`Error executing comb ${sanitizeForLogging(comb)}:`, error);
     throw error;
   }
@@ -61,7 +61,7 @@ export async function executeComb(
  *
  * @returns Array of comb names
  */
-export async function listCombs(): Promise<string[]> {
+export function listCombs(): string[] {
   try {
     const combsDir = join(Deno.cwd(), "combs");
     const entries = Deno.readDirSync(combsDir);
@@ -75,7 +75,7 @@ export async function listCombs(): Promise<string[]> {
     }
 
     return combs;
-  } catch (error) {
+  } catch (_error) {
     logger.error("Error listing combs:", error);
     return [];
   }
@@ -177,17 +177,18 @@ export function deepClone<T>(obj: T): T {
  */
 export async function isCommandAvailable(command: string): Promise<boolean> {
   try {
-    const process = Deno.run({
-      cmd: ["which", command],
+    const process = new Deno.Command("which", {
+      args: [command],
       stdout: "piped",
       stderr: "piped",
     });
+    const result = await process.output();
 
-    const status = await process.status();
+    return result.success;
     process.close();
 
     return status.success;
-  } catch (error) {
+  } catch (_error) {
     logger.debug(`Command ${sanitizeForLogging(command)} not available:`, { error });
     return false;
   }
@@ -207,27 +208,21 @@ export async function runCommand(cmd: string, args: string[] = []): Promise<{
   code: number;
 }> {
   try {
-    const process = Deno.run({
-      cmd: [cmd, ...args],
+    const process = new Deno.Command(cmd, {
+      args: args,
       stdout: "piped",
       stderr: "piped",
     });
-
-    const [status, stdout, stderr] = await Promise.all([
-      process.status(),
-      process.output(),
-      process.stderrOutput(),
-    ]);
-
-    process.close();
+    const result = await process.output();
 
     return {
-      success: status.success,
-      stdout: new TextDecoder().decode(stdout),
-      stderr: new TextDecoder().decode(stderr),
-      code: status.code,
+      success: result.success,
+      stdout: new TextDecoder().decode(result.stdout),
+      stderr: new TextDecoder().decode(result.stderr),
+      code: result.code,
     };
-  } catch (error) {
+    };
+  } catch (_error) {
     // Sanitize command and args for logging
     const sanitizedCmd = sanitizeForLogging(cmd);
     const sanitizedArgs = args.map((arg) => sanitizeForLogging(arg));
@@ -271,7 +266,7 @@ export async function fileExists(path: string): Promise<boolean> {
   try {
     const stat = await Deno.stat(path);
     return stat.isFile;
-  } catch (error) {
+  } catch (_error) {
     return false;
   }
 }
@@ -286,7 +281,7 @@ export async function directoryExists(path: string): Promise<boolean> {
   try {
     const stat = await Deno.stat(path);
     return stat.isDirectory;
-  } catch (error) {
+  } catch (_error) {
     return false;
   }
 }

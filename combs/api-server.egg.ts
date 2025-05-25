@@ -42,7 +42,7 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
  * @param port Port to listen on
  * @returns Server object
  */
-async function startServer(port: number): Promise<Deno.Listener> {
+function startServer(port: number): Deno.Listener {
   console.log(`Starting server on port ${port}...`);
 
   // Create a TCP server
@@ -59,7 +59,7 @@ async function startServer(port: number): Promise<Deno.Listener> {
  *
  * @param server Server listener
  */
-async function handleConnections(server: Deno.Listener): Promise<void> {
+function handleConnections(server: Deno.Listener): void {
   // Handle connections in the background
   (async () => {
     for await (const conn of server) {
@@ -123,7 +123,7 @@ async function handleConnection(conn: Deno.Conn): Promise<void> {
  *
  * @param server Server to stop
  */
-async function stopServer(server: Deno.Listener): Promise<void> {
+function stopServer(server: Deno.Listener): void {
   console.log("Stopping server...");
   server.close();
 }

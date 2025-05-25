@@ -71,7 +71,7 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
 
     // Perform some operations on the array
     const filtered = largeArray.filter((_, index) => index % 2 === 0);
-    const mapped = filtered.map((obj) => ({ ...obj, processed: true }));
+    const _mapped = filtered.map((obj) => ({ ...obj, processed: true }));
 
     // Force garbage collection opportunity
     largeArray.length = 0;

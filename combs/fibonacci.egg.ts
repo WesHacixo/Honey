@@ -5,7 +5,7 @@
 
 import { sanitizeForLogging } from "../layers/security.ts";
 
-export async function main(params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
+export function main(params: Record<string, unknown> = {}): Record<string, unknown> {
   const n = (params.n as number) || 35;
   const iterations = (params.iterations as number) || 1;
 

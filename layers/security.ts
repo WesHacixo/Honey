@@ -134,15 +134,15 @@ export function sanitizeForLogging(input: string): string {
  */
 export async function validateDockerEnvironment(): Promise<boolean> {
   try {
-    const process = Deno.run({
-      cmd: ["docker", "--version"],
+    const process = new Deno.Command("docker", {
+      args: ["--version"],
       stdout: "piped",
       stderr: "piped",
     });
+    const result = await process.output();
+    const output = new TextDecoder().decode(result.stdout);
 
-    const status = await process.status();
-    const output = new TextDecoder().decode(await process.output());
-    process.close();
+    if (!result.success) {
 
     if (!status.success) {
       console.error("Docker is not available");

@@ -14,7 +14,7 @@ const logger = createLogger("metrics");
 // Import database layers
 // These would be imported from the agent_data_layer in the final integration
 // For now, we'll use placeholder functions
-async function insertToMongo(contextId: string, summary: string, agentId: string): Promise<string> {
+function insertToMongo(contextId: string, _summary: string, _agentId: string): string {
   if (!config.metrics.mongodb.enabled) {
     logger.debug(`MongoDB metrics disabled, skipping record for ${sanitizeForLogging(contextId)}`);
     return contextId;
@@ -32,7 +32,7 @@ async function insertToMongo(contextId: string, summary: string, agentId: string
   }
 }
 
-async function embedToPinecone(text: string, metadata: Record<string, string>): Promise<string> {
+function embedToPinecone(text: string, metadata: Record<string, string>): string {
   if (!config.metrics.pinecone.enabled) {
     logger.debug(
       `Pinecone metrics disabled, skipping embedding for ${sanitizeForLogging(metadata.contextId)}`,
@@ -59,7 +59,7 @@ async function embedToPinecone(text: string, metadata: Record<string, string>): 
  *
  * @param result The benchmark result to record
  */
-export async function recordMetrics(result: Record<string, unknown>): Promise<void> {
+export function recordMetrics(result: Record<string, unknown>): void {
   const record = {
     ...result,
     agentId: "honey-benchmark",
@@ -75,7 +75,7 @@ export async function recordMetrics(result: Record<string, unknown>): Promise<vo
 
   try {
     // Store the full result in MongoDB
-    await insertToMongo(
+    insertToMongo(
       record.contextId as string || "unknown",
       JSON.stringify(record),
       record.agentId as string,
@@ -89,7 +89,7 @@ export async function recordMetrics(result: Record<string, unknown>): Promise<vo
       `Success: ${record.success}`;
 
     // Store the summary in Pinecone for semantic search
-    await embedToPinecone(summary, {
+    embedToPinecone(summary, {
       contextId: record.contextId as string,
       comb: sanitizedComb,
       runner: sanitizedRunner,

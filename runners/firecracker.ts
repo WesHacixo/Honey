@@ -3,7 +3,7 @@
  * Executes a comb in a Firecracker microVM and measures performance metrics
  */
 
-import { join } from "https://deno.land/std@0.208.0/path/mod.ts";
+import { join as _join } from "https://deno.land/std@0.208.0/path/mod.ts";
 import {
   sanitizeCombName,
   sanitizeForLogging,
@@ -12,8 +12,8 @@ import {
 } from "../layers/security.ts";
 import {
   RunnerExecutionError,
-  RunnerNotAvailableError,
-  withRetry,
+  RunnerNotAvailableError as _RunnerNotAvailableError,
+  withRetry as _withRetry,
   withTimeout,
 } from "../layers/errors.ts";
 import { createLogger } from "../layers/logging.ts";
@@ -29,17 +29,15 @@ const logger = createLogger("firecracker-runner");
  */
 async function isFirecrackerAvailable(): Promise<boolean> {
   try {
-    const process = Deno.run({
-      cmd: ["which", "firecracker"],
+    const process = new Deno.Command("which", {
+      args: ["firecracker"],
       stdout: "piped",
       stderr: "piped",
     });
+    const result = await process.output();
 
-    const status = await process.status();
-    process.close();
-
-    return status.success;
-  } catch (error) {
+    return result.success;
+  } catch (_error) {
     logger.error("Error checking for Firecracker:", error);
     return false;
   }
@@ -51,7 +49,7 @@ async function isFirecrackerAvailable(): Promise<boolean> {
  * @param comb The name of the comb to run
  * @returns The Firecracker configuration object
  */
-function createFirecrackerConfig(comb: string): Record<string, unknown> {
+function createFirecrackerConfig(_comb: string): Record<string, unknown> {
   // Validate kernel and rootfs paths
   if (!validateFilePath(config.runners.firecracker.kernelPath)) {
     throw new Error(
@@ -100,20 +98,21 @@ function createFirecrackerConfig(comb: string): Record<string, unknown> {
  * @returns Process object for the Firecracker instance
  */
 async function startFirecracker(config: Record<string, unknown>): Promise<Deno.Process> {
-  const socketPath = config.runners.firecracker.socketPath;
+  const _socketPath = config.runners.firecracker.socketPath;
 
   // Remove socket if it exists
   try {
     await Deno.remove(socketPath);
-  } catch (error) {
+  } catch (_error) {
     // Ignore if socket doesn't exist
     logger.debug(`Socket ${sanitizeForLogging(socketPath)} does not exist or cannot be removed`);
   }
 
-  // Start Firecracker process
-  const process = Deno.run({
-    cmd: ["firecracker", "--api-sock", socketPath],
+  const process = new Deno.Command("firecracker", {
+    args: ["--api-sock", socketPath],
     stdout: "piped",
+    stderr: "piped",
+  }).spawn();
     stderr: "piped",
   });
 
@@ -126,7 +125,7 @@ async function startFirecracker(config: Record<string, unknown>): Promise<Deno.P
       if (stat.isSocket) {
         break;
       }
-    } catch (error) {
+    } catch (_error) {
       // Socket doesn't exist yet
       logger.debug(
         `Waiting for socket ${sanitizeForLogging(socketPath)} to be created (attempt ${
@@ -160,7 +159,7 @@ async function startFirecracker(config: Record<string, unknown>): Promise<Deno.P
  * @param config The Firecracker configuration
  */
 async function configureFirecracker(config: Record<string, unknown>): Promise<void> {
-  const socketPath = config.runners.firecracker.socketPath;
+  const _socketPath = config.runners.firecracker.socketPath;
 
   // Helper function to make API requests to Firecracker
   async function firecrackerApiRequest(
@@ -289,7 +288,7 @@ export async function run(comb: string, location: string): Promise<Record<string
       config.runners.firecracker.timeout,
       `Firecracker execution of ${sanitizeForLogging(sanitizedComb)}`,
     );
-  } catch (error) {
+  } catch (_error) {
     logger.error(`Error running ${sanitizeForLogging(sanitizedComb)} in Firecracker:`, error);
 
     // Fall back to simulation

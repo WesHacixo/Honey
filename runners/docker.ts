@@ -127,9 +127,8 @@ async function runDockerContainer(
 
   try {
     // Run the container with security options and resource limits
-    const proc = Deno.run({
-      cmd: [
-        "docker",
+    const proc = new Deno.Command("docker", {
+      args: [
         "run",
         "--name",
         containerName,
@@ -158,9 +157,8 @@ async function runDockerContainer(
     const bootTime = Date.now() - bootStart;
 
     // Get container stats for resource usage
-    const statsProc = Deno.run({
-      cmd: [
-        "docker",
+    const statsProc = new Deno.Command("docker", {
+      args: [
         "stats",
         containerName,
         "--no-stream",
@@ -172,14 +170,13 @@ async function runDockerContainer(
     });
 
     // Wait for the main process to complete
-    const [status, stdout, stderr] = await Promise.all([
-      proc.status(),
+    // Wait for the main process to complete
+    const [procResult, statsResult] = await Promise.all([
       proc.output(),
-      proc.stderrOutput(),
+      statsProc.output(),
     ]);
-
     // Get the stats output
-    const statsOutput = await statsProc.output();
+    const statsText = new TextDecoder().decode(statsResult.stdout).trim();
     const statsText = new TextDecoder().decode(statsOutput).trim();
 
     // Parse memory and CPU usage
@@ -193,27 +190,24 @@ async function runDockerContainer(
     }
 
     // Clean up processes
-    proc.close();
-    statsProc.close();
-
     // Check if the execution was successful
-    if (!status.success) {
-      const stdoutText = new TextDecoder().decode(stdout);
-      const stderrText = new TextDecoder().decode(stderr);
+    if (!procResult.success) {
+      const stdoutText = new TextDecoder().decode(procResult.stdout);
+      const stderrText = new TextDecoder().decode(procResult.stderr);
 
       throw new RunnerExecutionError(
         "docker",
-        `Container execution failed with exit code ${status.code}`,
+        `Container execution failed with exit code ${procResult.code}`,
         sanitizeForLogging(stdoutText),
         sanitizeForLogging(stderrText),
-        status.code,
+        procResult.code,
       );
     }
 
     return {
       success: true,
-      stdout: sanitizeForLogging(new TextDecoder().decode(stdout)),
-      stderr: sanitizeForLogging(new TextDecoder().decode(stderr)),
+      stdout: sanitizeForLogging(new TextDecoder().decode(procResult.stdout)),
+      stderr: sanitizeForLogging(new TextDecoder().decode(procResult.stderr)),
       bootTime,
       memoryUsage,
       cpuUsage,
@@ -221,13 +215,11 @@ async function runDockerContainer(
   } catch (error) {
     // Clean up the container if it's still running
     try {
-      const cleanupProc = Deno.run({
-        cmd: ["docker", "rm", "-f", containerName],
-        stdout: "piped",
+      const cleanupProc = new Deno.Command("docker", {
+        args: ["rm", "-f", containerName],
         stderr: "piped",
       });
-      await cleanupProc.status();
-      cleanupProc.close();
+      await cleanupProc.output();
     } catch (cleanupError) {
       logger.debug(`Error cleaning up container ${sanitizeForLogging(containerName)}:`, {
         error: cleanupError,

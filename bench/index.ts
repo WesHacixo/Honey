@@ -79,7 +79,7 @@ export async function runBenchmark(
 
         // Record metrics
         if (config.metrics.enabled) {
-          await recordMetrics(result);
+          recordMetrics(result);
         }
 
         // Add to results
@@ -176,7 +176,7 @@ export async function runBenchmark(
  * List all available combs
  */
 export async function listAvailableCombs(): Promise<void> {
-  const combs = await listCombs();
+  const combs = listCombs();
 
   logger.info("\n🍯 Available Combs:");
 

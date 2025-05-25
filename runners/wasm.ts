@@ -12,8 +12,8 @@ import {
 } from "../layers/security.ts";
 import {
   RunnerExecutionError,
-  RunnerNotAvailableError,
-  withRetry,
+  RunnerNotAvailableError as _RunnerNotAvailableError,
+  withRetry as _withRetry,
   withTimeout,
 } from "../layers/errors.ts";
 import { createLogger } from "../layers/logging.ts";
@@ -102,7 +102,7 @@ async function executeWasmModule(
 
   // Execute the main function
   try {
-    const result = await main(JSON.stringify(params));
+    const _result = await main(JSON.stringify(params));
 
     // In a real implementation, the result would be properly marshalled between WASM and JS
     // For now, we'll simulate a successful result
