@@ -1,0 +1,56 @@
+/**
+ * Fibonacci calculation comb
+ * Tests CPU-intensive mathematical operations
+ */
+
+export async function main(params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
+  const n = (params.n as number) || 35;
+  const iterations = (params.iterations as number) || 1;
+  
+  console.log(`🔢 Calculating Fibonacci(${n}) ${iterations} time(s)`);
+  
+  const startTime = performance.now();
+  let results: number[] = [];
+  
+  // Calculate Fibonacci sequence
+  function fibonacci(num: number): number {
+    if (num <= 1) return num;
+    return fibonacci(num - 1) + fibonacci(num - 2);
+  }
+  
+  // Run multiple iterations
+  for (let i = 0; i < iterations; i++) {
+    const result = fibonacci(n);
+    results.push(result);
+  }
+  
+  const endTime = performance.now();
+  const totalTime = endTime - startTime;
+  const avgTime = totalTime / iterations;
+  
+  console.log(`✅ Completed ${iterations} iterations in ${totalTime.toFixed(2)}ms`);
+  console.log(`📊 Average time per calculation: ${avgTime.toFixed(2)}ms`);
+  console.log(`🎯 Fibonacci(${n}) = ${results[0]}`);
+  
+  return {
+    success: true,
+    input: n,
+    iterations,
+    results: results.slice(0, 5), // Only return first 5 results to avoid large output
+    totalTime,
+    averageTime: avgTime,
+    operationsPerSecond: 1000 / avgTime,
+    metrics: {
+      cpuIntensive: true,
+      memoryUsage: "low",
+      ioUsage: "none"
+    }
+  };
+}
+
+// Run the comb if executed directly
+if (import.meta.main) {
+  const result = await main({ n: 30, iterations: 3 });
+  console.log(JSON.stringify(result, null, 2));
+}
+
