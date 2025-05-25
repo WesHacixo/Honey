@@ -3,21 +3,29 @@
  */
 
 import { join } from "https://deno.land/std@0.208.0/path/mod.ts";
+import { createLogger } from "./logging.ts";
+import { CombNotFoundError } from "./errors.ts";
+import { sanitizeForLogging } from "./security.ts";
+
+// Create a logger for this module
+const logger = createLogger("utils");
 
 /**
  * Load a comb module by name
  * 
  * @param comb The name of the comb to load
  * @returns The loaded comb module or null if not found
+ * @throws CombNotFoundError if the comb is not found
  */
-export async function loadComb(comb: string): Promise<Record<string, unknown> | null> {
+export async function loadComb(comb: string): Promise<Record<string, unknown>> {
   try {
+    const sanitizedComb = sanitizeForLogging(comb);
     const combPath = join(Deno.cwd(), "combs", `${comb}.egg.ts`);
     const module = await import(`file://${combPath}`);
     return module;
   } catch (error) {
-    console.error(`Error loading comb ${comb}:`, error);
-    return null;
+    logger.error(`Error loading comb ${sanitizeForLogging(comb)}:`, error);
+    throw new CombNotFoundError(comb);
   }
 }
 
@@ -26,26 +34,22 @@ export async function loadComb(comb: string): Promise<Record<string, unknown> | 
  * 
  * @param comb The name of the comb to execute
  * @param params Parameters to pass to the comb
- * @returns The result of the comb execution or null if failed
+ * @returns The result of the comb execution
+ * @throws CombNotFoundError if the comb is not found
+ * @throws Error if the comb does not export a main function
  */
-export async function executeComb(comb: string, params: Record<string, unknown> = {}): Promise<Record<string, unknown> | null> {
+export async function executeComb(comb: string, params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
   const module = await loadComb(comb);
   
-  if (!module) {
-    console.error(`Comb ${comb} not found`);
-    return null;
-  }
-  
   if (typeof module.main !== "function") {
-    console.error(`Comb ${comb} does not export a main function`);
-    return null;
+    throw new Error(`Comb ${sanitizeForLogging(comb)} does not export a main function`);
   }
   
   try {
     return await module.main(params);
   } catch (error) {
-    console.error(`Error executing comb ${comb}:`, error);
-    return null;
+    logger.error(`Error executing comb ${sanitizeForLogging(comb)}:`, error);
+    throw error;
   }
 }
 
@@ -69,7 +73,7 @@ export async function listCombs(): Promise<string[]> {
     
     return combs;
   } catch (error) {
-    console.error("Error listing combs:", error);
+    logger.error("Error listing combs:", error);
     return [];
   }
 }
@@ -139,6 +143,148 @@ export function parseMemory(memoryString: string): number | null {
       return value * 1024 * 1024 * 1024 * 1024;
     default:
       return null;
+  }
+}
+
+/**
+ * Generate a random ID
+ * 
+ * @param length Length of the ID
+ * @returns Random ID string
+ */
+export function generateId(length = 8): string {
+  return Math.random().toString(36).substring(2, 2 + length);
+}
+
+/**
+ * Deep clone an object
+ * 
+ * @param obj Object to clone
+ * @returns Cloned object
+ */
+export function deepClone<T>(obj: T): T {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+/**
+ * Check if a command is available in the system
+ * 
+ * @param command Command to check
+ * @returns Promise resolving to true if the command is available, false otherwise
+ */
+export async function isCommandAvailable(command: string): Promise<boolean> {
+  try {
+    const process = Deno.run({
+      cmd: ["which", command],
+      stdout: "piped",
+      stderr: "piped"
+    });
+    
+    const status = await process.status();
+    process.close();
+    
+    return status.success;
+  } catch (error) {
+    logger.debug(`Command ${sanitizeForLogging(command)} not available:`, { error });
+    return false;
+  }
+}
+
+/**
+ * Run a shell command and capture its output
+ * 
+ * @param cmd Command to run
+ * @param args Command arguments
+ * @returns Promise resolving to the command output
+ */
+export async function runCommand(cmd: string, args: string[] = []): Promise<{
+  success: boolean;
+  stdout: string;
+  stderr: string;
+  code: number;
+}> {
+  try {
+    const process = Deno.run({
+      cmd: [cmd, ...args],
+      stdout: "piped",
+      stderr: "piped"
+    });
+    
+    const [status, stdout, stderr] = await Promise.all([
+      process.status(),
+      process.output(),
+      process.stderrOutput()
+    ]);
+    
+    process.close();
+    
+    return {
+      success: status.success,
+      stdout: new TextDecoder().decode(stdout),
+      stderr: new TextDecoder().decode(stderr),
+      code: status.code
+    };
+  } catch (error) {
+    // Sanitize command and args for logging
+    const sanitizedCmd = sanitizeForLogging(cmd);
+    const sanitizedArgs = args.map(arg => sanitizeForLogging(arg));
+    logger.error(`Error running command ${sanitizedCmd} ${sanitizedArgs.join(" ")}:`, error);
+    
+    return {
+      success: false,
+      stdout: "",
+      stderr: error.toString(),
+      code: -1
+    };
+  }
+}
+
+/**
+ * Sleep for a specified duration
+ * 
+ * @param ms Duration in milliseconds
+ * @returns Promise that resolves after the specified duration
+ */
+export function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Get the current timestamp in ISO format
+ * 
+ * @returns Current timestamp string
+ */
+export function getTimestamp(): string {
+  return new Date().toISOString();
+}
+
+/**
+ * Check if a file exists
+ * 
+ * @param path File path
+ * @returns Promise resolving to true if the file exists, false otherwise
+ */
+export async function fileExists(path: string): Promise<boolean> {
+  try {
+    const stat = await Deno.stat(path);
+    return stat.isFile;
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
+ * Check if a directory exists
+ * 
+ * @param path Directory path
+ * @returns Promise resolving to true if the directory exists, false otherwise
+ */
+export async function directoryExists(path: string): Promise<boolean> {
+  try {
+    const stat = await Deno.stat(path);
+    return stat.isDirectory;
+  } catch (error) {
+    return false;
   }
 }
 
