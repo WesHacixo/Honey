@@ -16,11 +16,11 @@ const logger = createLogger("metrics");
 // For now, we'll use placeholder functions
 function storeInMongoDB(_metrics: BenchmarkMetrics): string {
   const contextId = crypto.randomUUID();
-  
+
   // In a real implementation, this would connect to MongoDB and insert the record
   // For now, we'll just simulate success
   logger.info(`Storing metrics in MongoDB with context ID: ${contextId}`);
-  
+
   return contextId;
 }
 

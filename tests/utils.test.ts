@@ -96,7 +96,7 @@ await describe("Utilities Module", {
     Assert.equals(sanitizeFilename("normal-file.txt"), "normal-file.txt");
     Assert.equals(sanitizeFilename("file with spaces.txt"), "file_with_spaces.txt");
     Assert.equals(sanitizeFilename("file/with/slashes.txt"), "file_with_slashes.txt");
-    Assert.equals(sanitizeFilename('file<>:"|?*.txt'), "file_________.txt");
+    Assert.equals(sanitizeFilename('file<>:"|?*.txt'), "file_______.txt");
   },
 
   "sanitizeFilename should handle edge cases": () => {

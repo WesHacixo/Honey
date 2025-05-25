@@ -88,14 +88,16 @@ export function listCombs(): string[] {
  * @returns Formatted duration string
  */
 export function formatDuration(ms: number): string {
-  if (ms < 1000) {
-    return `${ms}ms`;
+  if (ms < 0) {
+    return "0ms"; // Return 0ms for negative values
+  } else if (ms < 1000) {
+    return `${Math.ceil(ms)}ms`; // Round up for sub-millisecond values
   } else if (ms < 60000) {
     return `${(ms / 1000).toFixed(2)}s`;
+  } else if (ms < 3600000) {
+    return `${(ms / 60000).toFixed(2)}m`;
   } else {
-    const minutes = Math.floor(ms / 60000);
-    const seconds = ((ms % 60000) / 1000).toFixed(2);
-    return `${minutes}m ${seconds}s`;
+    return `${(ms / 3600000).toFixed(2)}h`;
   }
 }
 
@@ -277,7 +279,94 @@ export async function directoryExists(path: string): Promise<boolean> {
   try {
     const stat = await Deno.stat(path);
     return stat.isDirectory;
-  } catch (_error) {
+  } catch {
     return false;
   }
+}
+
+/**
+ * Ensures a directory exists, creating it if necessary
+ */
+export async function ensureDirectory(path: string): Promise<void> {
+  try {
+    await Deno.mkdir(path, { recursive: true });
+  } catch (error) {
+    if (!(error instanceof Deno.errors.AlreadyExists)) {
+      throw error;
+    }
+  }
+}
+
+/**
+ * Formats memory in bytes to human readable format
+ */
+export function formatMemory(bytes: number): string {
+  if (bytes <= 0) return "0B";
+  
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  const base = 1024;
+  const index = Math.floor(Math.log(bytes) / Math.log(base));
+  const value = bytes / Math.pow(base, index);
+  
+  if (index === 0) return `${bytes}B`;
+  return `${value.toFixed(2)}${units[index]}`;
+}
+
+/**
+ * Generates a context ID (UUID v4)
+ */
+export function generateContextId(): string {
+  return crypto.randomUUID();
+}
+
+/**
+ * Gets file extension from a filename
+ */
+export function getFileExtension(filename: string): string {
+  const lastDot = filename.lastIndexOf('.');
+  if (lastDot === -1 || lastDot === 0) {
+    return '';
+  }
+  return filename.slice(lastDot); // Include the dot
+}
+
+/**
+ * Validates if a string is a valid URL
+ */
+export function isValidUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    // Only allow http and https protocols
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Sanitizes a filename by removing invalid characters
+ */
+export function sanitizeFilename(filename: string): string {
+  if (!filename) {
+    return "unnamed";
+  }
+  
+  let sanitized = filename
+    .replace(/[<>:"/\\|?*]/g, '_')
+    .replace(/\s+/g, '_');
+  
+  // Remove leading/trailing dots and underscores
+  sanitized = sanitized.replace(/^[._]+|[._]+$/g, '');
+  
+  // If empty after sanitization, return default name
+  if (!sanitized) {
+    return "unnamed";
+  }
+  
+  // Truncate to 255 characters (common filesystem limit)
+  if (sanitized.length > 255) {
+    sanitized = sanitized.substring(0, 255);
+  }
+  
+  return sanitized;
 }

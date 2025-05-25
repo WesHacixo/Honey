@@ -10,6 +10,16 @@
  * @returns True if the comb name is valid, false otherwise
  */
 export function validateCombName(combName: string): boolean {
+  // Check for empty string
+  if (!combName || combName.length === 0) {
+    return false;
+  }
+  
+  // Check length limit (max 100 characters)
+  if (combName.length > 100) {
+    return false;
+  }
+  
   // Only allow alphanumeric characters, hyphens, and underscores
   // Prevent path traversal and command injection
   const validNamePattern = /^[a-zA-Z0-9-_]+$/;
@@ -23,8 +33,10 @@ export function validateCombName(combName: string): boolean {
  * @returns Sanitized comb name
  */
 export function sanitizeCombName(combName: string): string {
-  // Replace any non-alphanumeric characters with underscores
-  return combName.replace(/[^a-zA-Z0-9-_]/g, "_");
+  // Replace any non-alphanumeric characters with underscores, then collapse consecutive underscores to max 2
+  return combName
+    .replace(/[^a-zA-Z0-9-_]/g, "_")
+    .replace(/_{3,}/g, "__");
 }
 
 /**
@@ -58,8 +70,11 @@ export function validateRunner(runner: string): boolean {
  * @returns True if the container name is valid, false otherwise
  */
 export function validateContainerName(containerName: string): boolean {
-  // Docker container names must match this pattern
-  const validNamePattern = /^[a-zA-Z0-9][a-zA-Z0-9_.-]+$/;
+  // Docker container names must match this pattern and be within length limits
+  if (!containerName || containerName.length === 0 || containerName.length > 100) {
+    return false;
+  }
+  const validNamePattern = /^[a-zA-Z0-9][a-zA-Z0-9_.-]*$/;
   return validNamePattern.test(containerName);
 }
 
@@ -94,8 +109,8 @@ export function escapeShellArg(arg: string): string {
  * @returns True if the port is valid, false otherwise
  */
 export function validatePort(port: number): boolean {
-  // Ports should be between 1024 and 65535 for non-root users
-  return Number.isInteger(port) && port >= 1024 && port <= 65535;
+  // Ports should be between 1 and 65535
+  return Number.isInteger(port) && port >= 1 && port <= 65535;
 }
 
 /**
@@ -105,8 +120,13 @@ export function validatePort(port: number): boolean {
  * @returns True if the path is valid, false otherwise
  */
 export function validateFilePath(path: string): boolean {
-  // Prevent path traversal attacks
-  return !path.includes("..") && !path.includes("~") && !path.startsWith("/");
+  // Prevent path traversal attacks and other dangerous patterns
+  return path.length > 0 && 
+         !path.includes("..") && 
+         !path.includes("~") && 
+         !path.startsWith("/") &&
+         !path.includes("\n") &&
+         !path.includes("\r");
 }
 
 /**
@@ -115,15 +135,22 @@ export function validateFilePath(path: string): boolean {
  * @param input The string to sanitize
  * @returns Sanitized string
  */
-export function sanitizeForLogging(input: string): string {
+export function sanitizeForLogging(input: unknown): string {
   if (typeof input !== "string") {
-    return String(input);
+    // Convert non-string inputs to JSON string first
+    const stringified = JSON.stringify(input);
+    return stringified
+      .replace(/[\n\r\t\v\f]/g, " ") // Replace newlines, tabs, etc. with spaces
+      .replace(/[\x00-\x1F\x7F-\x9F]/g, " ") // Replace control characters and extended control chars
+      .replace(/[\u2028\u2029]/g, " ") // Replace line/paragraph separators
+      .replace(/[\\'"]/g, "\\$&"); // Escape quotes and backslashes
   }
 
   // Remove or replace control characters and other potentially dangerous characters
   return input
     .replace(/[\n\r\t\v\f]/g, " ") // Replace newlines, tabs, etc. with spaces
-    .replace(/[^\x20-\x7E]/g, "") // Remove non-printable ASCII characters
+    .replace(/[\x00-\x1F\x7F-\x9F]/g, " ") // Replace control characters and extended control chars
+    .replace(/[\u2028\u2029]/g, " ") // Replace line/paragraph separators
     .replace(/[\\'"]/g, "\\$&"); // Escape quotes and backslashes
 }
 

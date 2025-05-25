@@ -120,7 +120,7 @@ function deepMerge<T extends Record<string, unknown>>(target: T, source: Partial
     Object.keys(source).forEach((key) => {
       const sourceValue = source[key as keyof typeof source];
       const targetValue = target[key as keyof typeof target];
-      
+
       if (isObject(sourceValue)) {
         if (!(key in target)) {
           Object.assign(output, { [key]: sourceValue });

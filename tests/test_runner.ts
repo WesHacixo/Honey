@@ -108,7 +108,7 @@ export class TestRunner {
       return {
         name,
         passed: false,
-        error: error.message,
+        error: _error.message,
         duration,
       };
     }
