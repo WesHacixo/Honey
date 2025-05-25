@@ -62,10 +62,10 @@ await describe("Utilities Module", {
   "generateContextId should generate valid UUIDs": () => {
     const id1 = generateContextId();
     const id2 = generateContextId();
-    
+
     // Should be different
     Assert.notEquals(id1, id2);
-    
+
     // Should match UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     Assert.match(id1, uuidRegex);
@@ -77,7 +77,7 @@ await describe("Utilities Module", {
     await sleep(50);
     const end = performance.now();
     const duration = end - start;
-    
+
     // Should be at least 50ms (with some tolerance for timing)
     Assert.true(duration >= 45);
   },
@@ -86,7 +86,7 @@ await describe("Utilities Module", {
     Assert.true(isValidUrl("https://example.com"));
     Assert.true(isValidUrl("http://localhost:3000"));
     Assert.true(isValidUrl("https://api.example.com/v1/endpoint"));
-    
+
     Assert.false(isValidUrl("not-a-url"));
     Assert.false(isValidUrl(""));
     Assert.false(isValidUrl("ftp://example.com")); // Only http/https allowed
@@ -116,7 +116,7 @@ await describe("Utilities Module", {
 
   "ensureDirectory should create directories": async () => {
     const testDir = "./test-temp-dir";
-    
+
     try {
       // Clean up if exists
       try {
@@ -124,17 +124,17 @@ await describe("Utilities Module", {
       } catch {
         // Ignore if doesn't exist
       }
-      
+
       // Should create directory
       await ensureDirectory(testDir);
-      
+
       // Should exist now
       const stat = await Deno.stat(testDir);
       Assert.true(stat.isDirectory);
-      
+
       // Should not throw if directory already exists
       await ensureDirectory(testDir);
-      
+
     } finally {
       // Clean up
       try {

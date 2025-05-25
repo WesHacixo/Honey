@@ -12,7 +12,7 @@ const logger = createLogger("utils");
 
 /**
  * Load a comb module by name
- * 
+ *
  * @param comb The name of the comb to load
  * @returns The loaded comb module or null if not found
  * @throws CombNotFoundError if the comb is not found
@@ -31,7 +31,7 @@ export async function loadComb(comb: string): Promise<Record<string, unknown>> {
 
 /**
  * Execute a comb's main function
- * 
+ *
  * @param comb The name of the comb to execute
  * @param params Parameters to pass to the comb
  * @returns The result of the comb execution
@@ -40,11 +40,11 @@ export async function loadComb(comb: string): Promise<Record<string, unknown>> {
  */
 export async function executeComb(comb: string, params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
   const module = await loadComb(comb);
-  
+
   if (typeof module.main !== "function") {
     throw new Error(`Comb ${sanitizeForLogging(comb)} does not export a main function`);
   }
-  
+
   try {
     return await module.main(params);
   } catch (error) {
@@ -55,22 +55,22 @@ export async function executeComb(comb: string, params: Record<string, unknown> 
 
 /**
  * List all available combs
- * 
+ *
  * @returns Array of comb names
  */
 export async function listCombs(): Promise<string[]> {
   try {
     const combsDir = join(Deno.cwd(), "combs");
     const entries = Deno.readDirSync(combsDir);
-    
+
     const combs = [];
-    
+
     for (const entry of entries) {
       if (entry.isFile && entry.name.endsWith(".egg.ts")) {
         combs.push(entry.name.replace(".egg.ts", ""));
       }
     }
-    
+
     return combs;
   } catch (error) {
     logger.error("Error listing combs:", error);
@@ -80,7 +80,7 @@ export async function listCombs(): Promise<string[]> {
 
 /**
  * Format a duration in milliseconds to a human-readable string
- * 
+ *
  * @param ms Duration in milliseconds
  * @returns Formatted duration string
  */
@@ -98,7 +98,7 @@ export function formatDuration(ms: number): string {
 
 /**
  * Format bytes to a human-readable string
- * 
+ *
  * @param bytes Number of bytes
  * @returns Formatted byte string
  */
@@ -116,20 +116,20 @@ export function formatBytes(bytes: number): string {
 
 /**
  * Parse memory string (e.g., "128MB") to bytes
- * 
+ *
  * @param memoryString Memory string to parse
  * @returns Number of bytes or null if invalid
  */
 export function parseMemory(memoryString: string): number | null {
   const match = memoryString.match(/^(\d+(?:\.\d+)?)\s*([KMGT]?B)$/i);
-  
+
   if (!match) {
     return null;
   }
-  
+
   const value = parseFloat(match[1]);
   const unit = match[2].toUpperCase();
-  
+
   switch (unit) {
     case "B":
       return value;
@@ -148,7 +148,7 @@ export function parseMemory(memoryString: string): number | null {
 
 /**
  * Generate a random ID
- * 
+ *
  * @param length Length of the ID
  * @returns Random ID string
  */
@@ -158,7 +158,7 @@ export function generateId(length = 8): string {
 
 /**
  * Deep clone an object
- * 
+ *
  * @param obj Object to clone
  * @returns Cloned object
  */
@@ -168,7 +168,7 @@ export function deepClone<T>(obj: T): T {
 
 /**
  * Check if a command is available in the system
- * 
+ *
  * @param command Command to check
  * @returns Promise resolving to true if the command is available, false otherwise
  */
@@ -179,10 +179,10 @@ export async function isCommandAvailable(command: string): Promise<boolean> {
       stdout: "piped",
       stderr: "piped"
     });
-    
+
     const status = await process.status();
     process.close();
-    
+
     return status.success;
   } catch (error) {
     logger.debug(`Command ${sanitizeForLogging(command)} not available:`, { error });
@@ -192,7 +192,7 @@ export async function isCommandAvailable(command: string): Promise<boolean> {
 
 /**
  * Run a shell command and capture its output
- * 
+ *
  * @param cmd Command to run
  * @param args Command arguments
  * @returns Promise resolving to the command output
@@ -209,15 +209,15 @@ export async function runCommand(cmd: string, args: string[] = []): Promise<{
       stdout: "piped",
       stderr: "piped"
     });
-    
+
     const [status, stdout, stderr] = await Promise.all([
       process.status(),
       process.output(),
       process.stderrOutput()
     ]);
-    
+
     process.close();
-    
+
     return {
       success: status.success,
       stdout: new TextDecoder().decode(stdout),
@@ -229,7 +229,7 @@ export async function runCommand(cmd: string, args: string[] = []): Promise<{
     const sanitizedCmd = sanitizeForLogging(cmd);
     const sanitizedArgs = args.map(arg => sanitizeForLogging(arg));
     logger.error(`Error running command ${sanitizedCmd} ${sanitizedArgs.join(" ")}:`, error);
-    
+
     return {
       success: false,
       stdout: "",
@@ -241,7 +241,7 @@ export async function runCommand(cmd: string, args: string[] = []): Promise<{
 
 /**
  * Sleep for a specified duration
- * 
+ *
  * @param ms Duration in milliseconds
  * @returns Promise that resolves after the specified duration
  */
@@ -251,7 +251,7 @@ export function sleep(ms: number): Promise<void> {
 
 /**
  * Get the current timestamp in ISO format
- * 
+ *
  * @returns Current timestamp string
  */
 export function getTimestamp(): string {
@@ -260,7 +260,7 @@ export function getTimestamp(): string {
 
 /**
  * Check if a file exists
- * 
+ *
  * @param path File path
  * @returns Promise resolving to true if the file exists, false otherwise
  */
@@ -275,7 +275,7 @@ export async function fileExists(path: string): Promise<boolean> {
 
 /**
  * Check if a directory exists
- * 
+ *
  * @param path Directory path
  * @returns Promise resolving to true if the directory exists, false otherwise
  */

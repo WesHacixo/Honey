@@ -73,7 +73,7 @@ await describe("Error Handling Module", {
   "createErrorResult should create standardized error object": () => {
     const error = new ValidationError("test error");
     const result = createErrorResult(error, "docker", "local", "test-comb");
-    
+
     Assert.equals(result.success, false);
     Assert.equals(result.error, "Validation error: test error");
     Assert.equals(result.error_type, "ValidationError");
@@ -89,7 +89,7 @@ await describe("Error Handling Module", {
   "createErrorResult should handle RunnerExecutionError details": () => {
     const error = new RunnerExecutionError("docker", "failed", "out", "err", 2);
     const result = createErrorResult(error, "docker", "local", "test-comb");
-    
+
     Assert.equals(result.stdout, "out");
     Assert.equals(result.stderr, "err");
     Assert.equals(result.exit_code, 2);
@@ -126,7 +126,7 @@ await describe("Error Handling Module", {
       attempts++;
       return "success";
     }, 3);
-    
+
     Assert.equals(result, "success");
     Assert.equals(attempts, 1);
   },
@@ -140,7 +140,7 @@ await describe("Error Handling Module", {
       }
       return "success";
     }, 3, 1); // 1ms initial delay for fast testing
-    
+
     Assert.equals(result, "success");
     Assert.equals(attempts, 3);
   },
@@ -153,7 +153,7 @@ await describe("Error Handling Module", {
         throw new Error("persistent failure");
       }, 2, 1); // 1ms initial delay for fast testing
     });
-    
+
     Assert.equals(attempts, 3); // Initial attempt + 2 retries
   }
 });

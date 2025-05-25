@@ -94,7 +94,7 @@ export class TestRunner {
    */
   async runTest(name: string, testFn: () => Promise<void> | void): Promise<TestResult> {
     const startTime = performance.now();
-    
+
     try {
       await testFn();
       const duration = performance.now() - startTime;
@@ -163,7 +163,7 @@ export class TestRunner {
       for (const test of suite.tests) {
         const testStatus = test.passed ? "  ✓" : "  ✗";
         console.log(`${testStatus} ${test.name} (${test.duration.toFixed(2)}ms)`);
-        
+
         if (!test.passed && test.error) {
           console.log(`    Error: ${test.error}`);
         }
@@ -172,7 +172,7 @@ export class TestRunner {
     }
 
     console.log(`📊 Summary: ${totalPassed} passed, ${totalFailed} failed (${totalDuration.toFixed(2)}ms total)`);
-    
+
     if (totalFailed > 0) {
       Deno.exit(1);
     }

@@ -10,7 +10,7 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
   const fileCount = (params.fileCount as number) || 100;
   const fileSize = (params.fileSize as number) || 1024; // bytes
   const testDir = (params.testDir as string) || "./temp-io-test";
-  
+
   // Input validation for security and performance
   if (fileCount < 1 || fileCount > 10000) {
     throw new Error("File count must be between 1 and 10,000");
@@ -21,66 +21,66 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
   if (!testDir || testDir.includes("..") || testDir.includes("/etc") || testDir.includes("/usr")) {
     throw new Error("Invalid test directory path");
   }
-  
+
   console.log(`📁 File I/O test: ${sanitizeForLogging(fileCount)} files, ${sanitizeForLogging(fileSize)} bytes each`);
-  
+
   const startTime = performance.now();
   let filesCreated = 0;
   let filesRead = 0;
   let totalBytesWritten = 0;
   let totalBytesRead = 0;
-  
+
   try {
     // Ensure test directory exists
     await ensureDirectory(testDir);
-    
+
     // Generate test data
     const testData = "x".repeat(fileSize);
-    
+
     // Phase 1: Write files
     console.log("📝 Writing files...");
     const writeStartTime = performance.now();
-    
+
     for (let i = 0; i < fileCount; i++) {
       const filename = `${testDir}/test-file-${i}.txt`;
       await Deno.writeTextFile(filename, testData);
       filesCreated++;
       totalBytesWritten += fileSize;
     }
-    
+
     const writeEndTime = performance.now();
     const writeTime = writeEndTime - writeStartTime;
-    
+
     // Phase 2: Read files
     console.log("📖 Reading files...");
     const readStartTime = performance.now();
-    
+
     for (let i = 0; i < fileCount; i++) {
       const filename = `${testDir}/test-file-${i}.txt`;
       const content = await Deno.readTextFile(filename);
-      
+
       if (content.length !== fileSize) {
         throw new Error(`File ${filename} has incorrect size: ${content.length} vs ${fileSize}`);
       }
-      
+
       filesRead++;
       totalBytesRead += content.length;
     }
-    
+
     const readEndTime = performance.now();
     const readTime = readEndTime - readStartTime;
-    
+
     // Phase 3: Cleanup
     console.log("🗑️ Cleaning up...");
     await Deno.remove(testDir, { recursive: true });
-    
+
     const endTime = performance.now();
     const totalTime = endTime - startTime;
-    
+
     console.log(`✅ Completed I/O test in ${sanitizeForLogging(totalTime.toFixed(2))}ms`);
     console.log(`📊 Write: ${sanitizeForLogging(writeTime.toFixed(2))}ms, Read: ${sanitizeForLogging(readTime.toFixed(2))}ms`);
     console.log(`💾 Total data: ${sanitizeForLogging((totalBytesWritten / 1024).toFixed(2))}KB written, ${sanitizeForLogging((totalBytesRead / 1024).toFixed(2))}KB read`);
-    
+
     return {
       success: true,
       fileCount,
@@ -105,7 +105,7 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
         diskSpace: totalBytesWritten
       }
     };
-    
+
   } catch (error) {
     // Cleanup on error
     try {
@@ -113,7 +113,7 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
     } catch {
       // Ignore cleanup errors
     }
-    
+
     return {
       success: false,
       error: error.message,

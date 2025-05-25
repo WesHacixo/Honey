@@ -5,7 +5,7 @@
 
 /**
  * Validate a comb name to prevent path traversal and command injection
- * 
+ *
  * @param combName The comb name to validate
  * @returns True if the comb name is valid, false otherwise
  */
@@ -18,7 +18,7 @@ export function validateCombName(combName: string): boolean {
 
 /**
  * Sanitize a comb name for safe use in file paths and commands
- * 
+ *
  * @param combName The comb name to sanitize
  * @returns Sanitized comb name
  */
@@ -29,7 +29,7 @@ export function sanitizeCombName(combName: string): string {
 
 /**
  * Validate a location string
- * 
+ *
  * @param location The location to validate
  * @returns True if the location is valid, false otherwise
  */
@@ -41,7 +41,7 @@ export function validateLocation(location: string): boolean {
 
 /**
  * Validate a runner string
- * 
+ *
  * @param runner The runner to validate
  * @returns True if the runner is valid, false otherwise
  */
@@ -53,7 +53,7 @@ export function validateRunner(runner: string): boolean {
 
 /**
  * Validate Docker container name to prevent command injection
- * 
+ *
  * @param containerName The container name to validate
  * @returns True if the container name is valid, false otherwise
  */
@@ -65,7 +65,7 @@ export function validateContainerName(containerName: string): boolean {
 
 /**
  * Generate a secure container name for Docker
- * 
+ *
  * @param comb The comb name
  * @returns A secure container name
  */
@@ -78,7 +78,7 @@ export function generateSecureContainerName(comb: string): string {
 
 /**
  * Escape shell arguments to prevent command injection
- * 
+ *
  * @param arg The argument to escape
  * @returns Escaped argument
  */
@@ -89,7 +89,7 @@ export function escapeShellArg(arg: string): string {
 
 /**
  * Validate port number for security
- * 
+ *
  * @param port The port number to validate
  * @returns True if the port is valid, false otherwise
  */
@@ -100,7 +100,7 @@ export function validatePort(port: number): boolean {
 
 /**
  * Validate file path to prevent path traversal
- * 
+ *
  * @param path The file path to validate
  * @returns True if the path is valid, false otherwise
  */
@@ -111,7 +111,7 @@ export function validateFilePath(path: string): boolean {
 
 /**
  * Sanitize a string for safe logging
- * 
+ *
  * @param input The string to sanitize
  * @returns Sanitized string
  */
@@ -119,7 +119,7 @@ export function sanitizeForLogging(input: string): string {
   if (typeof input !== 'string') {
     return String(input);
   }
-  
+
   // Remove or replace control characters and other potentially dangerous characters
   return input
     .replace(/[\n\r\t\v\f]/g, ' ') // Replace newlines, tabs, etc. with spaces
@@ -129,7 +129,7 @@ export function sanitizeForLogging(input: string): string {
 
 /**
  * Check if Docker is available and validate its version
- * 
+ *
  * @returns Promise resolving to true if Docker is available and valid, false otherwise
  */
 export async function validateDockerEnvironment(): Promise<boolean> {
@@ -139,16 +139,16 @@ export async function validateDockerEnvironment(): Promise<boolean> {
       stdout: "piped",
       stderr: "piped"
     });
-    
+
     const status = await process.status();
     const output = new TextDecoder().decode(await process.output());
     process.close();
-    
+
     if (!status.success) {
       console.error("Docker is not available");
       return false;
     }
-    
+
     // Validate Docker version (example: require version 20.0.0 or higher)
     const versionMatch = output.match(/Docker version (\d+)\.(\d+)\.(\d+)/);
     if (versionMatch) {
@@ -157,7 +157,7 @@ export async function validateDockerEnvironment(): Promise<boolean> {
         console.warn(`Docker version ${major}.x.x may not be fully supported. Version 20.0.0 or higher is recommended.`);
       }
     }
-    
+
     return true;
   } catch (error) {
     console.error("Error validating Docker environment:", error);
@@ -167,7 +167,7 @@ export async function validateDockerEnvironment(): Promise<boolean> {
 
 /**
  * Validate parameters for a comb execution
- * 
+ *
  * @param params The parameters to validate
  * @returns Object with validation result and error message if any
  */
@@ -176,30 +176,30 @@ export function validateCombParams(params: Record<string, unknown>): { valid: bo
   if (!params.comb || typeof params.comb !== 'string') {
     return { valid: false, error: 'Missing or invalid comb name' };
   }
-  
+
   if (!params.runner || typeof params.runner !== 'string') {
     return { valid: false, error: 'Missing or invalid runner' };
   }
-  
+
   if (!params.location || typeof params.location !== 'string') {
     return { valid: false, error: 'Missing or invalid location' };
   }
-  
+
   // Validate comb name
   if (!validateCombName(params.comb as string)) {
     return { valid: false, error: 'Invalid comb name format' };
   }
-  
+
   // Validate runner
   if (!validateRunner(params.runner as string)) {
     return { valid: false, error: 'Invalid runner. Must be one of: docker, firecracker, wasm' };
   }
-  
+
   // Validate location
   if (!validateLocation(params.location as string)) {
     return { valid: false, error: 'Invalid location. Must be one of: local, cloud' };
   }
-  
+
   return { valid: true };
 }
 

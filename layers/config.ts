@@ -10,10 +10,10 @@ const defaultConfig = {
   // General settings
   appName: "Honey Benchmark Swarm",
   version: "1.0.0",
-  
+
   // Logging
   logLevel: LogLevel.INFO,
-  
+
   // Runners
   runners: {
     docker: {
@@ -49,7 +49,7 @@ const defaultConfig = {
       }
     }
   },
-  
+
   // Locations
   locations: {
     local: {
@@ -60,7 +60,7 @@ const defaultConfig = {
       endpoint: "https://api.example.com/honey"
     }
   },
-  
+
   // Metrics
   metrics: {
     enabled: true,
@@ -76,7 +76,7 @@ const defaultConfig = {
       index: "honey-benchmarks"
     }
   },
-  
+
   // Security
   security: {
     validateInputs: true,
@@ -115,7 +115,7 @@ const currentEnv = Deno.env.get("HONEY_ENV") || "development";
 // Deep merge function for configurations
 function deepMerge<T>(target: T, source: Partial<T>): T {
   const output = { ...target };
-  
+
   if (isObject(target) && isObject(source)) {
     Object.keys(source).forEach(key => {
       if (isObject(source[key as keyof typeof source])) {
@@ -132,7 +132,7 @@ function deepMerge<T>(target: T, source: Partial<T>): T {
       }
     });
   }
-  
+
   return output;
 }
 
@@ -144,49 +144,49 @@ function isObject(item: any): boolean {
 // Load environment variables
 function loadEnvVars(config: typeof defaultConfig): typeof defaultConfig {
   const newConfig = { ...config };
-  
+
   // Docker settings
   if (Deno.env.get("HONEY_DOCKER_ENABLED") !== undefined) {
     newConfig.runners.docker.enabled = Deno.env.get("HONEY_DOCKER_ENABLED") === "true";
   }
-  
+
   if (Deno.env.get("HONEY_DOCKER_TIMEOUT")) {
     newConfig.runners.docker.timeout = parseInt(Deno.env.get("HONEY_DOCKER_TIMEOUT") || "60000", 10);
   }
-  
+
   if (Deno.env.get("HONEY_DOCKER_IMAGE")) {
     newConfig.runners.docker.image = Deno.env.get("HONEY_DOCKER_IMAGE") || "denoland/deno:alpine";
   }
-  
+
   // Firecracker settings
   if (Deno.env.get("HONEY_FIRECRACKER_ENABLED") !== undefined) {
     newConfig.runners.firecracker.enabled = Deno.env.get("HONEY_FIRECRACKER_ENABLED") === "true";
   }
-  
+
   if (Deno.env.get("HONEY_FIRECRACKER_SOCKET_PATH")) {
     newConfig.runners.firecracker.socketPath = Deno.env.get("HONEY_FIRECRACKER_SOCKET_PATH") || "/tmp/firecracker.socket";
   }
-  
+
   // WASM settings
   if (Deno.env.get("HONEY_WASM_ENABLED") !== undefined) {
     newConfig.runners.wasm.enabled = Deno.env.get("HONEY_WASM_ENABLED") === "true";
   }
-  
+
   // Metrics settings
   if (Deno.env.get("HONEY_METRICS_ENABLED") !== undefined) {
     newConfig.metrics.enabled = Deno.env.get("HONEY_METRICS_ENABLED") === "true";
   }
-  
+
   if (Deno.env.get("HONEY_MONGODB_URI")) {
     newConfig.metrics.mongodb.uri = Deno.env.get("HONEY_MONGODB_URI") || "mongodb://localhost:27017";
     newConfig.metrics.mongodb.enabled = true;
   }
-  
+
   if (Deno.env.get("HONEY_PINECONE_API_KEY")) {
     newConfig.metrics.pinecone.apiKey = Deno.env.get("HONEY_PINECONE_API_KEY") || "";
     newConfig.metrics.pinecone.enabled = true;
   }
-  
+
   // Log level
   if (Deno.env.get("HONEY_LOG_LEVEL")) {
     const logLevelStr = Deno.env.get("HONEY_LOG_LEVEL") || "INFO";
@@ -208,7 +208,7 @@ function loadEnvVars(config: typeof defaultConfig): typeof defaultConfig {
         break;
     }
   }
-  
+
   return newConfig;
 }
 

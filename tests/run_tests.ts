@@ -22,7 +22,7 @@ const runIntegration = args.integration || args.all;
 
 if (runUnit) {
   console.log("📋 Running unit tests...\n");
-  
+
   // Import unit test files
   await import("./security.test.ts");
   await import("./errors.test.ts");
@@ -32,7 +32,7 @@ if (runUnit) {
 if (runIntegration) {
   console.log("🔗 Running integration tests...\n");
   console.log("⚠️  Integration tests require Docker to be running\n");
-  
+
   try {
     // Check if Docker is available
     const dockerCheck = new Deno.Command("docker", {
@@ -40,9 +40,9 @@ if (runIntegration) {
       stdout: "null",
       stderr: "null"
     });
-    
+
     const { success } = await dockerCheck.output();
-    
+
     if (success) {
       await import("./integration.test.ts");
     } else {

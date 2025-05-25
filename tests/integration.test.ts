@@ -15,14 +15,14 @@ await describe("Integration Tests", {
       location: "local",
       params: {}
     });
-    
+
     Assert.true(typeof result === "object");
     Assert.true("success" in result);
     Assert.true("comb" in result);
     Assert.true("runner" in result);
     Assert.true("location" in result);
     Assert.true("contextId" in result);
-    
+
     // Should have timing information
     Assert.true("boot_time_ms" in result);
     Assert.true("exec_time_ms" in result);
@@ -37,10 +37,10 @@ await describe("Integration Tests", {
       location: "local",
       params: { n: 10, iterations: 1 }
     });
-    
+
     Assert.true(typeof result === "object");
     Assert.true("success" in result);
-    
+
     // If successful, should have performance metrics
     if (result.success) {
       Assert.true(result.exec_time_ms as number > 0);
@@ -54,10 +54,10 @@ await describe("Integration Tests", {
       location: "local",
       params: { arraySize: 1000, iterations: 2 }
     });
-    
+
     Assert.true(typeof result === "object");
     Assert.true("success" in result);
-    
+
     // Memory stress test should complete
     if (result.success) {
       Assert.true(result.exec_time_ms as number > 0);
@@ -71,10 +71,10 @@ await describe("Integration Tests", {
       location: "local",
       params: { fileCount: 10, fileSize: 100 }
     });
-    
+
     Assert.true(typeof result === "object");
     Assert.true("success" in result);
-    
+
     // File I/O test should complete
     if (result.success) {
       Assert.true(result.exec_time_ms as number > 0);
@@ -88,7 +88,7 @@ await describe("Integration Tests", {
       location: "local",
       params: {}
     });
-    
+
     Assert.true(typeof result === "object");
     Assert.equals(result.success, false);
     Assert.true("error" in result);
@@ -102,7 +102,7 @@ await describe("Integration Tests", {
       location: "local",
       params: {}
     });
-    
+
     Assert.true(typeof result === "object");
     Assert.equals(result.success, false);
     Assert.true("error" in result);
@@ -112,29 +112,29 @@ await describe("Integration Tests", {
     // This is a longer test, so we'll use a simple comb
     let completed = false;
     let error: Error | null = null;
-    
+
     try {
       // Capture console output to avoid cluttering test output
       const originalLog = console.log;
       const originalError = console.error;
       console.log = () => {}; // Suppress output
       console.error = () => {}; // Suppress output
-      
+
       await runBenchmark("fibonacci", {
         runner: "docker",
         location: "local",
         params: { n: 5, iterations: 1 }
       });
-      
+
       // Restore console
       console.log = originalLog;
       console.error = originalError;
-      
+
       completed = true;
     } catch (e) {
       error = e;
     }
-    
+
     if (error) {
       // If there's an error, it should be a known type
       Assert.true(error instanceof Error);
