@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+  honey:
+    build: .
+    container_name: honey-benchmark
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # For Docker-in-Docker
+      - ./results:/app/results # Mount results directory
+    environment:
+      - HONEY_LOG_LEVEL=INFO
+      - HONEY_METRICS_ENABLED=true
+    networks:
+      - honey-network
+    depends_on:
+      - mongodb
+      - redis
+
+  mongodb:
+    image: mongo:7.0
+    container_name: honey-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=honey
+      - MONGO_INITDB_ROOT_PASSWORD=benchmark123
+    networks:
+      - honey-network
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: honey-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - honey-network
+
+  # Optional: Web dashboard (placeholder for future implementation)
+  dashboard:
+    image: nginx:alpine
+    container_name: honey-dashboard
+    ports:
+      - "8080:80"
+    volumes:
+      - ./dashboard:/usr/share/nginx/html
+    networks:
+      - honey-network
+    depends_on:
+      - honey
+
+volumes:
+  mongodb_data:
+  redis_data:
+
+networks:
+  honey-network:
+    driver: bridge

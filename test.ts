@@ -15,9 +15,9 @@ Deno.test("Docker runner", async () => {
   if (Deno.env.get("CI") === "true") {
     return;
   }
-  
+
   const result = await Docker.run("test-comb", "local");
-  
+
   assertExists(result);
   assertEquals(typeof result.boot_time_ms, "number");
   assertEquals(typeof result.exec_time_ms, "number");
@@ -28,7 +28,7 @@ Deno.test("Docker runner", async () => {
 // Test the Firecracker runner stub
 Deno.test("Firecracker runner stub", async () => {
   const result = await Firecracker.run("test-comb", "local");
-  
+
   assertExists(result);
   assertEquals(typeof result.boot_time_ms, "number");
   assertEquals(typeof result.exec_time_ms, "number");
@@ -39,7 +39,7 @@ Deno.test("Firecracker runner stub", async () => {
 // Test the WASM runner stub
 Deno.test("WASM runner stub", async () => {
   const result = await Wasm.run("test-comb", "local");
-  
+
   assertExists(result);
   assertEquals(typeof result.boot_time_ms, "number");
   assertEquals(typeof result.exec_time_ms, "number");
@@ -53,9 +53,9 @@ Deno.test("Queen deploy module", async () => {
   const result = await runComb({
     comb: "test-comb",
     runner: "wasm",
-    location: "local"
+    location: "local",
   });
-  
+
   assertExists(result);
   assertEquals(result.comb, "test-comb");
   assertEquals(result.runner, "wasm");
@@ -75,7 +75,7 @@ Deno.test("Metrics summarizer", () => {
       exec_time_ms: 1000,
       memory_usage: "100MB",
       cpu_usage: "10%",
-      success: true
+      success: true,
     },
     {
       comb: "test-comb",
@@ -85,16 +85,15 @@ Deno.test("Metrics summarizer", () => {
       exec_time_ms: 500,
       memory_usage: "20MB",
       cpu_usage: "5%",
-      success: true
-    }
+      success: true,
+    },
   ];
-  
+
   const summary = summarizeResults(results);
-  
+
   assertExists(summary);
   assertEquals(typeof summary, "string");
   assertEquals(summary.includes("test-comb"), true);
   assertEquals(summary.includes("docker"), true);
   assertEquals(summary.includes("wasm"), true);
 });
-

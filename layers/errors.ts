@@ -85,7 +85,7 @@ export class ResourceNotAvailableError extends HoneyError {
 
 /**
  * Create a standardized error result object
- * 
+ *
  * @param error The error that occurred
  * @param runner The runner that was being used
  * @param location The location that was being used
@@ -96,19 +96,19 @@ export function createErrorResult(
   error: Error,
   runner: string,
   location: string,
-  comb: string
+  comb: string,
 ): Record<string, unknown> {
   // Extract stdout and stderr if available
   let stdout = "";
   let stderr = "";
   let exitCode = -1;
-  
+
   if (error instanceof RunnerExecutionError) {
     stdout = error.stdout;
     stderr = error.stderr;
     exitCode = error.exitCode;
   }
-  
+
   return {
     success: false,
     error: error.message,
@@ -122,13 +122,13 @@ export function createErrorResult(
     location,
     comb,
     contextId: crypto.randomUUID(),
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 }
 
 /**
  * Execute a function with a timeout
- * 
+ *
  * @param fn The function to execute
  * @param timeoutMs The timeout in milliseconds
  * @param operationName Name of the operation for error reporting
@@ -138,16 +138,16 @@ export function createErrorResult(
 export async function withTimeout<T>(
   fn: () => Promise<T>,
   timeoutMs: number,
-  operationName: string
+  operationName: string,
 ): Promise<T> {
   let timeoutId: number | undefined;
-  
+
   const timeoutPromise = new Promise<never>((_, reject) => {
     timeoutId = setTimeout(() => {
       reject(new TimeoutError(operationName, timeoutMs));
     }, timeoutMs);
   });
-  
+
   try {
     const result = await Promise.race([fn(), timeoutPromise]);
     return result as T;
@@ -160,7 +160,7 @@ export async function withTimeout<T>(
 
 /**
  * Retry a function with exponential backoff
- * 
+ *
  * @param fn The function to retry
  * @param maxRetries Maximum number of retries
  * @param initialDelayMs Initial delay in milliseconds
@@ -171,36 +171,36 @@ export async function withRetry<T>(
   fn: () => Promise<T>,
   maxRetries = 3,
   initialDelayMs = 100,
-  maxDelayMs = 5000
+  maxDelayMs = 5000,
 ): Promise<T> {
   let lastError: Error | undefined;
   let delay = initialDelayMs;
-  
+
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       return await fn();
     } catch (error) {
       lastError = error;
-      
+
       if (attempt === maxRetries) {
         break;
       }
-      
+
       // Wait before retrying
-      await new Promise(resolve => setTimeout(resolve, delay));
-      
+      await new Promise((resolve) => setTimeout(resolve, delay));
+
       // Exponential backoff with jitter
       delay = Math.min(delay * 2, maxDelayMs);
       delay = delay * (0.5 + Math.random() * 0.5); // Add jitter
     }
   }
-  
+
   throw lastError;
 }
 
 /**
  * Log an error with consistent formatting
- * 
+ *
  * @param error The error to log
  * @param context Additional context information
  */
@@ -210,10 +210,9 @@ export function logError(error: Error, context: Record<string, unknown> = {}): v
     error_type: error.name,
     message: error.message,
     stack: error.stack,
-    ...context
+    ...context,
   };
-  
+
   console.error(`[ERROR] ${errorInfo.error_type}: ${errorInfo.message}`);
   console.error(JSON.stringify(errorInfo, null, 2));
 }
-

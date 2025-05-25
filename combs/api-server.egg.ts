@@ -4,125 +4,99 @@
  */
 
 /**
- * Main entry point for the comb
- * 
+ * Main function for the API server comb
+ *
  * @param params Optional parameters for the API server
- * @returns Server result
+ * @returns Execution result
  */
-export async function main(params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
+export async function main(params?: Record<string, unknown>) {
   console.log("Starting API server...");
-  
+
   // Get port from params or use default
-  const port = params.port as number || 8000;
-  
-  // Get duration from params or use default (5 seconds)
-  const duration = params.duration as number || 5000;
-  
+  const port = (params?.port as number) || 8080;
+  const duration = (params?.duration as number) || 5000;
+
+  console.log(`Server will run on port ${port} for ${duration}ms`);
+
   // Start the server
-  const server = await startServer(port);
-  
+  const server = startServer(port);
+
   // Simulate server running for a duration
-  console.log(`Server running on port ${port}...`);
-  await new Promise(resolve => setTimeout(resolve, duration));
-  
+  console.log(`Server running for ${duration}ms...`);
+  await new Promise((resolve) => setTimeout(resolve, duration));
+
   // Stop the server
   await stopServer(server);
-  
+
   return {
     success: true,
     output: `API server ran successfully for ${duration}ms on port ${port}`,
-    port,
-    duration
   };
 }
 
 /**
  * Start a simple API server
- * 
+ *
  * @param port Port to listen on
- * @returns Server object
+ * @returns Server instance
  */
-async function startServer(port: number): Promise<Deno.Listener> {
+function startServer(port: number): Deno.HttpServer {
   console.log(`Starting server on port ${port}...`);
-  
-  // Create a TCP server
-  const server = Deno.listen({ port });
-  
-  // Handle connections
-  handleConnections(server);
-  
+
+  // Create HTTP server using new Deno.serve API
+  const server = Deno.serve({
+    port,
+    handler: handleRequest,
+  });
+
   return server;
 }
 
 /**
- * Handle incoming connections
- * 
- * @param server Server listener
+ * Handle HTTP requests
+ *
+ * @param request HTTP request
+ * @returns HTTP response
  */
-async function handleConnections(server: Deno.Listener): Promise<void> {
-  // Handle connections in the background
-  (async () => {
-    for await (const conn of server) {
-      handleConnection(conn);
-    }
-  })();
-}
+function handleRequest(request: Request): Response {
+  // Get the request URL
+  const url = new URL(request.url);
+  const path = url.pathname;
 
-/**
- * Handle a single connection
- * 
- * @param conn TCP connection
- */
-async function handleConnection(conn: Deno.Conn): Promise<void> {
-  // Handle HTTP connection
-  const httpConn = Deno.serveHttp(conn);
-  
-  try {
-    for await (const requestEvent of httpConn) {
-      // Get the request URL
-      const url = new URL(requestEvent.request.url);
-      const path = url.pathname;
-      
-      // Handle different routes
-      let response;
-      
-      if (path === "/" || path === "/health") {
-        response = new Response(JSON.stringify({ status: "ok" }), {
-          status: 200,
-          headers: { "Content-Type": "application/json" }
-        });
-      } else if (path === "/info") {
-        response = new Response(JSON.stringify({
-          name: "Honey API Server",
-          version: "1.0.0",
-          timestamp: new Date().toISOString()
-        }), {
-          status: 200,
-          headers: { "Content-Type": "application/json" }
-        });
-      } else {
-        response = new Response(JSON.stringify({ error: "Not found" }), {
-          status: 404,
-          headers: { "Content-Type": "application/json" }
-        });
-      }
-      
-      // Send the response
-      await requestEvent.respondWith(response);
-    }
-  } catch (error) {
-    console.error("Error handling connection:", error);
+  // Handle different routes
+  if (path === "/" || path === "/health") {
+    return new Response(JSON.stringify({ status: "ok" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } else if (path === "/info") {
+    return new Response(
+      JSON.stringify({
+        name: "Honey API Server",
+        version: "1.0.0",
+        timestamp: new Date().toISOString(),
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
+  } else {
+    return new Response(JSON.stringify({ error: "Not found" }), {
+      status: 404,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
 
 /**
  * Stop the server
- * 
+ *
  * @param server Server to stop
  */
-async function stopServer(server: Deno.Listener): Promise<void> {
+async function stopServer(server: Deno.HttpServer): Promise<void> {
   console.log("Stopping server...");
-  server.close();
+  await server.shutdown();
 }
 
 // Run the comb if executed directly
@@ -130,4 +104,3 @@ if (import.meta.main) {
   const result = await main();
   console.log(JSON.stringify(result, null, 2));
 }
-

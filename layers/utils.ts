@@ -12,18 +12,18 @@ const logger = createLogger("utils");
 
 /**
  * Load a comb module by name
- * 
+ *
  * @param comb The name of the comb to load
  * @returns The loaded comb module or null if not found
  * @throws CombNotFoundError if the comb is not found
  */
 export async function loadComb(comb: string): Promise<Record<string, unknown>> {
   try {
-    const sanitizedComb = sanitizeForLogging(comb);
+    const _sanitizedComb = sanitizeForLogging(comb);
     const combPath = join(Deno.cwd(), "combs", `${comb}.egg.ts`);
     const module = await import(`file://${combPath}`);
     return module;
-  } catch (error) {
+  } catch (_error) {
     logger.error(`Error loading comb ${sanitizeForLogging(comb)}:`, error);
     throw new CombNotFoundError(comb);
   }
@@ -31,23 +31,26 @@ export async function loadComb(comb: string): Promise<Record<string, unknown>> {
 
 /**
  * Execute a comb's main function
- * 
+ *
  * @param comb The name of the comb to execute
  * @param params Parameters to pass to the comb
  * @returns The result of the comb execution
  * @throws CombNotFoundError if the comb is not found
  * @throws Error if the comb does not export a main function
  */
-export async function executeComb(comb: string, params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
+export async function executeComb(
+  comb: string,
+  params: Record<string, unknown> = {},
+): Promise<Record<string, unknown>> {
   const module = await loadComb(comb);
-  
+
   if (typeof module.main !== "function") {
     throw new Error(`Comb ${sanitizeForLogging(comb)} does not export a main function`);
   }
-  
+
   try {
     return await module.main(params);
-  } catch (error) {
+  } catch (_error) {
     logger.error(`Error executing comb ${sanitizeForLogging(comb)}:`, error);
     throw error;
   }
@@ -55,24 +58,24 @@ export async function executeComb(comb: string, params: Record<string, unknown> 
 
 /**
  * List all available combs
- * 
+ *
  * @returns Array of comb names
  */
-export async function listCombs(): Promise<string[]> {
+export function listCombs(): string[] {
   try {
     const combsDir = join(Deno.cwd(), "combs");
     const entries = Deno.readDirSync(combsDir);
-    
+
     const combs = [];
-    
+
     for (const entry of entries) {
       if (entry.isFile && entry.name.endsWith(".egg.ts")) {
         combs.push(entry.name.replace(".egg.ts", ""));
       }
     }
-    
+
     return combs;
-  } catch (error) {
+  } catch (_error) {
     logger.error("Error listing combs:", error);
     return [];
   }
@@ -80,25 +83,27 @@ export async function listCombs(): Promise<string[]> {
 
 /**
  * Format a duration in milliseconds to a human-readable string
- * 
+ *
  * @param ms Duration in milliseconds
  * @returns Formatted duration string
  */
 export function formatDuration(ms: number): string {
-  if (ms < 1000) {
-    return `${ms}ms`;
+  if (ms < 0) {
+    return "0ms"; // Return 0ms for negative values
+  } else if (ms < 1000) {
+    return `${Math.ceil(ms)}ms`; // Round up for sub-millisecond values
   } else if (ms < 60000) {
     return `${(ms / 1000).toFixed(2)}s`;
+  } else if (ms < 3600000) {
+    return `${(ms / 60000).toFixed(2)}m`;
   } else {
-    const minutes = Math.floor(ms / 60000);
-    const seconds = ((ms % 60000) / 1000).toFixed(2);
-    return `${minutes}m ${seconds}s`;
+    return `${(ms / 3600000).toFixed(2)}h`;
   }
 }
 
 /**
  * Format bytes to a human-readable string
- * 
+ *
  * @param bytes Number of bytes
  * @returns Formatted byte string
  */
@@ -116,20 +121,20 @@ export function formatBytes(bytes: number): string {
 
 /**
  * Parse memory string (e.g., "128MB") to bytes
- * 
+ *
  * @param memoryString Memory string to parse
  * @returns Number of bytes or null if invalid
  */
 export function parseMemory(memoryString: string): number | null {
   const match = memoryString.match(/^(\d+(?:\.\d+)?)\s*([KMGT]?B)$/i);
-  
+
   if (!match) {
     return null;
   }
-  
+
   const value = parseFloat(match[1]);
   const unit = match[2].toUpperCase();
-  
+
   switch (unit) {
     case "B":
       return value;
@@ -148,7 +153,7 @@ export function parseMemory(memoryString: string): number | null {
 
 /**
  * Generate a random ID
- * 
+ *
  * @param length Length of the ID
  * @returns Random ID string
  */
@@ -158,7 +163,7 @@ export function generateId(length = 8): string {
 
 /**
  * Deep clone an object
- * 
+ *
  * @param obj Object to clone
  * @returns Cloned object
  */
@@ -168,22 +173,20 @@ export function deepClone<T>(obj: T): T {
 
 /**
  * Check if a command is available in the system
- * 
+ *
  * @param command Command to check
  * @returns Promise resolving to true if the command is available, false otherwise
  */
 export async function isCommandAvailable(command: string): Promise<boolean> {
   try {
-    const process = Deno.run({
-      cmd: ["which", command],
+    const process = new Deno.Command("which", {
+      args: [command],
       stdout: "piped",
-      stderr: "piped"
+      stderr: "piped",
     });
-    
-    const status = await process.status();
-    process.close();
-    
-    return status.success;
+    const result = await process.output();
+
+    return result.success;
   } catch (error) {
     logger.debug(`Command ${sanitizeForLogging(command)} not available:`, { error });
     return false;
@@ -192,7 +195,7 @@ export async function isCommandAvailable(command: string): Promise<boolean> {
 
 /**
  * Run a shell command and capture its output
- * 
+ *
  * @param cmd Command to run
  * @param args Command arguments
  * @returns Promise resolving to the command output
@@ -204,54 +207,47 @@ export async function runCommand(cmd: string, args: string[] = []): Promise<{
   code: number;
 }> {
   try {
-    const process = Deno.run({
-      cmd: [cmd, ...args],
+    const process = new Deno.Command(cmd, {
+      args: args,
       stdout: "piped",
-      stderr: "piped"
+      stderr: "piped",
     });
-    
-    const [status, stdout, stderr] = await Promise.all([
-      process.status(),
-      process.output(),
-      process.stderrOutput()
-    ]);
-    
-    process.close();
-    
+    const result = await process.output();
+
     return {
-      success: status.success,
-      stdout: new TextDecoder().decode(stdout),
-      stderr: new TextDecoder().decode(stderr),
-      code: status.code
+      success: result.success,
+      stdout: new TextDecoder().decode(result.stdout),
+      stderr: new TextDecoder().decode(result.stderr),
+      code: result.code,
     };
   } catch (error) {
     // Sanitize command and args for logging
     const sanitizedCmd = sanitizeForLogging(cmd);
-    const sanitizedArgs = args.map(arg => sanitizeForLogging(arg));
+    const sanitizedArgs = args.map((arg) => sanitizeForLogging(arg));
     logger.error(`Error running command ${sanitizedCmd} ${sanitizedArgs.join(" ")}:`, error);
-    
+
     return {
       success: false,
       stdout: "",
       stderr: error.toString(),
-      code: -1
+      code: -1,
     };
   }
 }
 
 /**
  * Sleep for a specified duration
- * 
+ *
  * @param ms Duration in milliseconds
  * @returns Promise that resolves after the specified duration
  */
 export function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
  * Get the current timestamp in ISO format
- * 
+ *
  * @returns Current timestamp string
  */
 export function getTimestamp(): string {
@@ -260,7 +256,7 @@ export function getTimestamp(): string {
 
 /**
  * Check if a file exists
- * 
+ *
  * @param path File path
  * @returns Promise resolving to true if the file exists, false otherwise
  */
@@ -268,14 +264,14 @@ export async function fileExists(path: string): Promise<boolean> {
   try {
     const stat = await Deno.stat(path);
     return stat.isFile;
-  } catch (error) {
+  } catch (_error) {
     return false;
   }
 }
 
 /**
  * Check if a directory exists
- * 
+ *
  * @param path Directory path
  * @returns Promise resolving to true if the directory exists, false otherwise
  */
@@ -283,8 +279,94 @@ export async function directoryExists(path: string): Promise<boolean> {
   try {
     const stat = await Deno.stat(path);
     return stat.isDirectory;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
 
+/**
+ * Ensures a directory exists, creating it if necessary
+ */
+export async function ensureDirectory(path: string): Promise<void> {
+  try {
+    await Deno.mkdir(path, { recursive: true });
+  } catch (error) {
+    if (!(error instanceof Deno.errors.AlreadyExists)) {
+      throw error;
+    }
+  }
+}
+
+/**
+ * Formats memory in bytes to human readable format
+ */
+export function formatMemory(bytes: number): string {
+  if (bytes <= 0) return "0B";
+  
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  const base = 1024;
+  const index = Math.floor(Math.log(bytes) / Math.log(base));
+  const value = bytes / Math.pow(base, index);
+  
+  if (index === 0) return `${bytes}B`;
+  return `${value.toFixed(2)}${units[index]}`;
+}
+
+/**
+ * Generates a context ID (UUID v4)
+ */
+export function generateContextId(): string {
+  return crypto.randomUUID();
+}
+
+/**
+ * Gets file extension from a filename
+ */
+export function getFileExtension(filename: string): string {
+  const lastDot = filename.lastIndexOf('.');
+  if (lastDot === -1 || lastDot === 0) {
+    return '';
+  }
+  return filename.slice(lastDot); // Include the dot
+}
+
+/**
+ * Validates if a string is a valid URL
+ */
+export function isValidUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    // Only allow http and https protocols
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Sanitizes a filename by removing invalid characters
+ */
+export function sanitizeFilename(filename: string): string {
+  if (!filename) {
+    return "unnamed";
+  }
+  
+  let sanitized = filename
+    .replace(/[<>:"/\\|?*]/g, '_')
+    .replace(/\s+/g, '_');
+  
+  // Remove leading/trailing dots and underscores
+  sanitized = sanitized.replace(/^[._]+|[._]+$/g, '');
+  
+  // If empty after sanitization, return default name
+  if (!sanitized) {
+    return "unnamed";
+  }
+  
+  // Truncate to 255 characters (common filesystem limit)
+  if (sanitized.length > 255) {
+    sanitized = sanitized.substring(0, 255);
+  }
+  
+  return sanitized;
+}

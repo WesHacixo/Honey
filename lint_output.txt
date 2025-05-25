@@ -1,0 +1,532 @@
+[0m[33mWarning[0m "exports" field should be specified when specifying a "name".
+    at file:///tmp/WesHacixo/Honey/deno.json
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`params` is never used[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/combs/build-static-site.egg.ts[0m[0m[33m:12:28[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m12 | [0mexport async function main(params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
+  [0m[38;5;12m | [0m                           [0m[1m[31m^^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, prefix it with an underscore like `_params`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`dataset` is never used[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/combs/process-data.egg.ts[0m[0m[33m:80:40[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m80 | [0masync function simulateProcessingSteps(dataset: Array<Record<string, unknown>>): Promise<void> {
+  [0m[38;5;12m | [0m                                       [0m[1m[31m^^^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, prefix it with an underscore like `_dataset`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-explicit-any][0m: [0m[1m`any` type is not allowed[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/combs/memory-stress.egg.ts[0m[0m[33m:37:30[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m37 | [0m      return (performance as any).memory?.usedJSHeapSize || 0;
+  [0m[38;5;12m | [0m                             [0m[1m[31m^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: Use a specific type other than `any`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-explicit-any
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`mapped` is never used[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/combs/memory-stress.egg.ts[0m[0m[33m:74:11[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m74 | [0m    const mapped = filtered.map((obj) => ({ ...obj, processed: true }));
+  [0m[38;5;12m | [0m          [0m[1m[31m^^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, prefix it with an underscore like `_mapped`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[require-await][0m: [0m[1mAsync function 'startServer' has no 'await' expression or 'await using' declaration.[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/combs/api-server.egg.ts[0m[0m[33m:45:1[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m45 | [0masync function startServer(port: number): Promise<Deno.Listener> {
+  [0m[38;5;12m | [0m[0m[1m[31m^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: Remove 'async' keyword from the function or use 'await' expression or 'await using' declaration inside.
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/require-await
+
+
+[0m[1m[31merror[require-await][0m: [0m[1mAsync function 'handleConnections' has no 'await' expression or 'await using' declaration.[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/combs/api-server.egg.ts[0m[0m[33m:62:1[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m62 | [0masync function handleConnections(server: Deno.Listener): Promise<void> {
+  [0m[38;5;12m | [0m[0m[1m[31m^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: Remove 'async' keyword from the function or use 'await' expression or 'await using' declaration inside.
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/require-await
+
+
+[0m[1m[31merror[no-deprecated-deno-api][0m: [0m[1m`Deno.serveHttp` was removed in Deno 2. See the Deno 1.x to 2.x Migration Guide for further details: https://docs.deno.com/runtime/reference/migrate_deprecations/[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/combs/api-server.egg.ts[0m[0m[33m:78:20[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m78 | [0m  const httpConn = Deno.serveHttp(conn);
+  [0m[38;5;12m | [0m                   [0m[1m[31m^^^^^^^^^^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: Use `Deno.serve()` instead
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-deprecated-deno-api
+
+
+[0m[1m[31merror[require-await][0m: [0m[1mAsync function 'stopServer' has no 'await' expression or 'await using' declaration.[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/combs/api-server.egg.ts[0m[0m[33m:126:1[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m126 | [0masync function stopServer(server: Deno.Listener): Promise<void> {
+   [0m[38;5;12m | [0m[0m[1m[31m^^^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: Remove 'async' keyword from the function or use 'await' expression or 'await using' declaration inside.
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/require-await
+
+
+[0m[1m[31merror[prefer-const][0m: [0m[1m`weights` is never reassigned[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/combs/train-model.egg.ts[0m[0m[33m:77:7[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m77 | [0m  let weights = [0, 0];
+  [0m[38;5;12m | [0m      [0m[1m[31m^^^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: Use `const` instead
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/prefer-const
+
+
+[0m[1m[31merror[require-await][0m: [0m[1mAsync function 'insertToMongo' has no 'await' expression or 'await using' declaration.[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/bench/metrics.ts[0m[0m[33m:17:1[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m17 | [0masync function insertToMongo(contextId: string, summary: string, agentId: string): Promise<string> {
+  [0m[38;5;12m | [0m[0m[1m[31m^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: Remove 'async' keyword from the function or use 'await' expression or 'await using' declaration inside.
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/require-await
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`summary` is never used[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/bench/metrics.ts[0m[0m[33m:17:49[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m17 | [0masync function insertToMongo(contextId: string, summary: string, agentId: string): Promise<string> {
+  [0m[38;5;12m | [0m                                                [0m[1m[31m^^^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, prefix it with an underscore like `_summary`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`agentId` is never used[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/bench/metrics.ts[0m[0m[33m:17:66[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m17 | [0masync function insertToMongo(contextId: string, summary: string, agentId: string): Promise<string> {
+  [0m[38;5;12m | [0m                                                                 [0m[1m[31m^^^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, prefix it with an underscore like `_agentId`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-unreachable][0m: [0m[1mThis statement is unreachable[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/bench/metrics.ts[0m[0m[33m:30:5[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m30 | [0m    logger.error(`Failed to store metrics in MongoDB:`, error);
+  [0m[38;5;12m | [0m    [0m[1m[31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unreachable
+
+
+[0m[1m[31merror[no-unreachable][0m: [0m[1mThis statement is unreachable[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/bench/metrics.ts[0m[0m[33m:31:5[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m31 | [0m    return contextId;
+  [0m[38;5;12m | [0m    [0m[1m[31m^^^^^^^^^^^^^^^^^[0m
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unreachable
+
+
+[0m[1m[31merror[require-await][0m: [0m[1mAsync function 'embedToPinecone' has no 'await' expression or 'await using' declaration.[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/bench/metrics.ts[0m[0m[33m:35:1[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m35 | [0masync function embedToPinecone(text: string, metadata: Record<string, string>): Promise<string> {
+  [0m[38;5;12m | [0m[0m[1m[31m^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: Remove 'async' keyword from the function or use 'await' expression or 'await using' declaration inside.
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/require-await
+
+
+[0m[1m[31merror[require-await][0m: [0m[1mAsync arrow function has no 'await' expression or 'await using' declaration.[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/tests/errors.test.ts[0m[0m[33m:125:36[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m125 | [0m    const result = await withRetry(async () => {
+   [0m[38;5;12m | [0m                                   [0m[1m[31m^^^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: Remove 'async' keyword from the function or use 'await' expression or 'await using' declaration inside.
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/require-await
+
+
+[0m[1m[31merror[require-await][0m: [0m[1mAsync arrow function has no 'await' expression or 'await using' declaration.[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/tests/errors.test.ts[0m[0m[33m:137:7[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m137 | [0m      async () => {
+   [0m[38;5;12m | [0m      [0m[1m[31m^^^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: Remove 'async' keyword from the function or use 'await' expression or 'await using' declaration inside.
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/require-await
+
+
+[0m[1m[31merror[require-await][0m: [0m[1mAsync arrow function has no 'await' expression or 'await using' declaration.[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/tests/errors.test.ts[0m[0m[33m:156:9[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m156 | [0m        async () => {
+   [0m[38;5;12m | [0m        [0m[1m[31m^^^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: Remove 'async' keyword from the function or use 'await' expression or 'await using' declaration inside.
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/require-await
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`sanitizedComb` is never used[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/layers/utils.ts[0m[0m[33m:22:11[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m22 | [0m    const sanitizedComb = sanitizeForLogging(comb);
+  [0m[38;5;12m | [0m          [0m[1m[31m^^^^^^^^^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, prefix it with an underscore like `_sanitizedComb`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[require-await][0m: [0m[1mAsync function 'listCombs' has no 'await' expression or 'await using' declaration.[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/layers/utils.ts[0m[0m[33m:64:8[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m64 | [0mexport async function listCombs(): Promise<string[]> {
+  [0m[38;5;12m | [0m       [0m[1m[31m^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: Remove 'async' keyword from the function or use 'await' expression or 'await using' declaration inside.
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/require-await
+
+
+[0m[1m[31merror[no-deprecated-deno-api][0m: [0m[1m`Deno.run` was removed in Deno 2. See the Deno 1.x to 2.x Migration Guide for further details: https://docs.deno.com/runtime/reference/migrate_deprecations/[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/layers/utils.ts[0m[0m[33m:180:21[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m180 | [0m    const process = Deno.run({
+   [0m[38;5;12m | [0m                    [0m[1m[31m^^^^^^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: Use `Deno.Command` from https://deno.land/api?s=Deno.Command instead
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-deprecated-deno-api
+
+
+[0m[1m[31merror[no-deprecated-deno-api][0m: [0m[1m`Deno.run` was removed in Deno 2. See the Deno 1.x to 2.x Migration Guide for further details: https://docs.deno.com/runtime/reference/migrate_deprecations/[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/layers/utils.ts[0m[0m[33m:210:21[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m210 | [0m    const process = Deno.run({
+   [0m[38;5;12m | [0m                    [0m[1m[31m^^^^^^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: Use `Deno.Command` from https://deno.land/api?s=Deno.Command instead
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-deprecated-deno-api
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`error` is never used[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/layers/utils.ts[0m[0m[33m:274:12[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m274 | [0m  } catch (error) {
+   [0m[38;5;12m | [0m           [0m[1m[31m^^^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, prefix it with an underscore like `_error`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`error` is never used[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/layers/utils.ts[0m[0m[33m:289:12[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m289 | [0m  } catch (error) {
+   [0m[38;5;12m | [0m           [0m[1m[31m^^^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, prefix it with an underscore like `_error`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`error` is never used[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/tests/test_runner.ts[0m[0m[33m:53:14[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m53 | [0m    } catch (error) {
+  [0m[38;5;12m | [0m             [0m[1m[31m^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, prefix it with an underscore like `_error`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`error` is never used[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/tests/test_runner.ts[0m[0m[33m:62:14[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m62 | [0m    } catch (error) {
+  [0m[38;5;12m | [0m             [0m[1m[31m^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, prefix it with an underscore like `_error`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-explicit-any][0m: [0m[1m`any` type is not allowed[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/layers/config.ts[0m[0m[33m:125:22[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m125 | [0m          (output as any)[key] = deepMerge(
+   [0m[38;5;12m | [0m                     [0m[1m[31m^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: Use a specific type other than `any`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-explicit-any
+
+
+[0m[1m[31merror[no-explicit-any][0m: [0m[1m`any` type is not allowed[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/layers/config.ts[0m[0m[33m:126:24[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m126 | [0m            (target as any)[key],
+   [0m[38;5;12m | [0m                       [0m[1m[31m^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: Use a specific type other than `any`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-explicit-any
+
+
+[0m[1m[31merror[no-explicit-any][0m: [0m[1m`any` type is not allowed[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/layers/config.ts[0m[0m[33m:127:51[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m127 | [0m            source[key as keyof typeof source] as any,
+   [0m[38;5;12m | [0m                                                  [0m[1m[31m^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: Use a specific type other than `any`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-explicit-any
+
+
+[0m[1m[31merror[no-explicit-any][0m: [0m[1m`any` type is not allowed[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/layers/config.ts[0m[0m[33m:140:25[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m140 | [0mfunction isObject(item: any): boolean {
+   [0m[38;5;12m | [0m                        [0m[1m[31m^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: Use a specific type other than `any`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-explicit-any
+
+
+[0m[1m[31merror[require-await][0m: [0m[1mAsync function 'main' has no 'await' expression or 'await using' declaration.[0m
+ [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/combs/fibonacci.egg.ts[0m[0m[33m:8:8[0m
+ [0m[38;5;12m | [0m
+[0m[38;5;12m8 | [0mexport async function main(params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
+ [0m[38;5;12m | [0m       [0m[1m[31m^^^^^[0m
+  [0m[38;5;12m=[0m [0m[1mhint[0m: Remove 'async' keyword from the function or use 'await' expression or 'await using' declaration inside.
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/require-await
+
+
+[0m[1m[31merror[prefer-const][0m: [0m[1m`results` is never reassigned[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/combs/fibonacci.egg.ts[0m[0m[33m:25:7[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m25 | [0m  let results: number[] = [];
+  [0m[38;5;12m | [0m      [0m[1m[31m^^^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: Use `const` instead
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/prefer-const
+
+
+[0m[1m[31merror[no-deprecated-deno-api][0m: [0m[1m`Deno.run` was removed in Deno 2. See the Deno 1.x to 2.x Migration Guide for further details: https://docs.deno.com/runtime/reference/migrate_deprecations/[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/layers/security.ts[0m[0m[33m:137:21[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m137 | [0m    const process = Deno.run({
+   [0m[38;5;12m | [0m                    [0m[1m[31m^^^^^^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: Use `Deno.Command` from https://deno.land/api?s=Deno.Command instead
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-deprecated-deno-api
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`RunnerNotAvailableError` is never used[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/runners/wasm.ts[0m[0m[33m:15:3[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m15 | [0m  RunnerNotAvailableError,
+  [0m[38;5;12m | [0m  [0m[1m[31m^^^^^^^^^^^^^^^^^^^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, alias it with an underscore like `RunnerNotAvailableError as _RunnerNotAvailableError`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`withRetry` is never used[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/runners/wasm.ts[0m[0m[33m:16:3[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m16 | [0m  withRetry,
+  [0m[38;5;12m | [0m  [0m[1m[31m^^^^^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, alias it with an underscore like `withRetry as _withRetry`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`result` is never used[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/runners/wasm.ts[0m[0m[33m:105:11[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m105 | [0m    const result = await main(JSON.stringify(params));
+   [0m[38;5;12m | [0m          [0m[1m[31m^^^^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, prefix it with an underscore like `_result`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`join` is never used[0m
+ [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/runners/docker.ts[0m[0m[33m:6:10[0m
+ [0m[38;5;12m | [0m
+[0m[38;5;12m6 | [0mimport { join } from "https://deno.land/std@0.208.0/path/mod.ts";
+ [0m[38;5;12m | [0m         [0m[1m[31m^^^^[0m
+  [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, alias it with an underscore like `join as _join`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`withRetry` is never used[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/runners/docker.ts[0m[0m[33m:18:3[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m18 | [0m  withRetry,
+  [0m[38;5;12m | [0m  [0m[1m[31m^^^^^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, alias it with an underscore like `withRetry as _withRetry`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`bootStart` is never used[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/runners/docker.ts[0m[0m[33m:64:9[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m64 | [0m  const bootStart = Date.now();
+  [0m[38;5;12m | [0m        [0m[1m[31m^^^^^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, prefix it with an underscore like `_bootStart`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`sanitizedComb` is never used[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/runners/docker.ts[0m[0m[33m:125:9[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m125 | [0m  const sanitizedComb = sanitizeForLogging(comb);
+   [0m[38;5;12m | [0m        [0m[1m[31m^^^^^^^^^^^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, prefix it with an underscore like `_sanitizedComb`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`sanitizedLocation` is never used[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/runners/docker.ts[0m[0m[33m:126:9[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m126 | [0m  const sanitizedLocation = sanitizeForLogging(location);
+   [0m[38;5;12m | [0m        [0m[1m[31m^^^^^^^^^^^^^^^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, prefix it with an underscore like `_sanitizedLocation`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-deprecated-deno-api][0m: [0m[1m`Deno.run` was removed in Deno 2. See the Deno 1.x to 2.x Migration Guide for further details: https://docs.deno.com/runtime/reference/migrate_deprecations/[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/runners/docker.ts[0m[0m[33m:130:18[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m130 | [0m    const proc = Deno.run({
+   [0m[38;5;12m | [0m                 [0m[1m[31m^^^^^^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: Use `Deno.Command` from https://deno.land/api?s=Deno.Command instead
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-deprecated-deno-api
+
+
+[0m[1m[31merror[no-deprecated-deno-api][0m: [0m[1m`Deno.run` was removed in Deno 2. See the Deno 1.x to 2.x Migration Guide for further details: https://docs.deno.com/runtime/reference/migrate_deprecations/[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/runners/docker.ts[0m[0m[33m:161:23[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m161 | [0m    const statsProc = Deno.run({
+   [0m[38;5;12m | [0m                      [0m[1m[31m^^^^^^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: Use `Deno.Command` from https://deno.land/api?s=Deno.Command instead
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-deprecated-deno-api
+
+
+[0m[1m[31merror[no-deprecated-deno-api][0m: [0m[1m`Deno.run` was removed in Deno 2. See the Deno 1.x to 2.x Migration Guide for further details: https://docs.deno.com/runtime/reference/migrate_deprecations/[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/runners/docker.ts[0m[0m[33m:224:27[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m224 | [0m      const cleanupProc = Deno.run({
+   [0m[38;5;12m | [0m                          [0m[1m[31m^^^^^^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: Use `Deno.Command` from https://deno.land/api?s=Deno.Command instead
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-deprecated-deno-api
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`join` is never used[0m
+ [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/runners/firecracker.ts[0m[0m[33m:6:10[0m
+ [0m[38;5;12m | [0m
+[0m[38;5;12m6 | [0mimport { join } from "https://deno.land/std@0.208.0/path/mod.ts";
+ [0m[38;5;12m | [0m         [0m[1m[31m^^^^[0m
+  [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, alias it with an underscore like `join as _join`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`RunnerNotAvailableError` is never used[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/runners/firecracker.ts[0m[0m[33m:15:3[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m15 | [0m  RunnerNotAvailableError,
+  [0m[38;5;12m | [0m  [0m[1m[31m^^^^^^^^^^^^^^^^^^^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, alias it with an underscore like `RunnerNotAvailableError as _RunnerNotAvailableError`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`withRetry` is never used[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/runners/firecracker.ts[0m[0m[33m:16:3[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m16 | [0m  withRetry,
+  [0m[38;5;12m | [0m  [0m[1m[31m^^^^^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, alias it with an underscore like `withRetry as _withRetry`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-deprecated-deno-api][0m: [0m[1m`Deno.run` was removed in Deno 2. See the Deno 1.x to 2.x Migration Guide for further details: https://docs.deno.com/runtime/reference/migrate_deprecations/[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/runners/firecracker.ts[0m[0m[33m:32:21[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m32 | [0m    const process = Deno.run({
+  [0m[38;5;12m | [0m                    [0m[1m[31m^^^^^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: Use `Deno.Command` from https://deno.land/api?s=Deno.Command instead
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-deprecated-deno-api
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`comb` is never used[0m
+  [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/runners/firecracker.ts[0m[0m[33m:54:34[0m
+  [0m[38;5;12m | [0m
+[0m[38;5;12m54 | [0mfunction createFirecrackerConfig(comb: string): Record<string, unknown> {
+  [0m[38;5;12m | [0m                                 [0m[1m[31m^^^^[0m
+   [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, prefix it with an underscore like `_comb`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`error` is never used[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/runners/firecracker.ts[0m[0m[33m:108:12[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m108 | [0m  } catch (error) {
+   [0m[38;5;12m | [0m           [0m[1m[31m^^^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, prefix it with an underscore like `_error`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-deprecated-deno-api][0m: [0m[1m`Deno.run` was removed in Deno 2. See the Deno 1.x to 2.x Migration Guide for further details: https://docs.deno.com/runtime/reference/migrate_deprecations/[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/runners/firecracker.ts[0m[0m[33m:114:19[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m114 | [0m  const process = Deno.run({
+   [0m[38;5;12m | [0m                  [0m[1m[31m^^^^^^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: Use `Deno.Command` from https://deno.land/api?s=Deno.Command instead
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-deprecated-deno-api
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`error` is never used[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/runners/firecracker.ts[0m[0m[33m:129:14[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m129 | [0m    } catch (error) {
+   [0m[38;5;12m | [0m             [0m[1m[31m^^^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, prefix it with an underscore like `_error`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+[0m[1m[31merror[no-unused-vars][0m: [0m[1m`socketPath` is never used[0m
+   [0m[38;5;12m-->[0m [0m[36m/tmp/WesHacixo/Honey/runners/firecracker.ts[0m[0m[33m:163:9[0m
+   [0m[38;5;12m | [0m
+[0m[38;5;12m163 | [0m  const socketPath = config.runners.firecracker.socketPath;
+   [0m[38;5;12m | [0m        [0m[1m[31m^^^^^^^^^^[0m
+    [0m[38;5;12m=[0m [0m[1mhint[0m: If this is intentional, prefix it with an underscore like `_socketPath`
+
+  [0m[38;5;12mdocs[0m: https://docs.deno.com/lint/rules/no-unused-vars
+
+
+Found 53 problems
+Checked 26 files
