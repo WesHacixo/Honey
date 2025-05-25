@@ -136,7 +136,7 @@ await describe('Error Handling Module', {
     let attempts = 0;
     const result = await withRetry(() => {
       attempts++;
-      return 'success';
+      return Promise.resolve('success');
     }, 3);
 
     Assert.equals(result, 'success');
@@ -151,14 +151,14 @@ await describe('Error Handling Module', {
         if (attempts < 3) {
           throw new Error('temporary failure');
         }
-        return 'success';
+        return Promise.resolve('success');
       },
       3,
       1,
     ); // 1ms initial delay for fast testing
 
     Assert.equals(result, 'success');
-    Assert.equals(attempts, 3);
+    Assert.equals(attempts, 3); // Initial attempt + 2 retries
   },
 
   'withRetry should throw after max retries': async () => {
