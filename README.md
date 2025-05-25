@@ -1,118 +1,235 @@
 # 🍯 Honey Benchmark Swarm
 
-A benchmark system for evaluating and comparing different runtime environments for agent tasks. Honey helps determine the optimal execution environment for your workloads by running the same task across multiple runtimes and measuring performance metrics.
+A benchmark system for evaluating different runtime environments for agent workloads.
 
-> **Note:** This repository is intended to be merged with [CLIaigen](https://github.com/WesHacixo/CLIaigen) as an integral part of that software.
+## Overview
 
-## 🐝 Overview
+Honey Benchmark Swarm is a system for running the same workload (called a "comb") across different runtime environments and comparing their performance. This helps determine the optimal execution environment for different types of agent workloads.
 
-Honey Benchmark Swarm runs a standard task (e.g., `build-static-site`) across 6 honeycomb environments:
+## Features
 
-- **Docker-local**
-- **Docker-cloud**
-- **Firecracker-local**
-- **Firecracker-cloud**
-- **WASM-local**
-- **WASM-cloud**
+- **Multiple Runners**: Execute combs in Docker, Firecracker microVMs, or WebAssembly
+- **Performance Metrics**: Measure boot time, execution time, memory usage, and CPU usage
+- **Fallback Mechanisms**: Gracefully degrade to simpler execution methods when a runner is unavailable
+- **Extensible**: Easy to add new combs and runners
+- **Cloud/Local Comparison**: Compare performance between local and cloud environments
+- **Security**: Input validation, resource limits, and isolation
+- **Error Handling**: Robust error handling with custom error types and recovery mechanisms
+- **Logging**: Structured logging with different log levels
 
-For each environment, it measures and records:
+## Installation
 
-| Metric | Description |
-|--------|-------------|
-| `boot_time_ms` | Time to start the runtime environment |
-| `exec_time_ms` | Duration of task execution |
-| `memory_usage` | Memory consumed during execution |
-| `cpu_usage` | CPU utilization during execution |
-| `success` | Whether the task completed successfully |
+```bash
+# Clone the repository
+git clone https://github.com/WesHacixo/Honey.git
+cd Honey
 
-## 📁 Repository Structure
+# Install Deno if you don't have it already
+# https://deno.land/manual/getting_started/installation
+```
+
+## Usage
+
+```bash
+# Run a benchmark with the default comb
+deno run --allow-run --allow-net --allow-env --allow-read bench/index.ts
+
+# Run a specific comb
+deno run --allow-run --allow-net --allow-env --allow-read bench/index.ts process-data
+
+# List available combs
+deno run --allow-run --allow-net --allow-env --allow-read bench/index.ts --list
+
+# Run with a specific runner
+deno run --allow-run --allow-net --allow-env --allow-read bench/index.ts process-data --runner=docker
+
+# Run in a specific location
+deno run --allow-run --allow-net --allow-env --allow-read bench/index.ts process-data --location=local
+```
+
+## Available Combs
+
+1. **build-static-site**: Builds a static website
+2. **process-data**: Processes a dataset with multiple steps
+3. **api-server**: Runs a simple API server
+4. **train-model**: Trains a simple machine learning model
+
+## Runners
+
+### Docker
+
+Runs combs in Docker containers. Requires Docker to be installed and running.
+
+- **Security Features**: 
+  - Container name validation
+  - Resource limits (memory, CPU)
+  - No-new-privileges security option
+  - Read-only mounts
+  - Input validation
+
+- **Error Handling**:
+  - Timeout support
+  - Automatic container cleanup
+  - Fallback to direct execution
+  - Structured error reporting
+
+### Firecracker
+
+Runs combs in Firecracker microVMs. Requires Firecracker to be installed.
+
+- **Security Features**:
+  - Socket path validation
+  - Resource limits (memory, vCPUs)
+  - File path validation
+  - API request validation
+
+- **Error Handling**:
+  - Socket creation timeout
+  - API error handling
+  - Process cleanup
+  - Fallback to simulation mode
+
+### WebAssembly (WASM)
+
+Runs combs as WebAssembly modules. Requires combs to be compiled to WASM.
+
+- **Security Features**:
+  - Memory limits
+  - Input validation
+  - Isolated execution environment
+
+- **Error Handling**:
+  - Module loading error handling
+  - Execution timeout
+  - Fallback to simulation mode
+
+## Architecture
 
 ```
 honey/
-├── bench/
-│   ├── index.ts       # Benchmark runner
-│   └── metrics.ts     # Metrics logger and summarizer
-├── combs/
-│   └── build-static-site.egg.ts  # Sample comb task
-├── runners/
-│   ├── docker.ts      # Docker runner implementation
-│   ├── firecracker.ts # Firecracker runner (stub)
-│   └── wasm.ts        # WebAssembly runner (stub)
-└── queen/
-    └── deploy.ts      # Orchestration logic
+├── bench/           # Benchmark orchestration
+│   ├── index.ts     # Main benchmark runner
+│   └── metrics.ts   # Metrics collection and reporting
+├── combs/           # Honeycomb tasks
+│   ├── build-static-site.egg.ts
+│   ├── process-data.egg.ts
+│   ├── api-server.egg.ts
+│   └── train-model.egg.ts
+├── runners/         # Runtime environments
+│   ├── docker.ts    # Docker container runner
+│   ├── firecracker.ts # Firecracker microVM runner
+│   └── wasm.ts      # WebAssembly runner
+├── queen/           # Orchestration logic
+│   └── deploy.ts    # Deployment and tracking
+└── layers/          # Utility layers
+    ├── security.ts  # Security utilities
+    ├── errors.ts    # Error handling
+    ├── logging.ts   # Logging system
+    ├── config.ts    # Configuration management
+    └── utils.ts     # Common utilities
 ```
 
-## 🚀 Getting Started
+## Security Features
 
-### Prerequisites
+Honey Benchmark Swarm includes several security features to ensure safe execution of combs:
 
-- [Deno](https://deno.land/) 1.32.0 or later
-- [Docker](https://www.docker.com/) for Docker runner
-- [Firecracker](https://firecracker-microvm.github.io/) for Firecracker runner (optional)
-- WebAssembly runtime for WASM runner (optional)
+1. **Input Validation**:
+   - Comb name validation
+   - File path validation
+   - Container name validation
+   - Port number validation
+   - Location validation
+   - Runner validation
 
-### Running a Benchmark
+2. **Resource Limits**:
+   - Memory limits
+   - CPU limits
+   - Network configuration
+   - Disk access restrictions
 
-```bash
-# Run the default benchmark (build-static-site)
-deno run --allow-run --allow-net --allow-env --allow-read honey/bench/index.ts
+3. **Docker Security**:
+   - No new privileges
+   - Read-only mounts
+   - Resource constraints
+   - Secure container naming
 
-# Run a specific comb
-deno run --allow-run --allow-net --allow-env --allow-read honey/bench/index.ts my-custom-comb
-```
+4. **Firecracker Security**:
+   - Socket path validation
+   - Resource limits
+   - API request validation
+   - File access controls
 
-## 🔍 How It Works
+5. **WASM Security**:
+   - Memory limits
+   - Isolated execution environment
+   - Module validation
 
-1. The benchmark runner (`bench/index.ts`) iterates through all combinations of runners and locations.
-2. For each combination, it uses the Queen orchestration (`queen/deploy.ts`) to deploy the comb to the appropriate runtime.
-3. The runner executes the comb and collects performance metrics.
-4. Metrics are recorded to MongoDB and Pinecone via the metrics module (`bench/metrics.ts`).
-5. A summary is generated comparing all environments.
-6. The optimal environment is recommended based on the metrics.
+## Error Handling
 
-## 🧩 Integration with CLIaigen
+The system includes robust error handling mechanisms:
 
-Honey is designed to be integrated with CLIaigen to provide runtime environment optimization. When integrated:
+1. **Custom Error Classes**:
+   - HoneyError base class
+   - Runner-specific errors
+   - Validation errors
+   - Security errors
+   - Timeout errors
 
-1. CLIaigen can use Honey to determine the best runtime for a given task.
-2. Performance metrics will be stored in the same database layer used by CLIaigen.
-3. Semantic search capabilities will allow finding similar past executions.
+2. **Error Recovery**:
+   - Retry mechanisms
+   - Fallback modes
+   - Graceful degradation
+   - Resource cleanup
 
-## 🛠️ Development
+3. **Logging**:
+   - Structured logging
+   - Log levels
+   - Component-specific logs
+   - Error context
 
-### Creating a New Comb
+4. **Timeout Handling**:
+   - Operation timeouts
+   - Cleanup procedures
+   - Error reporting
+   - Resource recovery
 
-1. Create a new file in the `combs/` directory with the `.egg.ts` extension.
-2. Implement the `main()` function as the entry point.
-3. Return a result object with at least a `success` property.
+## Creating a New Comb
+
+1. Create a new file in the `combs/` directory with the `.egg.ts` extension
+2. Implement the `main()` function that returns a result object
+3. Make sure it works when executed directly
 
 Example:
 
 ```typescript
+// combs/my-comb.egg.ts
 export async function main(params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
-  // Implement your task here
+  console.log("Running my comb...");
+  
+  // Your comb implementation here
+  
   return {
     success: true,
-    output: "Task completed successfully"
+    output: "My comb completed successfully"
   };
+}
+
+// Run the comb if executed directly
+if (import.meta.main) {
+  const result = await main();
+  console.log(JSON.stringify(result, null, 2));
 }
 ```
 
-### Implementing a New Runner
+## Configuration
 
-1. Create a new file in the `runners/` directory.
-2. Implement the `run(comb: string, location: string)` function.
-3. Return performance metrics and execution results.
-4. Update `queen/deploy.ts` to use the new runner.
+Honey Benchmark Swarm uses a centralized configuration system in `layers/config.ts`. You can customize the behavior by:
 
-## 📊 Benefits
+1. Modifying the configuration file directly
+2. Setting environment variables (e.g., `HONEY_LOG_LEVEL=DEBUG`)
+3. Creating environment-specific configurations
 
-- **Self-Optimizing**: Pick the best environment for a task based on real data.
-- **Pluggable Future**: Easy to add more runtimes (e.g., Podman, gVisor).
-- **Transparent Tradeoffs**: Make speed vs. isolation vs. memory tradeoffs visible.
-- **Dev-Ready**: Build confidence in deploy pipelines with real metrics.
-
-## 📝 License
+## License
 
 MIT
 

@@ -6,6 +6,17 @@
 import * as Docker from "../runners/docker.ts";
 import * as Firecracker from "../runners/firecracker.ts";
 import * as Wasm from "../runners/wasm.ts";
+import { validateCombParams } from "../layers/security.ts";
+import { 
+  createErrorResult, 
+  withTimeout, 
+  ValidationError 
+} from "../layers/errors.ts";
+import { createLogger } from "../layers/logging.ts";
+import config from "../layers/config.ts";
+
+// Create a logger for this module
+const logger = createLogger("queen");
 
 /**
  * Interface for comb execution parameters
@@ -14,6 +25,7 @@ export interface CombParams {
   comb: string;
   runner: string;
   location: string;
+  params?: Record<string, unknown>;
 }
 
 /**
@@ -22,40 +34,50 @@ export interface CombParams {
  * @param params The comb execution parameters
  * @returns Performance metrics and execution results
  */
-export async function runComb({ comb, runner, location }: CombParams): Promise<Record<string, unknown>> {
+export async function runComb({ comb, runner, location, params = {} }: CombParams): Promise<Record<string, unknown>> {
   const contextId = crypto.randomUUID();
   const start = Date.now();
   
-  console.log(`Queen deploying ${comb} to ${runner} in ${location} environment...`);
+  // Validate parameters
+  const validation = validateCombParams({ comb, runner, location });
+  if (!validation.valid) {
+    throw new ValidationError(validation.error || "Invalid parameters");
+  }
+  
+  logger.info(`Queen deploying ${comb} to ${runner} in ${location} environment...`, { contextId });
   
   let result;
   try {
-    // Select the appropriate runner
-    if (runner === "docker") {
-      result = await Docker.run(comb, location);
-    } else if (runner === "firecracker") {
-      result = await Firecracker.run(comb, location);
-    } else if (runner === "wasm") {
-      result = await Wasm.run(comb, location);
-    } else {
-      throw new Error(`Unknown runner: ${runner}`);
-    }
+    // Run with timeout based on the runner
+    const timeoutMs = config.security.timeouts[runner as keyof typeof config.security.timeouts] || 
+                      config.security.timeouts.default;
     
-    console.log(`Queen: ${comb} execution completed successfully in ${runner}@${location}`);
+    result = await withTimeout(
+      async () => {
+        // Select the appropriate runner
+        if (runner === "docker") {
+          return await Docker.run(comb, location);
+        } else if (runner === "firecracker") {
+          return await Firecracker.run(comb, location);
+        } else if (runner === "wasm") {
+          return await Wasm.run(comb, location);
+        } else {
+          throw new ValidationError(`Unknown runner: ${runner}`);
+        }
+      },
+      timeoutMs,
+      `${runner} execution of ${comb}`
+    );
+    
+    logger.success(`${comb} execution completed successfully in ${runner}@${location}`, { 
+      contextId,
+      exec_time_ms: result.exec_time_ms
+    });
   } catch (error) {
-    console.error(`Queen: ${comb} execution failed in ${runner}@${location}:`, error);
+    logger.error(`${comb} execution failed in ${runner}@${location}:`, error, { contextId });
     
-    // Return error result
-    result = {
-      success: false,
-      error: error.message,
-      stdout: "",
-      stderr: error.stack || "",
-      boot_time_ms: 0,
-      exec_time_ms: 0,
-      runner,
-      location
-    };
+    // Create standardized error result
+    result = createErrorResult(error, runner, location, comb);
   }
   
   const end = Date.now();
@@ -68,7 +90,8 @@ export async function runComb({ comb, runner, location }: CombParams): Promise<R
     location,
     contextId,
     total_time_ms: end - start,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    params
   };
 }
 
