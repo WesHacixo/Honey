@@ -29,7 +29,7 @@ export interface BenchmarkMetrics {
 // Import database layers
 // These would be imported from the agent_data_layer in the final integration
 // For now, we'll use placeholder functions
-function storeInMongoDB(_metrics: BenchmarkMetrics): string {
+function storeInMongoDB(_metrics: Record<string, unknown>): string {
   const contextId = crypto.randomUUID();
 
   // In a real implementation, this would connect to MongoDB and insert the record
