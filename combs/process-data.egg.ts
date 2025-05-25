@@ -77,7 +77,7 @@ async function processDataset(
  *
  * @param dataset Array of data items to process
  */
-async function simulateProcessingSteps(dataset: Array<Record<string, unknown>>): Promise<void> {
+async function simulateProcessingSteps(_dataset: Array<Record<string, unknown>>): Promise<void> {
   // Step 1: Data cleaning
   console.log("Step 1: Cleaning data...");
   await new Promise((resolve) => setTimeout(resolve, 100));

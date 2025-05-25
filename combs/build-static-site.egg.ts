@@ -9,7 +9,7 @@
  * @param params Optional parameters for the build
  * @returns Build result
  */
-export async function main(params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
+export async function main(_params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
   console.log("Building static site...");
 
   // Simulate build steps

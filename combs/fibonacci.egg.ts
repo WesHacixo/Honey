@@ -22,7 +22,7 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
   );
 
   const startTime = performance.now();
-  let results: number[] = [];
+  const results: number[] = [];
 
   // Calculate Fibonacci sequence
   // Note: Intentionally using recursive implementation for CPU load testing

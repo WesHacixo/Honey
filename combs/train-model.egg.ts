@@ -73,8 +73,8 @@ async function trainModel(
 ): Promise<Record<string, unknown>> {
   console.log(`Training model for ${epochs} epochs...`);
 
-  // Initialize model parameters
-  let weights = [0, 0];
+  // Simple linear regression training simulation
+  const weights = [0, 0];
   let bias = 0;
   const learningRate = 0.01;
 
