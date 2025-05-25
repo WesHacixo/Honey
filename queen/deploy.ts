@@ -14,6 +14,7 @@ export interface CombParams {
   comb: string;
   runner: string;
   location: string;
+  params?: Record<string, unknown>;
 }
 
 /**
@@ -22,7 +23,7 @@ export interface CombParams {
  * @param params The comb execution parameters
  * @returns Performance metrics and execution results
  */
-export async function runComb({ comb, runner, location }: CombParams): Promise<Record<string, unknown>> {
+export async function runComb({ comb, runner, location, params = {} }: CombParams): Promise<Record<string, unknown>> {
   const contextId = crypto.randomUUID();
   const start = Date.now();
   
@@ -68,7 +69,7 @@ export async function runComb({ comb, runner, location }: CombParams): Promise<R
     location,
     contextId,
     total_time_ms: end - start,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    params
   };
 }
-
