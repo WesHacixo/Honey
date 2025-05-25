@@ -59,7 +59,8 @@ jobs:
         echo "🔍 Scanning for security issues..."
         
         # Check for hardcoded secrets - improved pattern to reduce false positives
-        if grep -r "password=\|secret=\|apikey=\|token=" --include="*.ts" --include="*.js" --exclude-dir=tests .; then
+        # Exclude environment variable assignments like Deno.env.get()
+        if grep -r "password=\|secret=\|apikey=\|token=" --include="*.ts" --include="*.js" --exclude-dir=tests . | grep -v "Deno.env.get\|process.env\|env.get"; then
           echo "⚠️ Potential hardcoded secrets found"
           exit 1
         fi
