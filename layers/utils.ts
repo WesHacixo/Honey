@@ -185,10 +185,7 @@ export async function isCommandAvailable(command: string): Promise<boolean> {
     const result = await process.output();
 
     return result.success;
-    process.close();
-
-    return status.success;
-  } catch (_error) {
+  } catch (error) {
     logger.debug(`Command ${sanitizeForLogging(command)} not available:`, { error });
     return false;
   }
@@ -221,8 +218,7 @@ export async function runCommand(cmd: string, args: string[] = []): Promise<{
       stderr: new TextDecoder().decode(result.stderr),
       code: result.code,
     };
-    };
-  } catch (_error) {
+  } catch (error) {
     // Sanitize command and args for logging
     const sanitizedCmd = sanitizeForLogging(cmd);
     const sanitizedArgs = args.map((arg) => sanitizeForLogging(arg));

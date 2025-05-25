@@ -175,7 +175,7 @@ export async function runBenchmark(
 /**
  * List all available combs
  */
-export async function listAvailableCombs(): Promise<void> {
+export function listAvailableCombs(): void {
   const combs = listCombs();
 
   logger.info("\n🍯 Available Combs:");

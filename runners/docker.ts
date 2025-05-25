@@ -3,7 +3,6 @@
  * Executes a comb in a Docker container and measures performance metrics
  */
 
-import { join } from "https://deno.land/std@0.208.0/path/mod.ts";
 import { executeComb } from "../layers/utils.ts";
 import {
   generateSecureContainerName,
@@ -15,7 +14,7 @@ import {
 import {
   RunnerExecutionError,
   RunnerNotAvailableError,
-  withRetry,
+  
   withTimeout,
 } from "../layers/errors.ts";
 import { createLogger } from "../layers/logging.ts";
@@ -39,8 +38,8 @@ export async function run(comb: string, location: string): Promise<Record<string
     throw new Error(`Invalid comb name: ${sanitizeForLogging(comb)}`);
   }
 
-  const sanitizedComb = sanitizeCombName(comb);
-  const sanitizedLocation = sanitizeForLogging(location);
+  const _sanitizedComb = sanitizeCombName(comb);
+  const _sanitizedLocation = sanitizeForLogging(location);
   const start = Date.now();
   const containerName = generateSecureContainerName(sanitizedComb);
 
@@ -61,7 +60,7 @@ export async function run(comb: string, location: string): Promise<Record<string
   }
 
   // Measure boot time
-  const bootStart = Date.now();
+  const _bootStart = Date.now();
 
   try {
     // Run the container with security options and resource limits
@@ -121,9 +120,9 @@ async function runDockerContainer(
   memoryUsage: string;
   cpuUsage: string;
 }> {
-  const bootStart = Date.now();
-  const sanitizedComb = sanitizeForLogging(comb);
-  const sanitizedLocation = sanitizeForLogging(location);
+  const _bootStart = Date.now();
+  const _sanitizedComb = sanitizeForLogging(comb);
+  const _sanitizedLocation = sanitizeForLogging(location);
 
   try {
     // Run the container with security options and resource limits
@@ -177,7 +176,6 @@ async function runDockerContainer(
     ]);
     // Get the stats output
     const statsText = new TextDecoder().decode(statsResult.stdout).trim();
-    const statsText = new TextDecoder().decode(statsOutput).trim();
 
     // Parse memory and CPU usage
     let memoryUsage = "N/A";
@@ -241,8 +239,8 @@ async function runDockerContainer(
  */
 async function runDirectly(comb: string, location: string): Promise<Record<string, unknown>> {
   const start = Date.now();
-  const sanitizedComb = sanitizeForLogging(comb);
-  const sanitizedLocation = sanitizeForLogging(location);
+  const _sanitizedComb = sanitizeForLogging(comb);
+  const _sanitizedLocation = sanitizeForLogging(location);
 
   logger.info(
     `[DIRECT] Running ${sanitizedComb} directly in current process (${sanitizedLocation})...`,

@@ -113,8 +113,6 @@ async function startFirecracker(config: Record<string, unknown>): Promise<Deno.P
     stdout: "piped",
     stderr: "piped",
   }).spawn();
-    stderr: "piped",
-  });
 
   // Wait for socket to be created
   let attempts = 0;

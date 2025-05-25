@@ -1,5 +1,5 @@
 /**
- * Memory stress test comb
+ * Memory stress test comb for Honey Benchmark Swarm
  * Tests memory allocation and garbage collection performance
  */
 
@@ -31,10 +31,21 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
   let totalAllocated = 0;
   let peakMemory = 0;
 
+  // Type definition for performance.memory (Chrome-specific)
+  interface PerformanceMemory {
+    usedJSHeapSize?: number;
+    totalJSHeapSize?: number;
+    jsHeapSizeLimit?: number;
+  }
+
+  interface ExtendedPerformance extends Performance {
+    memory?: PerformanceMemory;
+  }
+
   // Track memory usage if available
   const getMemoryUsage = () => {
     try {
-      return (performance as any).memory?.usedJSHeapSize || 0;
+      return (performance as ExtendedPerformance).memory?.usedJSHeapSize || 0;
     } catch {
       return 0;
     }

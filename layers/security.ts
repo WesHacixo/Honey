@@ -143,8 +143,6 @@ export async function validateDockerEnvironment(): Promise<boolean> {
     const output = new TextDecoder().decode(result.stdout);
 
     if (!result.success) {
-
-    if (!status.success) {
       console.error("Docker is not available");
       return false;
     }

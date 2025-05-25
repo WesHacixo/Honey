@@ -113,22 +113,25 @@ const environments: Record<string, Partial<typeof defaultConfig>> = {
 const currentEnv = Deno.env.get("HONEY_ENV") || "development";
 
 // Deep merge function for configurations
-function deepMerge<T>(target: T, source: Partial<T>): T {
+function deepMerge<T extends Record<string, unknown>>(target: T, source: Partial<T>): T {
   const output = { ...target };
 
   if (isObject(target) && isObject(source)) {
     Object.keys(source).forEach((key) => {
-      if (isObject(source[key as keyof typeof source])) {
+      const sourceValue = source[key as keyof typeof source];
+      const targetValue = target[key as keyof typeof target];
+      
+      if (isObject(sourceValue)) {
         if (!(key in target)) {
-          Object.assign(output, { [key]: source[key as keyof typeof source] });
+          Object.assign(output, { [key]: sourceValue });
         } else {
-          (output as any)[key] = deepMerge(
-            (target as any)[key],
-            source[key as keyof typeof source] as any,
+          (output as Record<string, unknown>)[key] = deepMerge(
+            targetValue as Record<string, unknown>,
+            sourceValue as Record<string, unknown>,
           );
         }
       } else {
-        Object.assign(output, { [key]: source[key as keyof typeof source] });
+        Object.assign(output, { [key]: sourceValue });
       }
     });
   }
@@ -137,7 +140,7 @@ function deepMerge<T>(target: T, source: Partial<T>): T {
 }
 
 // Helper function to check if value is an object
-function isObject(item: any): boolean {
+function isObject(item: unknown): item is Record<string, unknown> {
   return (item && typeof item === "object" && !Array.isArray(item));
 }
 

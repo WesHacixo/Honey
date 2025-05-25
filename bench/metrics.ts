@@ -1,6 +1,6 @@
 /**
- * Metrics logger and summarizer for benchmark swarm
- * Records benchmark results to MongoDB and Pinecone
+ * Metrics collection and storage for Honey Benchmark Swarm
+ * Handles benchmark result storage and vector embeddings
  */
 
 import { createLogger } from "../layers/logging.ts";
@@ -14,22 +14,14 @@ const logger = createLogger("metrics");
 // Import database layers
 // These would be imported from the agent_data_layer in the final integration
 // For now, we'll use placeholder functions
-function insertToMongo(contextId: string, _summary: string, _agentId: string): string {
-  if (!config.metrics.mongodb.enabled) {
-    logger.debug(`MongoDB metrics disabled, skipping record for ${sanitizeForLogging(contextId)}`);
-    return contextId;
-  }
-
-  logger.info(`Storing benchmark result for ${sanitizeForLogging(contextId)} in MongoDB`);
-
-  try {
-    // In a real implementation, this would connect to MongoDB and insert the record
-    // For now, we'll just simulate success
-    return contextId;
-  } catch (error) {
-    logger.error(`Failed to store metrics in MongoDB:`, error);
-    return contextId;
-  }
+function storeInMongoDB(_metrics: BenchmarkMetrics): string {
+  const contextId = crypto.randomUUID();
+  
+  // In a real implementation, this would connect to MongoDB and insert the record
+  // For now, we'll just simulate success
+  logger.info(`Storing metrics in MongoDB with context ID: ${contextId}`);
+  
+  return contextId;
 }
 
 function embedToPinecone(text: string, metadata: Record<string, string>): string {
@@ -75,11 +67,7 @@ export function recordMetrics(result: Record<string, unknown>): void {
 
   try {
     // Store the full result in MongoDB
-    insertToMongo(
-      record.contextId as string || "unknown",
-      JSON.stringify(record),
-      record.agentId as string,
-    );
+    storeInMongoDB(record);
 
     // Create a summary for vector embedding
     const summary = `Benchmark: ${sanitizedComb} on ${sanitizedRunner}@${sanitizedLocation} - ` +
