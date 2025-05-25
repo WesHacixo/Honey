@@ -4,13 +4,25 @@
  */
 
 import { ensureDirectory } from "../layers/utils.ts";
+import { sanitizeForLogging } from "../layers/security.ts";
 
 export async function main(params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
   const fileCount = (params.fileCount as number) || 100;
   const fileSize = (params.fileSize as number) || 1024; // bytes
   const testDir = (params.testDir as string) || "./temp-io-test";
   
-  console.log(`📁 File I/O test: ${fileCount} files, ${fileSize} bytes each`);
+  // Input validation for security and performance
+  if (fileCount < 1 || fileCount > 10000) {
+    throw new Error("File count must be between 1 and 10,000");
+  }
+  if (fileSize < 1 || fileSize > 1048576) { // 1MB max
+    throw new Error("File size must be between 1 byte and 1MB");
+  }
+  if (!testDir || testDir.includes("..") || testDir.includes("/etc") || testDir.includes("/usr")) {
+    throw new Error("Invalid test directory path");
+  }
+  
+  console.log(`📁 File I/O test: ${sanitizeForLogging(fileCount)} files, ${sanitizeForLogging(fileSize)} bytes each`);
   
   const startTime = performance.now();
   let filesCreated = 0;
@@ -65,9 +77,9 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
     const endTime = performance.now();
     const totalTime = endTime - startTime;
     
-    console.log(`✅ Completed I/O test in ${totalTime.toFixed(2)}ms`);
-    console.log(`📊 Write: ${writeTime.toFixed(2)}ms, Read: ${readTime.toFixed(2)}ms`);
-    console.log(`💾 Total data: ${(totalBytesWritten / 1024).toFixed(2)}KB written, ${(totalBytesRead / 1024).toFixed(2)}KB read`);
+    console.log(`✅ Completed I/O test in ${sanitizeForLogging(totalTime.toFixed(2))}ms`);
+    console.log(`📊 Write: ${sanitizeForLogging(writeTime.toFixed(2))}ms, Read: ${sanitizeForLogging(readTime.toFixed(2))}ms`);
+    console.log(`💾 Total data: ${sanitizeForLogging((totalBytesWritten / 1024).toFixed(2))}KB written, ${sanitizeForLogging((totalBytesRead / 1024).toFixed(2))}KB read`);
     
     return {
       success: true,
@@ -118,4 +130,3 @@ if (import.meta.main) {
   const result = await main({ fileCount: 50, fileSize: 2048 });
   console.log(JSON.stringify(result, null, 2));
 }
-

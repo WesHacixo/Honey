@@ -3,12 +3,25 @@
  * Tests memory allocation and garbage collection performance
  */
 
+import { sanitizeForLogging } from "../layers/security.ts";
+
 export async function main(params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
   const arraySize = (params.arraySize as number) || 1000000; // 1M elements
   const iterations = (params.iterations as number) || 10;
   const objectSize = (params.objectSize as number) || 100; // Properties per object
   
-  console.log(`🧠 Memory stress test: ${arraySize} objects, ${iterations} iterations`);
+  // Input validation for security and performance
+  if (arraySize < 1 || arraySize > 10000000) {
+    throw new Error("Array size must be between 1 and 10,000,000");
+  }
+  if (iterations < 1 || iterations > 100) {
+    throw new Error("Iterations must be between 1 and 100");
+  }
+  if (objectSize < 1 || objectSize > 1000) {
+    throw new Error("Object size must be between 1 and 1000 properties");
+  }
+  
+  console.log(`🧠 Memory stress test: ${sanitizeForLogging(arraySize)} objects, ${sanitizeForLogging(iterations)} iterations`);
   
   const startTime = performance.now();
   let totalAllocated = 0;
@@ -26,7 +39,7 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
   const initialMemory = getMemoryUsage();
   
   for (let iteration = 0; iteration < iterations; iteration++) {
-    console.log(`📊 Iteration ${iteration + 1}/${iterations}`);
+    console.log(`📊 Iteration ${sanitizeForLogging(iteration + 1)}/${sanitizeForLogging(iterations)}`);
     
     // Create large array of objects
     const largeArray: Record<string, unknown>[] = [];
@@ -65,9 +78,9 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
   const totalTime = endTime - startTime;
   const finalMemory = getMemoryUsage();
   
-  console.log(`✅ Completed memory stress test in ${totalTime.toFixed(2)}ms`);
-  console.log(`📈 Peak memory usage: ${(peakMemory / 1024 / 1024).toFixed(2)}MB`);
-  console.log(`🗑️ Memory after cleanup: ${(finalMemory / 1024 / 1024).toFixed(2)}MB`);
+  console.log(`✅ Completed memory stress test in ${sanitizeForLogging(totalTime.toFixed(2))}ms`);
+  console.log(`📈 Peak memory usage: ${sanitizeForLogging((peakMemory / 1024 / 1024).toFixed(2))}MB`);
+  console.log(`🗑️ Memory after cleanup: ${sanitizeForLogging((finalMemory / 1024 / 1024).toFixed(2))}MB`);
   
   return {
     success: true,
@@ -101,4 +114,3 @@ if (import.meta.main) {
   const result = await main({ arraySize: 100000, iterations: 5 });
   console.log(JSON.stringify(result, null, 2));
 }
-

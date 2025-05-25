@@ -55,6 +55,40 @@ await describe("Security Module", {
     Assert.false(result.includes("\t"));
   },
 
+  "sanitizeForLogging should handle numbers safely": () => {
+    Assert.equals(sanitizeForLogging(42), "42");
+    Assert.equals(sanitizeForLogging(3.14159), "3.14159");
+    Assert.equals(sanitizeForLogging(-100), "-100");
+  },
+
+  "sanitizeForLogging should handle arrays safely": () => {
+    const arr = ["item1\nwith\nnewlines", "item2\twith\ttabs"];
+    const result = sanitizeForLogging(arr);
+    Assert.true(typeof result === "string");
+    Assert.false(result.includes("\n"));
+    Assert.false(result.includes("\t"));
+  },
+
+  "sanitizeForLogging should handle malicious injection attempts": () => {
+    // Test various log injection patterns
+    const maliciousInputs = [
+      "user\n[FAKE] Admin logged in",
+      "data\r\n[ERROR] System compromised",
+      "value\x1b[31mRed text injection\x1b[0m",
+      "input\u0000null byte injection",
+      "test\u2028line separator injection"
+    ];
+
+    for (const input of maliciousInputs) {
+      const sanitized = sanitizeForLogging(input);
+      Assert.false(sanitized.includes("\n"));
+      Assert.false(sanitized.includes("\r"));
+      Assert.false(sanitized.includes("\x1b"));
+      Assert.false(sanitized.includes("\x00"));
+      Assert.false(sanitized.includes("\u2028"));
+    }
+  },
+
   "validateFilePath should accept valid paths": () => {
     Assert.true(validateFilePath("./combs/test.egg.ts"));
     Assert.true(validateFilePath("combs/build-static-site.egg.ts"));
@@ -119,4 +153,3 @@ await describe("Security Module", {
     Assert.false(validateRunner("docker\nfirecracker"));
   }
 });
-
