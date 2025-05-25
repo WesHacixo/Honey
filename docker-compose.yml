@@ -1,12 +1,12 @@
-version: '3.8'
+version: "3.8"
 
 services:
   honey:
     build: .
     container_name: honey-benchmark
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock  # For Docker-in-Docker
-      - ./results:/app/results  # Mount results directory
+      - /var/run/docker.sock:/var/run/docker.sock # For Docker-in-Docker
+      - ./results:/app/results # Mount results directory
     environment:
       - HONEY_LOG_LEVEL=INFO
       - HONEY_METRICS_ENABLED=true
@@ -60,4 +60,3 @@ volumes:
 networks:
   honey-network:
     driver: bridge
-

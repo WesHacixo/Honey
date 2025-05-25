@@ -5,16 +5,16 @@
 
 import { join } from "https://deno.land/std@0.208.0/path/mod.ts";
 import {
-  validateCombName,
   sanitizeCombName,
+  sanitizeForLogging,
+  validateCombName,
   validateFilePath,
-  sanitizeForLogging
 } from "../layers/security.ts";
 import {
   RunnerExecutionError,
   RunnerNotAvailableError,
+  withRetry,
   withTimeout,
-  withRetry
 } from "../layers/errors.ts";
 import { createLogger } from "../layers/logging.ts";
 import config from "../layers/config.ts";
@@ -32,7 +32,7 @@ async function isFirecrackerAvailable(): Promise<boolean> {
     const process = Deno.run({
       cmd: ["which", "firecracker"],
       stdout: "piped",
-      stderr: "piped"
+      stderr: "piped",
     });
 
     const status = await process.status();
@@ -54,38 +54,42 @@ async function isFirecrackerAvailable(): Promise<boolean> {
 function createFirecrackerConfig(comb: string): Record<string, unknown> {
   // Validate kernel and rootfs paths
   if (!validateFilePath(config.runners.firecracker.kernelPath)) {
-    throw new Error(`Invalid kernel path: ${sanitizeForLogging(config.runners.firecracker.kernelPath)}`);
+    throw new Error(
+      `Invalid kernel path: ${sanitizeForLogging(config.runners.firecracker.kernelPath)}`,
+    );
   }
 
   if (!validateFilePath(config.runners.firecracker.rootfsPath)) {
-    throw new Error(`Invalid rootfs path: ${sanitizeForLogging(config.runners.firecracker.rootfsPath)}`);
+    throw new Error(
+      `Invalid rootfs path: ${sanitizeForLogging(config.runners.firecracker.rootfsPath)}`,
+    );
   }
 
   return {
     boot_source: {
       kernel_image_path: config.runners.firecracker.kernelPath,
-      boot_args: "console=ttyS0 reboot=k panic=1 pci=off"
+      boot_args: "console=ttyS0 reboot=k panic=1 pci=off",
     },
     drives: [
       {
         drive_id: "rootfs",
         path_on_host: config.runners.firecracker.rootfsPath,
         is_root_device: true,
-        is_read_only: false
-      }
+        is_read_only: false,
+      },
     ],
     machine_config: {
       vcpu_count: config.runners.firecracker.resourceLimits.vcpus,
       mem_size_mib: parseInt(config.runners.firecracker.resourceLimits.memory),
-      ht_enabled: false
+      ht_enabled: false,
     },
     network_interfaces: [
       {
         iface_id: "eth0",
         guest_mac: "AA:FC:00:00:00:01",
-        host_dev_name: "tap0"
-      }
-    ]
+        host_dev_name: "tap0",
+      },
+    ],
   };
 }
 
@@ -110,7 +114,7 @@ async function startFirecracker(config: Record<string, unknown>): Promise<Deno.P
   const process = Deno.run({
     cmd: ["firecracker", "--api-sock", socketPath],
     stdout: "piped",
-    stderr: "piped"
+    stderr: "piped",
   });
 
   // Wait for socket to be created
@@ -124,17 +128,24 @@ async function startFirecracker(config: Record<string, unknown>): Promise<Deno.P
       }
     } catch (error) {
       // Socket doesn't exist yet
-      logger.debug(`Waiting for socket ${sanitizeForLogging(socketPath)} to be created (attempt ${attempts + 1}/${maxAttempts})`);
+      logger.debug(
+        `Waiting for socket ${sanitizeForLogging(socketPath)} to be created (attempt ${
+          attempts + 1
+        }/${maxAttempts})`,
+      );
     }
 
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
     attempts++;
   }
 
   if (attempts >= maxAttempts) {
     process.kill("SIGTERM");
     process.close();
-    throw new RunnerExecutionError("firecracker", `Socket ${sanitizeForLogging(socketPath)} was not created after ${maxAttempts} attempts`);
+    throw new RunnerExecutionError(
+      "firecracker",
+      `Socket ${sanitizeForLogging(socketPath)} was not created after ${maxAttempts} attempts`,
+    );
   }
 
   // Configure the microVM
@@ -152,20 +163,26 @@ async function configureFirecracker(config: Record<string, unknown>): Promise<vo
   const socketPath = config.runners.firecracker.socketPath;
 
   // Helper function to make API requests to Firecracker
-  async function firecrackerApiRequest(method: string, path: string, body: unknown): Promise<Response> {
+  async function firecrackerApiRequest(
+    method: string,
+    path: string,
+    body: unknown,
+  ): Promise<Response> {
     const response = await fetch(`http://localhost/${path}`, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
       throw new RunnerExecutionError(
         "firecracker",
-        `API request failed: ${method} ${sanitizeForLogging(path)} - ${response.status} ${response.statusText}`,
+        `API request failed: ${method} ${
+          sanitizeForLogging(path)
+        } - ${response.status} ${response.statusText}`,
         "",
-        sanitizeForLogging(errorText)
+        sanitizeForLogging(errorText),
       );
     }
 
@@ -205,13 +222,19 @@ export async function run(comb: string, location: string): Promise<Record<string
   const sanitizedLocation = sanitizeForLogging(location);
   const start = Date.now();
 
-  logger.info(`Starting Firecracker microVM for ${sanitizeForLogging(sanitizedComb)} in ${sanitizedLocation} environment...`);
+  logger.info(
+    `Starting Firecracker microVM for ${
+      sanitizeForLogging(sanitizedComb)
+    } in ${sanitizedLocation} environment...`,
+  );
 
   // Check if Firecracker is available
   const firecrackerAvailable = await isFirecrackerAvailable();
 
   if (!firecrackerAvailable) {
-    logger.warn(`Firecracker not available, using simulation mode for ${sanitizeForLogging(sanitizedComb)}`);
+    logger.warn(
+      `Firecracker not available, using simulation mode for ${sanitizeForLogging(sanitizedComb)}`,
+    );
     return simulateFirecrackerRun(sanitizedComb, location);
   }
 
@@ -235,7 +258,7 @@ export async function run(comb: string, location: string): Promise<Record<string
         // For now, we'll simulate execution
 
         // Simulate execution time
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         // Get resource usage
         // In a real implementation, this would involve querying the VM for resource usage
@@ -251,18 +274,20 @@ export async function run(comb: string, location: string): Promise<Record<string
 
         return {
           success: true,
-          stdout: `Successfully executed ${sanitizeForLogging(sanitizedComb)} in Firecracker microVM (${sanitizedLocation})`,
+          stdout: `Successfully executed ${
+            sanitizeForLogging(sanitizedComb)
+          } in Firecracker microVM (${sanitizedLocation})`,
           stderr: "",
           boot_time_ms: bootTime,
           exec_time_ms: execTime,
           memory_usage: memoryUsage,
           cpu_usage: cpuUsage,
           runner: "firecracker",
-          location
+          location,
         };
       },
       config.runners.firecracker.timeout,
-      `Firecracker execution of ${sanitizeForLogging(sanitizedComb)}`
+      `Firecracker execution of ${sanitizeForLogging(sanitizedComb)}`,
     );
   } catch (error) {
     logger.error(`Error running ${sanitizeForLogging(sanitizedComb)} in Firecracker:`, error);
@@ -280,22 +305,28 @@ export async function run(comb: string, location: string): Promise<Record<string
  * @param location The location to run the comb (local or cloud)
  * @returns Simulated performance metrics and execution results
  */
-async function simulateFirecrackerRun(comb: string, location: string): Promise<Record<string, unknown>> {
+async function simulateFirecrackerRun(
+  comb: string,
+  location: string,
+): Promise<Record<string, unknown>> {
   const start = Date.now();
   const sanitizedComb = sanitizeForLogging(comb);
   const sanitizedLocation = sanitizeForLogging(location);
 
-  logger.info(`[SIMULATION] Running ${sanitizedComb} in simulated Firecracker environment (${sanitizedLocation})...`);
+  logger.info(
+    `[SIMULATION] Running ${sanitizedComb} in simulated Firecracker environment (${sanitizedLocation})...`,
+  );
 
   // Simulate execution time (faster than Docker, slower than WASM)
-  await new Promise(resolve => setTimeout(resolve, 800));
+  await new Promise((resolve) => setTimeout(resolve, 800));
 
   // Simulate boot time (typically faster than Docker)
   const bootTime = 80;
 
   // Simulate execution
   const success = true;
-  const stdout = `[SIMULATION] Successfully executed ${sanitizedComb} in simulated Firecracker microVM (${sanitizedLocation})`;
+  const stdout =
+    `[SIMULATION] Successfully executed ${sanitizedComb} in simulated Firecracker microVM (${sanitizedLocation})`;
   const stderr = "";
 
   // Simulate resource usage (less than Docker, more than WASM)
@@ -315,7 +346,6 @@ async function simulateFirecrackerRun(comb: string, location: string): Promise<R
     cpu_usage: cpuUsage,
     runner: "firecracker",
     location,
-    simulated: true
+    simulated: true,
   };
 }
-

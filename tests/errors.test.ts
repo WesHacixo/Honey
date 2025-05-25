@@ -2,19 +2,19 @@
  * Unit tests for error handling module
  */
 
-import { describe, Assert } from "./test_runner.ts";
+import { Assert, describe } from "./test_runner.ts";
 import {
-  HoneyError,
   CombNotFoundError,
-  RunnerNotAvailableError,
+  createErrorResult,
+  HoneyError,
+  ResourceNotAvailableError,
   RunnerExecutionError,
-  ValidationError,
+  RunnerNotAvailableError,
   SecurityError,
   TimeoutError,
-  ResourceNotAvailableError,
-  createErrorResult,
+  ValidationError,
+  withRetry,
   withTimeout,
-  withRetry
 } from "../layers/errors.ts";
 
 await describe("Error Handling Module", {
@@ -98,11 +98,11 @@ await describe("Error Handling Module", {
   "withTimeout should resolve successful operations": async () => {
     const result = await withTimeout(
       async () => {
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
         return "success";
       },
       100,
-      "test operation"
+      "test operation",
     );
     Assert.equals(result, "success");
   },
@@ -111,11 +111,11 @@ await describe("Error Handling Module", {
     await Assert.throwsAsync(async () => {
       await withTimeout(
         async () => {
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 100));
           return "success";
         },
         10,
-        "test operation"
+        "test operation",
       );
     });
   },
@@ -133,13 +133,17 @@ await describe("Error Handling Module", {
 
   "withRetry should retry on failure": async () => {
     let attempts = 0;
-    const result = await withRetry(async () => {
-      attempts++;
-      if (attempts < 3) {
-        throw new Error("temporary failure");
-      }
-      return "success";
-    }, 3, 1); // 1ms initial delay for fast testing
+    const result = await withRetry(
+      async () => {
+        attempts++;
+        if (attempts < 3) {
+          throw new Error("temporary failure");
+        }
+        return "success";
+      },
+      3,
+      1,
+    ); // 1ms initial delay for fast testing
 
     Assert.equals(result, "success");
     Assert.equals(attempts, 3);
@@ -148,13 +152,16 @@ await describe("Error Handling Module", {
   "withRetry should throw after max retries": async () => {
     let attempts = 0;
     await Assert.throwsAsync(async () => {
-      await withRetry(async () => {
-        attempts++;
-        throw new Error("persistent failure");
-      }, 2, 1); // 1ms initial delay for fast testing
+      await withRetry(
+        async () => {
+          attempts++;
+          throw new Error("persistent failure");
+        },
+        2,
+        1,
+      ); // 1ms initial delay for fast testing
     });
 
     Assert.equals(attempts, 3); // Initial attempt + 2 retries
-  }
+  },
 });
-

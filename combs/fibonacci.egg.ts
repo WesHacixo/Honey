@@ -17,7 +17,9 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
     throw new Error("Iterations must be between 1 and 100");
   }
 
-  console.log(`🔢 Calculating Fibonacci(${sanitizeForLogging(n)}) ${sanitizeForLogging(iterations)} time(s)`);
+  console.log(
+    `🔢 Calculating Fibonacci(${sanitizeForLogging(n)}) ${sanitizeForLogging(iterations)} time(s)`,
+  );
 
   const startTime = performance.now();
   let results: number[] = [];
@@ -39,7 +41,11 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
   const totalTime = endTime - startTime;
   const avgTime = totalTime / iterations;
 
-  console.log(`✅ Completed ${sanitizeForLogging(iterations)} iterations in ${sanitizeForLogging(totalTime.toFixed(2))}ms`);
+  console.log(
+    `✅ Completed ${sanitizeForLogging(iterations)} iterations in ${
+      sanitizeForLogging(totalTime.toFixed(2))
+    }ms`,
+  );
   console.log(`📊 Average time per calculation: ${sanitizeForLogging(avgTime.toFixed(2))}ms`);
   console.log(`🎯 Fibonacci(${sanitizeForLogging(n)}) = ${sanitizeForLogging(results[0])}`);
 
@@ -54,8 +60,8 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
     metrics: {
       cpuIntensive: true,
       memoryUsage: "low",
-      ioUsage: "none"
-    }
+      ioUsage: "none",
+    },
   };
 }
 

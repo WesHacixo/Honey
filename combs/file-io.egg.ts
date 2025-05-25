@@ -22,7 +22,11 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
     throw new Error("Invalid test directory path");
   }
 
-  console.log(`📁 File I/O test: ${sanitizeForLogging(fileCount)} files, ${sanitizeForLogging(fileSize)} bytes each`);
+  console.log(
+    `📁 File I/O test: ${sanitizeForLogging(fileCount)} files, ${
+      sanitizeForLogging(fileSize)
+    } bytes each`,
+  );
 
   const startTime = performance.now();
   let filesCreated = 0;
@@ -78,8 +82,16 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
     const totalTime = endTime - startTime;
 
     console.log(`✅ Completed I/O test in ${sanitizeForLogging(totalTime.toFixed(2))}ms`);
-    console.log(`📊 Write: ${sanitizeForLogging(writeTime.toFixed(2))}ms, Read: ${sanitizeForLogging(readTime.toFixed(2))}ms`);
-    console.log(`💾 Total data: ${sanitizeForLogging((totalBytesWritten / 1024).toFixed(2))}KB written, ${sanitizeForLogging((totalBytesRead / 1024).toFixed(2))}KB read`);
+    console.log(
+      `📊 Write: ${sanitizeForLogging(writeTime.toFixed(2))}ms, Read: ${
+        sanitizeForLogging(readTime.toFixed(2))
+      }ms`,
+    );
+    console.log(
+      `💾 Total data: ${sanitizeForLogging((totalBytesWritten / 1024).toFixed(2))}KB written, ${
+        sanitizeForLogging((totalBytesRead / 1024).toFixed(2))
+      }KB read`,
+    );
 
     return {
       success: true,
@@ -96,16 +108,15 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
         writeThroughput: (totalBytesWritten / 1024 / writeTime) * 1000, // KB/s
         readThroughput: (totalBytesRead / 1024 / readTime) * 1000, // KB/s
         filesPerSecond: (fileCount / totalTime) * 1000,
-        iops: ((fileCount * 2) / totalTime) * 1000 // Read + Write operations
+        iops: ((fileCount * 2) / totalTime) * 1000, // Read + Write operations
       },
       metrics: {
         cpuIntensive: false,
         memoryUsage: "low",
         ioUsage: "high",
-        diskSpace: totalBytesWritten
-      }
+        diskSpace: totalBytesWritten,
+      },
     };
-
   } catch (error) {
     // Cleanup on error
     try {
@@ -120,7 +131,7 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
       filesCreated,
       filesRead,
       totalBytesWritten,
-      totalBytesRead
+      totalBytesRead,
     };
   }
 }

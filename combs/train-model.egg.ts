@@ -29,7 +29,7 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
     output: "Model training completed successfully",
     metrics: trainingResult,
     dataset_size: datasetSize,
-    epochs
+    epochs,
   };
 }
 
@@ -53,7 +53,7 @@ function generateDataset(size: number): Array<Record<string, unknown>> {
 
     dataset.push({
       features: [x1, x2],
-      label: y
+      label: y,
     });
   }
 
@@ -67,7 +67,10 @@ function generateDataset(size: number): Array<Record<string, unknown>> {
  * @param epochs Number of training epochs
  * @returns Training metrics
  */
-async function trainModel(dataset: Array<Record<string, unknown>>, epochs: number): Promise<Record<string, unknown>> {
+async function trainModel(
+  dataset: Array<Record<string, unknown>>,
+  epochs: number,
+): Promise<Record<string, unknown>> {
   console.log(`Training model for ${epochs} epochs...`);
 
   // Initialize model parameters
@@ -83,7 +86,7 @@ async function trainModel(dataset: Array<Record<string, unknown>>, epochs: numbe
     console.log(`Epoch ${epoch + 1}/${epochs}...`);
 
     // Simulate epoch training time
-    await new Promise(resolve => setTimeout(resolve, 200));
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
     // Compute predictions and update parameters
     let totalLoss = 0;
@@ -113,20 +116,20 @@ async function trainModel(dataset: Array<Record<string, unknown>>, epochs: numbe
       epoch: epoch + 1,
       mse,
       weights: [...weights],
-      bias
+      bias,
     });
   }
 
   // Final model parameters
   const finalModel = {
     weights,
-    bias
+    bias,
   };
 
   return {
     model: finalModel,
     history,
-    final_mse: history[history.length - 1].mse
+    final_mse: history[history.length - 1].mse,
   };
 }
 
@@ -135,4 +138,3 @@ if (import.meta.main) {
   const result = await main();
   console.log(JSON.stringify(result, null, 2));
 }
-

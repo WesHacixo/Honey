@@ -34,7 +34,9 @@ async function insertToMongo(contextId: string, summary: string, agentId: string
 
 async function embedToPinecone(text: string, metadata: Record<string, string>): Promise<string> {
   if (!config.metrics.pinecone.enabled) {
-    logger.debug(`Pinecone metrics disabled, skipping embedding for ${sanitizeForLogging(metadata.contextId)}`);
+    logger.debug(
+      `Pinecone metrics disabled, skipping embedding for ${sanitizeForLogging(metadata.contextId)}`,
+    );
     return crypto.randomUUID();
   }
 
@@ -61,7 +63,7 @@ export async function recordMetrics(result: Record<string, unknown>): Promise<vo
   const record = {
     ...result,
     agentId: "honey-benchmark",
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 
   // Sanitize inputs for logging
@@ -76,7 +78,7 @@ export async function recordMetrics(result: Record<string, unknown>): Promise<vo
     await insertToMongo(
       record.contextId as string || "unknown",
       JSON.stringify(record),
-      record.agentId as string
+      record.agentId as string,
     );
 
     // Create a summary for vector embedding
@@ -92,7 +94,7 @@ export async function recordMetrics(result: Record<string, unknown>): Promise<vo
       comb: sanitizedComb,
       runner: sanitizedRunner,
       location: sanitizedLocation,
-      success: String(record.success)
+      success: String(record.success),
     });
 
     logger.success(`Metrics recorded successfully for ${sanitizedComb}`);
@@ -139,21 +141,29 @@ export function summarizeResults(results: Record<string, unknown>[]): string {
 
     for (const result of combData) {
       summary.push(
-        `| ${sanitizeForLogging(result.runner as string)} | ${sanitizeForLogging(result.location as string)} | ` +
-        `${formatDuration(result.boot_time_ms as number)} | ${formatDuration(result.exec_time_ms as number)} | ` +
-        `${result.memory_usage} | ${result.cpu_usage} | ${result.success} |`
+        `| ${sanitizeForLogging(result.runner as string)} | ${
+          sanitizeForLogging(result.location as string)
+        } | ` +
+          `${formatDuration(result.boot_time_ms as number)} | ${
+            formatDuration(result.exec_time_ms as number)
+          } | ` +
+          `${result.memory_usage} | ${result.cpu_usage} | ${result.success} |`,
       );
     }
 
     // Find the fastest successful runner
-    const successfulResults = combData.filter(r => r.success);
+    const successfulResults = combData.filter((r) => r.success);
 
     if (successfulResults.length > 0) {
       const fastest = successfulResults[0];
-      summary.push(`\n**Fastest Runner:** ${sanitizeForLogging(fastest.runner as string)}@${sanitizeForLogging(fastest.location as string)} (${formatDuration(fastest.exec_time_ms as number)})`);
+      summary.push(
+        `\n**Fastest Runner:** ${sanitizeForLogging(fastest.runner as string)}@${
+          sanitizeForLogging(fastest.location as string)
+        } (${formatDuration(fastest.exec_time_ms as number)})`,
+      );
 
       // Find the most memory-efficient runner (if we have actual numbers)
-      const memoryResults = successfulResults.filter(r => {
+      const memoryResults = successfulResults.filter((r) => {
         const mem = r.memory_usage as string;
         return mem && mem !== "N/A" && /^\d+(\.\d+)?[KMG]?B$/.test(mem);
       });
@@ -179,7 +189,7 @@ export function summarizeResults(results: Record<string, unknown>[]): string {
           const unitOrder = { "B": 0, "KB": 1, "MB": 2, "GB": 3 };
           if (unitA !== unitB) {
             return (unitOrder[unitA as keyof typeof unitOrder] || 0) -
-                   (unitOrder[unitB as keyof typeof unitOrder] || 0);
+              (unitOrder[unitB as keyof typeof unitOrder] || 0);
           }
 
           // Then compare values
@@ -187,7 +197,11 @@ export function summarizeResults(results: Record<string, unknown>[]): string {
         });
 
         const mostMemoryEfficient = memoryResults[0];
-        summary.push(`**Most Memory-Efficient:** ${sanitizeForLogging(mostMemoryEfficient.runner as string)}@${sanitizeForLogging(mostMemoryEfficient.location as string)} (${mostMemoryEfficient.memory_usage})`);
+        summary.push(
+          `**Most Memory-Efficient:** ${sanitizeForLogging(mostMemoryEfficient.runner as string)}@${
+            sanitizeForLogging(mostMemoryEfficient.location as string)
+          } (${mostMemoryEfficient.memory_usage})`,
+        );
       }
     } else {
       summary.push(`\n**No successful executions for this comb**`);
@@ -196,4 +210,3 @@ export function summarizeResults(results: Record<string, unknown>[]): string {
 
   return summary.join("\n");
 }
-

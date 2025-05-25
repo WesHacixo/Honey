@@ -21,7 +21,11 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
     throw new Error("Object size must be between 1 and 1000 properties");
   }
 
-  console.log(`🧠 Memory stress test: ${sanitizeForLogging(arraySize)} objects, ${sanitizeForLogging(iterations)} iterations`);
+  console.log(
+    `🧠 Memory stress test: ${sanitizeForLogging(arraySize)} objects, ${
+      sanitizeForLogging(iterations)
+    } iterations`,
+  );
 
   const startTime = performance.now();
   let totalAllocated = 0;
@@ -39,7 +43,9 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
   const initialMemory = getMemoryUsage();
 
   for (let iteration = 0; iteration < iterations; iteration++) {
-    console.log(`📊 Iteration ${sanitizeForLogging(iteration + 1)}/${sanitizeForLogging(iterations)}`);
+    console.log(
+      `📊 Iteration ${sanitizeForLogging(iteration + 1)}/${sanitizeForLogging(iterations)}`,
+    );
 
     // Create large array of objects
     const largeArray: Record<string, unknown>[] = [];
@@ -65,13 +71,13 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
 
     // Perform some operations on the array
     const filtered = largeArray.filter((_, index) => index % 2 === 0);
-    const mapped = filtered.map(obj => ({ ...obj, processed: true }));
+    const mapped = filtered.map((obj) => ({ ...obj, processed: true }));
 
     // Force garbage collection opportunity
     largeArray.length = 0;
 
     // Small delay to allow GC
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await new Promise((resolve) => setTimeout(resolve, 10));
   }
 
   const endTime = performance.now();
@@ -79,8 +85,12 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
   const finalMemory = getMemoryUsage();
 
   console.log(`✅ Completed memory stress test in ${sanitizeForLogging(totalTime.toFixed(2))}ms`);
-  console.log(`📈 Peak memory usage: ${sanitizeForLogging((peakMemory / 1024 / 1024).toFixed(2))}MB`);
-  console.log(`🗑️ Memory after cleanup: ${sanitizeForLogging((finalMemory / 1024 / 1024).toFixed(2))}MB`);
+  console.log(
+    `📈 Peak memory usage: ${sanitizeForLogging((peakMemory / 1024 / 1024).toFixed(2))}MB`,
+  );
+  console.log(
+    `🗑️ Memory after cleanup: ${sanitizeForLogging((finalMemory / 1024 / 1024).toFixed(2))}MB`,
+  );
 
   return {
     success: true,
@@ -94,18 +104,18 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
       peak: peakMemory,
       final: finalMemory,
       allocated: peakMemory - initialMemory,
-      cleaned: peakMemory - finalMemory
+      cleaned: peakMemory - finalMemory,
     },
     performance: {
       objectsPerSecond: (totalAllocated / totalTime) * 1000,
-      memoryThroughput: ((peakMemory - initialMemory) / 1024 / 1024 / totalTime) * 1000 // MB/s
+      memoryThroughput: ((peakMemory - initialMemory) / 1024 / 1024 / totalTime) * 1000, // MB/s
     },
     metrics: {
       cpuIntensive: false,
       memoryUsage: "high",
       ioUsage: "none",
-      gcPressure: "high"
-    }
+      gcPressure: "high",
+    },
   };
 }
 

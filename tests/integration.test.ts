@@ -3,7 +3,7 @@
  * Tests the complete benchmark workflow
  */
 
-import { describe, Assert } from "./test_runner.ts";
+import { Assert, describe } from "./test_runner.ts";
 import { runBenchmark } from "../bench/index.ts";
 import { runComb } from "../queen/deploy.ts";
 
@@ -13,7 +13,7 @@ await describe("Integration Tests", {
       comb: "build-static-site",
       runner: "docker",
       location: "local",
-      params: {}
+      params: {},
     });
 
     Assert.true(typeof result === "object");
@@ -35,7 +35,7 @@ await describe("Integration Tests", {
       comb: "fibonacci",
       runner: "docker",
       location: "local",
-      params: { n: 10, iterations: 1 }
+      params: { n: 10, iterations: 1 },
     });
 
     Assert.true(typeof result === "object");
@@ -52,7 +52,7 @@ await describe("Integration Tests", {
       comb: "memory-stress",
       runner: "docker",
       location: "local",
-      params: { arraySize: 1000, iterations: 2 }
+      params: { arraySize: 1000, iterations: 2 },
     });
 
     Assert.true(typeof result === "object");
@@ -69,7 +69,7 @@ await describe("Integration Tests", {
       comb: "file-io",
       runner: "docker",
       location: "local",
-      params: { fileCount: 10, fileSize: 100 }
+      params: { fileCount: 10, fileSize: 100 },
     });
 
     Assert.true(typeof result === "object");
@@ -86,7 +86,7 @@ await describe("Integration Tests", {
       comb: "non-existent-comb",
       runner: "docker",
       location: "local",
-      params: {}
+      params: {},
     });
 
     Assert.true(typeof result === "object");
@@ -100,7 +100,7 @@ await describe("Integration Tests", {
       comb: "build-static-site",
       runner: "invalid-runner",
       location: "local",
-      params: {}
+      params: {},
     });
 
     Assert.true(typeof result === "object");
@@ -123,7 +123,7 @@ await describe("Integration Tests", {
       await runBenchmark("fibonacci", {
         runner: "docker",
         location: "local",
-        params: { n: 5, iterations: 1 }
+        params: { n: 5, iterations: 1 },
       });
 
       // Restore console
@@ -142,6 +142,5 @@ await describe("Integration Tests", {
     } else {
       Assert.true(completed);
     }
-  }
+  },
 });
-

@@ -6,17 +6,17 @@
 import { join } from "https://deno.land/std@0.208.0/path/mod.ts";
 import { executeComb } from "../layers/utils.ts";
 import {
-  validateCombName,
-  sanitizeCombName,
   generateSecureContainerName,
+  sanitizeCombName,
+  sanitizeForLogging,
+  validateCombName,
   validateDockerEnvironment,
-  sanitizeForLogging
 } from "../layers/security.ts";
 import {
   RunnerExecutionError,
   RunnerNotAvailableError,
+  withRetry,
   withTimeout,
-  withRetry
 } from "../layers/errors.ts";
 import { createLogger } from "../layers/logging.ts";
 import config from "../layers/config.ts";
@@ -44,13 +44,19 @@ export async function run(comb: string, location: string): Promise<Record<string
   const start = Date.now();
   const containerName = generateSecureContainerName(sanitizedComb);
 
-  logger.info(`Starting Docker container for ${sanitizeForLogging(sanitizedComb)} in ${sanitizedLocation} environment...`);
+  logger.info(
+    `Starting Docker container for ${
+      sanitizeForLogging(sanitizedComb)
+    } in ${sanitizedLocation} environment...`,
+  );
 
   // Check if Docker is available
   const dockerAvailable = await validateDockerEnvironment();
 
   if (!dockerAvailable) {
-    logger.warn(`Docker not available, using direct execution for ${sanitizeForLogging(sanitizedComb)}`);
+    logger.warn(
+      `Docker not available, using direct execution for ${sanitizeForLogging(sanitizedComb)}`,
+    );
     return runDirectly(sanitizedComb, location);
   }
 
@@ -62,7 +68,7 @@ export async function run(comb: string, location: string): Promise<Record<string
     const result = await withTimeout(
       () => runDockerContainer(containerName, sanitizedComb, location),
       config.runners.docker.timeout,
-      `Docker execution of ${sanitizeForLogging(sanitizedComb)}`
+      `Docker execution of ${sanitizeForLogging(sanitizedComb)}`,
     );
 
     const bootTime = result.bootTime;
@@ -79,7 +85,7 @@ export async function run(comb: string, location: string): Promise<Record<string
       memory_usage: result.memoryUsage,
       cpu_usage: result.cpuUsage,
       runner: "docker",
-      location
+      location,
     };
   } catch (error) {
     logger.error(`Error running ${sanitizeForLogging(sanitizedComb)} in Docker:`, error);
@@ -106,7 +112,7 @@ export async function run(comb: string, location: string): Promise<Record<string
 async function runDockerContainer(
   containerName: string,
   comb: string,
-  location: string
+  location: string,
 ): Promise<{
   success: boolean;
   stdout: string;
@@ -123,39 +129,53 @@ async function runDockerContainer(
     // Run the container with security options and resource limits
     const proc = Deno.run({
       cmd: [
-        "docker", "run",
-        "--name", containerName,
+        "docker",
+        "run",
+        "--name",
+        containerName,
         "--rm",
         // Security options
-        "--security-opt", "no-new-privileges",
+        "--security-opt",
+        "no-new-privileges",
         // Resource limits
-        "--memory", config.runners.docker.resourceLimits.memory,
-        "--cpus", config.runners.docker.resourceLimits.cpus,
+        "--memory",
+        config.runners.docker.resourceLimits.memory,
+        "--cpus",
+        config.runners.docker.resourceLimits.cpus,
         // Mount the combs directory
-        "-v", `${Deno.cwd()}/combs:/combs:ro`,
+        "-v",
+        `${Deno.cwd()}/combs:/combs:ro`,
         // Use the configured image
         config.runners.docker.image,
-        "sh", "-c",
-        `cd /combs && deno run --allow-read --allow-net --allow-env ${comb}.egg.ts`
+        "sh",
+        "-c",
+        `cd /combs && deno run --allow-read --allow-net --allow-env ${comb}.egg.ts`,
       ],
       stdout: "piped",
-      stderr: "piped"
+      stderr: "piped",
     });
 
     const bootTime = Date.now() - bootStart;
 
     // Get container stats for resource usage
     const statsProc = Deno.run({
-      cmd: ["docker", "stats", containerName, "--no-stream", "--format", "{{.MemUsage}}|{{.CPUPerc}}"],
+      cmd: [
+        "docker",
+        "stats",
+        containerName,
+        "--no-stream",
+        "--format",
+        "{{.MemUsage}}|{{.CPUPerc}}",
+      ],
       stdout: "piped",
-      stderr: "piped"
+      stderr: "piped",
     });
 
     // Wait for the main process to complete
     const [status, stdout, stderr] = await Promise.all([
       proc.status(),
       proc.output(),
-      proc.stderrOutput()
+      proc.stderrOutput(),
     ]);
 
     // Get the stats output
@@ -186,7 +206,7 @@ async function runDockerContainer(
         `Container execution failed with exit code ${status.code}`,
         sanitizeForLogging(stdoutText),
         sanitizeForLogging(stderrText),
-        status.code
+        status.code,
       );
     }
 
@@ -196,7 +216,7 @@ async function runDockerContainer(
       stderr: sanitizeForLogging(new TextDecoder().decode(stderr)),
       bootTime,
       memoryUsage,
-      cpuUsage
+      cpuUsage,
     };
   } catch (error) {
     // Clean up the container if it's still running
@@ -204,12 +224,14 @@ async function runDockerContainer(
       const cleanupProc = Deno.run({
         cmd: ["docker", "rm", "-f", containerName],
         stdout: "piped",
-        stderr: "piped"
+        stderr: "piped",
       });
       await cleanupProc.status();
       cleanupProc.close();
     } catch (cleanupError) {
-      logger.debug(`Error cleaning up container ${sanitizeForLogging(containerName)}:`, { error: cleanupError });
+      logger.debug(`Error cleaning up container ${sanitizeForLogging(containerName)}:`, {
+        error: cleanupError,
+      });
     }
 
     // Re-throw the original error
@@ -230,7 +252,9 @@ async function runDirectly(comb: string, location: string): Promise<Record<strin
   const sanitizedComb = sanitizeForLogging(comb);
   const sanitizedLocation = sanitizeForLogging(location);
 
-  logger.info(`[DIRECT] Running ${sanitizedComb} directly in current process (${sanitizedLocation})...`);
+  logger.info(
+    `[DIRECT] Running ${sanitizedComb} directly in current process (${sanitizedLocation})...`,
+  );
 
   try {
     // Execute the comb directly
@@ -249,7 +273,7 @@ async function runDirectly(comb: string, location: string): Promise<Record<strin
       cpu_usage: "N/A", // We don't measure CPU usage for direct execution
       runner: "docker",
       location,
-      direct: true
+      direct: true,
     };
   } catch (error) {
     logger.error(`Error running ${sanitizedComb} directly:`, error);
@@ -265,8 +289,7 @@ async function runDirectly(comb: string, location: string): Promise<Record<strin
       cpu_usage: "N/A",
       runner: "docker",
       location,
-      direct: true
+      direct: true,
     };
   }
 }
-

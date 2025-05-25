@@ -17,19 +17,22 @@ The main entry point for running benchmarks.
 Runs a benchmark for the specified comb across all configured environments.
 
 **Parameters:**
+
 - `comb`: Name of the comb to benchmark
 - `options`: Optional configuration object
 
 **Options:**
+
 ```typescript
 interface BenchmarkOptions {
-  runner?: string;     // Specific runner to use
-  location?: string;   // Specific location to use
+  runner?: string; // Specific runner to use
+  location?: string; // Specific location to use
   params?: Record<string, unknown>; // Parameters to pass to comb
 }
 ```
 
 **Example:**
+
 ```typescript
 import { runBenchmark } from "./bench/index.ts";
 
@@ -40,7 +43,7 @@ await runBenchmark("build-static-site");
 await runBenchmark("process-data", {
   runner: "docker",
   location: "local",
-  params: { dataSize: "large" }
+  params: { dataSize: "large" },
 });
 ```
 
@@ -59,6 +62,7 @@ Handles recording and summarizing benchmark results.
 Records benchmark metrics to configured storage backends.
 
 **Parameters:**
+
 - `result`: Benchmark result object
 
 ##### `summarizeResults(results: BenchmarkResult[]): string`
@@ -66,6 +70,7 @@ Records benchmark metrics to configured storage backends.
 Generates a formatted summary of benchmark results.
 
 **Parameters:**
+
 - `results`: Array of benchmark results
 
 **Returns:** Formatted markdown table with results
@@ -115,27 +120,35 @@ Custom error classes and error handling utilities.
 #### Error Classes
 
 ##### `HoneyError`
+
 Base error class for all Honey-specific errors.
 
 ##### `CombNotFoundError`
+
 Thrown when a requested comb cannot be found.
 
 ##### `RunnerNotAvailableError`
+
 Thrown when a requested runner is not available.
 
 ##### `RunnerExecutionError`
+
 Thrown when runner execution fails.
 
 ##### `ValidationError`
+
 Thrown when input validation fails.
 
 ##### `SecurityError`
+
 Thrown when security checks fail.
 
 ##### `TimeoutError`
+
 Thrown when operations timeout.
 
 ##### `ResourceNotAvailableError`
+
 Thrown when required resources are unavailable.
 
 #### Utility Functions
@@ -363,17 +376,17 @@ interface CombInterface {
 // combs/my-custom-comb.egg.ts
 export async function main(params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
   console.log("Running my custom comb...");
-  
+
   // Your comb logic here
   const result = await performSomeWork(params);
-  
+
   return {
     success: true,
     output: result,
     metrics: {
       itemsProcessed: 100,
-      averageTime: 50
-    }
+      averageTime: 50,
+    },
   };
 }
 
@@ -399,10 +412,10 @@ try {
     location: "local",
     params: {
       dataSize: "large",
-      iterations: 1000
-    }
+      iterations: 1000,
+    },
   });
-  
+
   logger.success("Benchmark completed successfully");
 } catch (error) {
   logger.error("Benchmark failed", error);
@@ -412,7 +425,7 @@ try {
 ### Error Handling
 
 ```typescript
-import { withTimeout, withRetry, TimeoutError } from "./layers/errors.ts";
+import { TimeoutError, withRetry, withTimeout } from "./layers/errors.ts";
 
 try {
   // Execute with timeout
@@ -421,9 +434,9 @@ try {
       return await someSlowOperation();
     },
     5000, // 5 second timeout
-    "slow operation"
+    "slow operation",
   );
-  
+
   // Execute with retry
   const retryResult = await withRetry(
     async () => {
@@ -431,9 +444,8 @@ try {
     },
     3, // max 3 retries
     100, // 100ms initial delay
-    5000 // 5s max delay
+    5000, // 5s max delay
   );
-  
 } catch (error) {
   if (error instanceof TimeoutError) {
     console.log("Operation timed out");
@@ -442,4 +454,3 @@ try {
   }
 }
 ```
-

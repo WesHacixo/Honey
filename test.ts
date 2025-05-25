@@ -53,7 +53,7 @@ Deno.test("Queen deploy module", async () => {
   const result = await runComb({
     comb: "test-comb",
     runner: "wasm",
-    location: "local"
+    location: "local",
   });
 
   assertExists(result);
@@ -75,7 +75,7 @@ Deno.test("Metrics summarizer", () => {
       exec_time_ms: 1000,
       memory_usage: "100MB",
       cpu_usage: "10%",
-      success: true
+      success: true,
     },
     {
       comb: "test-comb",
@@ -85,8 +85,8 @@ Deno.test("Metrics summarizer", () => {
       exec_time_ms: 500,
       memory_usage: "20MB",
       cpu_usage: "5%",
-      success: true
-    }
+      success: true,
+    },
   ];
 
   const summary = summarizeResults(results);
@@ -97,4 +97,3 @@ Deno.test("Metrics summarizer", () => {
   assertEquals(summary.includes("docker"), true);
   assertEquals(summary.includes("wasm"), true);
 });
-

@@ -101,7 +101,7 @@ export class TestRunner {
       return {
         name,
         passed: true,
-        duration
+        duration,
       };
     } catch (error) {
       const duration = performance.now() - startTime;
@@ -109,7 +109,7 @@ export class TestRunner {
         name,
         passed: false,
         error: error.message,
-        duration
+        duration,
       };
     }
   }
@@ -117,7 +117,10 @@ export class TestRunner {
   /**
    * Run a test suite
    */
-  async runSuite(suiteName: string, tests: Record<string, () => Promise<void> | void>): Promise<TestSuite> {
+  async runSuite(
+    suiteName: string,
+    tests: Record<string, () => Promise<void> | void>,
+  ): Promise<TestSuite> {
     const startTime = performance.now();
     const results: TestResult[] = [];
 
@@ -127,15 +130,15 @@ export class TestRunner {
     }
 
     const duration = performance.now() - startTime;
-    const passed = results.filter(r => r.passed).length;
-    const failed = results.filter(r => !r.passed).length;
+    const passed = results.filter((r) => r.passed).length;
+    const failed = results.filter((r) => !r.passed).length;
 
     const suite: TestSuite = {
       name: suiteName,
       tests: results,
       passed,
       failed,
-      duration
+      duration,
     };
 
     this.suites.set(suiteName, suite);
@@ -158,7 +161,11 @@ export class TestRunner {
       totalDuration += suite.duration;
 
       const status = suite.failed === 0 ? "✅" : "❌";
-      console.log(`${status} ${suite.name} (${suite.passed}/${suite.tests.length} passed, ${suite.duration.toFixed(2)}ms)`);
+      console.log(
+        `${status} ${suite.name} (${suite.passed}/${suite.tests.length} passed, ${
+          suite.duration.toFixed(2)
+        }ms)`,
+      );
 
       for (const test of suite.tests) {
         const testStatus = test.passed ? "  ✓" : "  ✗";
@@ -171,7 +178,11 @@ export class TestRunner {
       console.log();
     }
 
-    console.log(`📊 Summary: ${totalPassed} passed, ${totalFailed} failed (${totalDuration.toFixed(2)}ms total)`);
+    console.log(
+      `📊 Summary: ${totalPassed} passed, ${totalFailed} failed (${
+        totalDuration.toFixed(2)
+      }ms total)`,
+    );
 
     if (totalFailed > 0) {
       Deno.exit(1);
@@ -206,4 +217,3 @@ export async function beforeEach(fn: () => Promise<void> | void): Promise<void> 
 export async function afterEach(fn: () => Promise<void> | void): Promise<void> {
   await fn();
 }
-

@@ -96,7 +96,7 @@ export function createErrorResult(
   error: Error,
   runner: string,
   location: string,
-  comb: string
+  comb: string,
 ): Record<string, unknown> {
   // Extract stdout and stderr if available
   let stdout = "";
@@ -122,7 +122,7 @@ export function createErrorResult(
     location,
     comb,
     contextId: crypto.randomUUID(),
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 }
 
@@ -138,7 +138,7 @@ export function createErrorResult(
 export async function withTimeout<T>(
   fn: () => Promise<T>,
   timeoutMs: number,
-  operationName: string
+  operationName: string,
 ): Promise<T> {
   let timeoutId: number | undefined;
 
@@ -171,7 +171,7 @@ export async function withRetry<T>(
   fn: () => Promise<T>,
   maxRetries = 3,
   initialDelayMs = 100,
-  maxDelayMs = 5000
+  maxDelayMs = 5000,
 ): Promise<T> {
   let lastError: Error | undefined;
   let delay = initialDelayMs;
@@ -187,7 +187,7 @@ export async function withRetry<T>(
       }
 
       // Wait before retrying
-      await new Promise(resolve => setTimeout(resolve, delay));
+      await new Promise((resolve) => setTimeout(resolve, delay));
 
       // Exponential backoff with jitter
       delay = Math.min(delay * 2, maxDelayMs);
@@ -210,10 +210,9 @@ export function logError(error: Error, context: Record<string, unknown> = {}): v
     error_type: error.name,
     message: error.message,
     stack: error.stack,
-    ...context
+    ...context,
   };
 
   console.error(`[ERROR] ${errorInfo.error_type}: ${errorInfo.message}`);
   console.error(JSON.stringify(errorInfo, null, 2));
 }
-

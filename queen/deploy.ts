@@ -6,12 +6,8 @@
 import * as Docker from "../runners/docker.ts";
 import * as Firecracker from "../runners/firecracker.ts";
 import * as Wasm from "../runners/wasm.ts";
-import { validateCombParams, sanitizeForLogging } from "../layers/security.ts";
-import {
-  createErrorResult,
-  withTimeout,
-  ValidationError
-} from "../layers/errors.ts";
+import { sanitizeForLogging, validateCombParams } from "../layers/security.ts";
+import { createErrorResult, ValidationError, withTimeout } from "../layers/errors.ts";
 import { createLogger } from "../layers/logging.ts";
 import config from "../layers/config.ts";
 
@@ -34,7 +30,9 @@ export interface CombParams {
  * @param params The comb execution parameters
  * @returns Performance metrics and execution results
  */
-export async function runComb({ comb, runner, location, params = {} }: CombParams): Promise<Record<string, unknown>> {
+export async function runComb(
+  { comb, runner, location, params = {} }: CombParams,
+): Promise<Record<string, unknown>> {
   const contextId = crypto.randomUUID();
   const start = Date.now();
 
@@ -49,13 +47,16 @@ export async function runComb({ comb, runner, location, params = {} }: CombParam
   const sanitizedRunner = sanitizeForLogging(runner);
   const sanitizedLocation = sanitizeForLogging(location);
 
-  logger.info(`Queen deploying ${sanitizedComb} to ${sanitizedRunner} in ${sanitizedLocation} environment...`, { contextId });
+  logger.info(
+    `Queen deploying ${sanitizedComb} to ${sanitizedRunner} in ${sanitizedLocation} environment...`,
+    { contextId },
+  );
 
   let result;
   try {
     // Run with timeout based on the runner
     const timeoutMs = config.security.timeouts[runner as keyof typeof config.security.timeouts] ||
-                      config.security.timeouts.default;
+      config.security.timeouts.default;
 
     result = await withTimeout(
       async () => {
@@ -71,15 +72,22 @@ export async function runComb({ comb, runner, location, params = {} }: CombParam
         }
       },
       timeoutMs,
-      `${sanitizedRunner} execution of ${sanitizedComb}`
+      `${sanitizedRunner} execution of ${sanitizedComb}`,
     );
 
-    logger.success(`${sanitizedComb} execution completed successfully in ${sanitizedRunner}@${sanitizedLocation}`, {
-      contextId,
-      exec_time_ms: result.exec_time_ms
-    });
+    logger.success(
+      `${sanitizedComb} execution completed successfully in ${sanitizedRunner}@${sanitizedLocation}`,
+      {
+        contextId,
+        exec_time_ms: result.exec_time_ms,
+      },
+    );
   } catch (error) {
-    logger.error(`${sanitizedComb} execution failed in ${sanitizedRunner}@${sanitizedLocation}:`, error, { contextId });
+    logger.error(
+      `${sanitizedComb} execution failed in ${sanitizedRunner}@${sanitizedLocation}:`,
+      error,
+      { contextId },
+    );
 
     // Create standardized error result
     result = createErrorResult(error, runner, location, comb);
@@ -96,7 +104,6 @@ export async function runComb({ comb, runner, location, params = {} }: CombParam
     contextId,
     total_time_ms: end - start,
     timestamp: new Date().toISOString(),
-    params
+    params,
   };
 }
-

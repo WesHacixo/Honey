@@ -24,8 +24,8 @@ const defaultConfig = {
       securityOpts: ["no-new-privileges"],
       resourceLimits: {
         memory: "256m",
-        cpus: "1"
-      }
+        cpus: "1",
+      },
     },
     firecracker: {
       enabled: true,
@@ -36,8 +36,8 @@ const defaultConfig = {
       maxRetries: 2,
       resourceLimits: {
         memory: "128MB",
-        vcpus: 1
-      }
+        vcpus: 1,
+      },
     },
     wasm: {
       enabled: true,
@@ -45,20 +45,20 @@ const defaultConfig = {
       maxRetries: 2,
       memory: {
         initial: 10, // pages
-        maximum: 100 // pages
-      }
-    }
+        maximum: 100, // pages
+      },
+    },
   },
 
   // Locations
   locations: {
     local: {
-      enabled: true
+      enabled: true,
     },
     cloud: {
       enabled: true,
-      endpoint: "https://api.example.com/honey"
-    }
+      endpoint: "https://api.example.com/honey",
+    },
   },
 
   // Metrics
@@ -67,14 +67,14 @@ const defaultConfig = {
     mongodb: {
       enabled: false,
       uri: "mongodb://localhost:27017",
-      database: "honey_metrics"
+      database: "honey_metrics",
     },
     pinecone: {
       enabled: false,
       apiKey: "",
       environment: "us-west1-gcp",
-      index: "honey-benchmarks"
-    }
+      index: "honey-benchmarks",
+    },
   },
 
   // Security
@@ -85,28 +85,28 @@ const defaultConfig = {
       default: 60000, // 60 seconds
       docker: 60000,
       firecracker: 60000,
-      wasm: 30000
-    }
-  }
+      wasm: 30000,
+    },
+  },
 };
 
 // Environment-specific configuration overrides
 const environments: Record<string, Partial<typeof defaultConfig>> = {
   development: {
-    logLevel: LogLevel.DEBUG
+    logLevel: LogLevel.DEBUG,
   },
   test: {
     metrics: {
-      enabled: false
-    }
+      enabled: false,
+    },
   },
   production: {
     logLevel: LogLevel.INFO,
     security: {
       validateInputs: true,
-      sanitizeOutputs: true
-    }
-  }
+      sanitizeOutputs: true,
+    },
+  },
 };
 
 // Determine current environment
@@ -117,14 +117,14 @@ function deepMerge<T>(target: T, source: Partial<T>): T {
   const output = { ...target };
 
   if (isObject(target) && isObject(source)) {
-    Object.keys(source).forEach(key => {
+    Object.keys(source).forEach((key) => {
       if (isObject(source[key as keyof typeof source])) {
         if (!(key in target)) {
           Object.assign(output, { [key]: source[key as keyof typeof source] });
         } else {
           (output as any)[key] = deepMerge(
             (target as any)[key],
-            source[key as keyof typeof source] as any
+            source[key as keyof typeof source] as any,
           );
         }
       } else {
@@ -138,7 +138,7 @@ function deepMerge<T>(target: T, source: Partial<T>): T {
 
 // Helper function to check if value is an object
 function isObject(item: any): boolean {
-  return (item && typeof item === 'object' && !Array.isArray(item));
+  return (item && typeof item === "object" && !Array.isArray(item));
 }
 
 // Load environment variables
@@ -151,7 +151,10 @@ function loadEnvVars(config: typeof defaultConfig): typeof defaultConfig {
   }
 
   if (Deno.env.get("HONEY_DOCKER_TIMEOUT")) {
-    newConfig.runners.docker.timeout = parseInt(Deno.env.get("HONEY_DOCKER_TIMEOUT") || "60000", 10);
+    newConfig.runners.docker.timeout = parseInt(
+      Deno.env.get("HONEY_DOCKER_TIMEOUT") || "60000",
+      10,
+    );
   }
 
   if (Deno.env.get("HONEY_DOCKER_IMAGE")) {
@@ -164,7 +167,8 @@ function loadEnvVars(config: typeof defaultConfig): typeof defaultConfig {
   }
 
   if (Deno.env.get("HONEY_FIRECRACKER_SOCKET_PATH")) {
-    newConfig.runners.firecracker.socketPath = Deno.env.get("HONEY_FIRECRACKER_SOCKET_PATH") || "/tmp/firecracker.socket";
+    newConfig.runners.firecracker.socketPath = Deno.env.get("HONEY_FIRECRACKER_SOCKET_PATH") ||
+      "/tmp/firecracker.socket";
   }
 
   // WASM settings
@@ -178,7 +182,8 @@ function loadEnvVars(config: typeof defaultConfig): typeof defaultConfig {
   }
 
   if (Deno.env.get("HONEY_MONGODB_URI")) {
-    newConfig.metrics.mongodb.uri = Deno.env.get("HONEY_MONGODB_URI") || "mongodb://localhost:27017";
+    newConfig.metrics.mongodb.uri = Deno.env.get("HONEY_MONGODB_URI") ||
+      "mongodb://localhost:27017";
     newConfig.metrics.mongodb.enabled = true;
   }
 
@@ -219,4 +224,3 @@ let config = deepMerge(defaultConfig, environments[currentEnv] || {});
 config = loadEnvVars(config);
 
 export default config;
-

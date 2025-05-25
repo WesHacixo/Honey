@@ -5,16 +5,16 @@
 
 import { join } from "https://deno.land/std@0.208.0/path/mod.ts";
 import {
-  validateCombName,
   sanitizeCombName,
+  sanitizeForLogging,
+  validateCombName,
   validateFilePath,
-  sanitizeForLogging
 } from "../layers/security.ts";
 import {
   RunnerExecutionError,
   RunnerNotAvailableError,
+  withRetry,
   withTimeout,
-  withRetry
 } from "../layers/errors.ts";
 import { createLogger } from "../layers/logging.ts";
 import config from "../layers/config.ts";
@@ -46,7 +46,10 @@ async function wasmFileExists(comb: string): Promise<boolean> {
  * @param params Parameters to pass to the WASM module
  * @returns Result of the WASM execution
  */
-async function executeWasmModule(comb: string, params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
+async function executeWasmModule(
+  comb: string,
+  params: Record<string, unknown> = {},
+): Promise<Record<string, unknown>> {
   const wasmPath = join(Deno.cwd(), "combs", `${comb}.wasm`);
 
   // Validate the file path
@@ -60,7 +63,7 @@ async function executeWasmModule(comb: string, params: Record<string, unknown> =
   // Create a memory buffer for the WASM module
   const memory = new WebAssembly.Memory({
     initial: config.runners.wasm.memory.initial,
-    maximum: config.runners.wasm.memory.maximum
+    maximum: config.runners.wasm.memory.maximum,
   });
 
   // Create imports for the WASM module
@@ -79,8 +82,8 @@ async function executeWasmModule(comb: string, params: Record<string, unknown> =
         console.error(sanitizeForLogging(text));
       },
       // Add performance measurement
-      now: () => performance.now()
-    }
+      now: () => performance.now(),
+    },
   };
 
   // Compile and instantiate the WASM module
@@ -91,7 +94,10 @@ async function executeWasmModule(comb: string, params: Record<string, unknown> =
   const main = instance.exports.main as CallableFunction;
 
   if (typeof main !== "function") {
-    throw new RunnerExecutionError("wasm", `WASM module ${sanitizeForLogging(comb)} does not export a main function`);
+    throw new RunnerExecutionError(
+      "wasm",
+      `WASM module ${sanitizeForLogging(comb)} does not export a main function`,
+    );
   }
 
   // Execute the main function
@@ -102,10 +108,13 @@ async function executeWasmModule(comb: string, params: Record<string, unknown> =
     // For now, we'll simulate a successful result
     return {
       success: true,
-      output: `Successfully executed ${sanitizeForLogging(comb)} in WASM runtime`
+      output: `Successfully executed ${sanitizeForLogging(comb)} in WASM runtime`,
     };
   } catch (error) {
-    throw new RunnerExecutionError("wasm", `Error executing WASM module ${sanitizeForLogging(comb)}: ${error.message}`);
+    throw new RunnerExecutionError(
+      "wasm",
+      `Error executing WASM module ${sanitizeForLogging(comb)}: ${error.message}`,
+    );
   }
 }
 
@@ -126,13 +135,19 @@ export async function run(comb: string, location: string): Promise<Record<string
   const sanitizedLocation = sanitizeForLogging(location);
   const start = Date.now();
 
-  logger.info(`Starting WASM runtime for ${sanitizeForLogging(sanitizedComb)} in ${sanitizedLocation} environment...`);
+  logger.info(
+    `Starting WASM runtime for ${
+      sanitizeForLogging(sanitizedComb)
+    } in ${sanitizedLocation} environment...`,
+  );
 
   // Check if WASM file exists
   const wasmExists = await wasmFileExists(sanitizedComb);
 
   if (!wasmExists) {
-    logger.warn(`WASM file for ${sanitizeForLogging(sanitizedComb)} not found, using simulation mode`);
+    logger.warn(
+      `WASM file for ${sanitizeForLogging(sanitizedComb)} not found, using simulation mode`,
+    );
     return simulateWasmRun(sanitizedComb, location);
   }
 
@@ -157,18 +172,21 @@ export async function run(comb: string, location: string): Promise<Record<string
 
         return {
           success: true,
-          stdout: result.output || `Successfully executed ${sanitizeForLogging(sanitizedComb)} in WASM runtime (${sanitizedLocation})`,
+          stdout: result.output ||
+            `Successfully executed ${
+              sanitizeForLogging(sanitizedComb)
+            } in WASM runtime (${sanitizedLocation})`,
           stderr: "",
           boot_time_ms: bootTime,
           exec_time_ms: execTime,
           memory_usage: memoryUsage,
           cpu_usage: cpuUsage,
           runner: "wasm",
-          location
+          location,
         };
       },
       config.runners.wasm.timeout,
-      `WASM execution of ${sanitizeForLogging(sanitizedComb)}`
+      `WASM execution of ${sanitizeForLogging(sanitizedComb)}`,
     );
   } catch (error) {
     logger.error(`Error running ${sanitizeForLogging(sanitizedComb)} in WASM:`, error);
@@ -191,17 +209,20 @@ async function simulateWasmRun(comb: string, location: string): Promise<Record<s
   const sanitizedComb = sanitizeForLogging(comb);
   const sanitizedLocation = sanitizeForLogging(location);
 
-  logger.info(`[SIMULATION] Running ${sanitizedComb} in simulated WASM environment (${sanitizedLocation})...`);
+  logger.info(
+    `[SIMULATION] Running ${sanitizedComb} in simulated WASM environment (${sanitizedLocation})...`,
+  );
 
   // Simulate execution time (typically faster than both Docker and Firecracker)
-  await new Promise(resolve => setTimeout(resolve, 300));
+  await new Promise((resolve) => setTimeout(resolve, 300));
 
   // Simulate boot time (typically much faster than containers or VMs)
   const bootTime = 5;
 
   // Simulate execution
   const success = true;
-  const stdout = `[SIMULATION] Successfully executed ${sanitizedComb} in simulated WASM runtime (${sanitizedLocation})`;
+  const stdout =
+    `[SIMULATION] Successfully executed ${sanitizedComb} in simulated WASM runtime (${sanitizedLocation})`;
   const stderr = "";
 
   // Simulate resource usage (typically lower than containers or VMs)
@@ -221,7 +242,6 @@ async function simulateWasmRun(comb: string, location: string): Promise<Record<s
     cpu_usage: cpuUsage,
     runner: "wasm",
     location,
-    simulated: true
+    simulated: true,
   };
 }
-

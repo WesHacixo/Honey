@@ -2,17 +2,17 @@
  * Unit tests for utilities module
  */
 
-import { describe, Assert } from "./test_runner.ts";
+import { Assert, describe } from "./test_runner.ts";
 import {
+  ensureDirectory,
   formatDuration,
-  parseMemory,
   formatMemory,
   generateContextId,
-  sleep,
-  isValidUrl,
-  sanitizeFilename,
   getFileExtension,
-  ensureDirectory
+  isValidUrl,
+  parseMemory,
+  sanitizeFilename,
+  sleep,
 } from "../layers/utils.ts";
 
 await describe("Utilities Module", {
@@ -96,7 +96,7 @@ await describe("Utilities Module", {
     Assert.equals(sanitizeFilename("normal-file.txt"), "normal-file.txt");
     Assert.equals(sanitizeFilename("file with spaces.txt"), "file_with_spaces.txt");
     Assert.equals(sanitizeFilename("file/with/slashes.txt"), "file_with_slashes.txt");
-    Assert.equals(sanitizeFilename("file<>:\"|?*.txt"), "file_________.txt");
+    Assert.equals(sanitizeFilename('file<>:"|?*.txt'), "file_________.txt");
   },
 
   "sanitizeFilename should handle edge cases": () => {
@@ -134,7 +134,6 @@ await describe("Utilities Module", {
 
       // Should not throw if directory already exists
       await ensureDirectory(testDir);
-
     } finally {
       // Clean up
       try {
@@ -143,6 +142,5 @@ await describe("Utilities Module", {
         // Ignore cleanup errors
       }
     }
-  }
+  },
 });
-

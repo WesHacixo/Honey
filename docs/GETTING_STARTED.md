@@ -34,6 +34,7 @@ deno run --allow-all bench/index.ts
 ```
 
 This will:
+
 - Run the `build-static-site` comb across all available runners
 - Measure performance metrics (boot time, execution time, memory, CPU)
 - Display a summary with recommendations
@@ -107,9 +108,11 @@ deno run --allow-all bench/index.ts train-model --runner=docker --location=cloud
 Honey comes with several built-in combs:
 
 ### 1. build-static-site
+
 Simulates building a static website with multiple steps.
 
 **What it does:**
+
 - Sets up build environment
 - Processes templates
 - Compiles assets
@@ -118,9 +121,11 @@ Simulates building a static website with multiple steps.
 **Use case:** Web development workflows
 
 ### 2. process-data
+
 Processes a dataset through multiple transformation steps.
 
 **What it does:**
+
 - Loads sample data
 - Applies transformations
 - Validates results
@@ -129,9 +134,11 @@ Processes a dataset through multiple transformation steps.
 **Use case:** Data processing pipelines
 
 ### 3. api-server
+
 Runs a simple HTTP API server.
 
 **What it does:**
+
 - Starts HTTP server
 - Handles sample requests
 - Processes responses
@@ -140,9 +147,11 @@ Runs a simple HTTP API server.
 **Use case:** API performance testing
 
 ### 4. train-model
+
 Simulates training a simple machine learning model.
 
 **What it does:**
+
 - Generates training data
 - Trains model
 - Validates accuracy
@@ -153,18 +162,21 @@ Simulates training a simple machine learning model.
 ## Runners Explained
 
 ### Docker Runner
+
 - **Best for:** Isolated, reproducible environments
 - **Pros:** Strong isolation, consistent environment
 - **Cons:** Higher overhead, slower startup
 - **Requirements:** Docker daemon running
 
 ### Firecracker Runner
+
 - **Best for:** Lightweight virtualization
 - **Pros:** Fast startup, good isolation
 - **Cons:** Linux only, requires setup
 - **Requirements:** Firecracker binary and kernel/rootfs images
 
 ### WASM Runner
+
 - **Best for:** Lightweight, fast execution
 - **Pros:** Very fast startup, minimal overhead
 - **Cons:** Limited system access
@@ -180,19 +192,21 @@ Simulates training a simple machine learning model.
 2. **Add the basic structure:**
    ```typescript
    // combs/my-first-comb.egg.ts
-   export async function main(params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
+   export async function main(
+     params: Record<string, unknown> = {},
+   ): Promise<Record<string, unknown>> {
      console.log("🚀 Running my first comb!");
-     
+
      // Simulate some work
-     await new Promise(resolve => setTimeout(resolve, 100));
-     
+     await new Promise((resolve) => setTimeout(resolve, 100));
+
      return {
        success: true,
        message: "Hello from my first comb!",
-       processingTime: 100
+       processingTime: 100,
      };
    }
-   
+
    // Allow running directly
    if (import.meta.main) {
      const result = await main();
@@ -204,7 +218,7 @@ Simulates training a simple machine learning model.
    ```bash
    # Test directly
    deno run --allow-all combs/my-first-comb.egg.ts
-   
+
    # Run through benchmark system
    deno run --allow-all bench/index.ts my-first-comb
    ```
@@ -240,10 +254,10 @@ Modify `layers/config.ts` for persistent configuration changes:
 const defaultConfig = {
   // ... other config
   runners: {
-    docker: { enabled: true, /* ... */ },
-    firecracker: { enabled: false, /* ... */ }, // Disabled
-    wasm: { enabled: true, /* ... */ }
-  }
+    docker: { enabled: true /* ... */ },
+    firecracker: { enabled: false /* ... */ }, // Disabled
+    wasm: { enabled: true /* ... */ },
+  },
 };
 ```
 
@@ -252,17 +266,21 @@ const defaultConfig = {
 ### Common Issues
 
 #### "Runner not available" errors
+
 - **Docker:** Ensure Docker daemon is running
 - **Firecracker:** Install Firecracker and configure paths
 - **WASM:** Ensure combs are compiled to WASM
 
 #### Permission errors
+
 Make sure to run with appropriate permissions:
+
 ```bash
 deno run --allow-all bench/index.ts
 ```
 
 #### Slow performance
+
 - Check system resources
 - Reduce concurrent runners
 - Use faster storage (SSD)
@@ -318,6 +336,7 @@ docker run --rm -v /var/run/docker.sock:/var/run/docker.sock honey-benchmark
 ### CI/CD Integration
 
 The included GitHub Actions workflow automatically:
+
 - Runs tests on every PR
 - Performs security scans
 - Creates releases on main branch pushes
@@ -333,4 +352,3 @@ See `.github/workflows/ci.yml` for details.
 5. **Use dedicated hardware** for production benchmarks
 
 Happy benchmarking! 🍯🐝
-

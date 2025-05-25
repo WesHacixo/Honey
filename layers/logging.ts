@@ -11,7 +11,7 @@ export enum LogLevel {
   INFO = 1,
   WARN = 2,
   ERROR = 3,
-  NONE = 4
+  NONE = 4,
 }
 
 // Current log level (can be changed at runtime)
@@ -28,7 +28,7 @@ const colors = {
   blue: "\x1b[34m",
   magenta: "\x1b[35m",
   cyan: "\x1b[36m",
-  white: "\x1b[37m"
+  white: "\x1b[37m",
 };
 
 /**
@@ -59,17 +59,17 @@ function sanitizeObjectForLogging(obj: Record<string, unknown>): Record<string, 
   const sanitized: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(obj)) {
-    if (typeof value === 'string') {
+    if (typeof value === "string") {
       sanitized[key] = sanitizeForLogging(value);
-    } else if (value && typeof value === 'object' && !Array.isArray(value)) {
+    } else if (value && typeof value === "object" && !Array.isArray(value)) {
       sanitized[key] = sanitizeObjectForLogging(value as Record<string, unknown>);
     } else if (Array.isArray(value)) {
-      sanitized[key] = value.map(item =>
-        typeof item === 'string'
+      sanitized[key] = value.map((item) =>
+        typeof item === "string"
           ? sanitizeForLogging(item)
-          : (item && typeof item === 'object'
-              ? sanitizeObjectForLogging(item as Record<string, unknown>)
-              : item)
+          : (item && typeof item === "object"
+            ? sanitizeObjectForLogging(item as Record<string, unknown>)
+            : item)
       );
     } else {
       sanitized[key] = value;
@@ -87,13 +87,19 @@ function sanitizeObjectForLogging(obj: Record<string, unknown>): Record<string, 
  * @param context Additional context information
  * @returns Formatted log message
  */
-function formatLogMessage(level: string, message: string, context: Record<string, unknown> = {}): string {
+function formatLogMessage(
+  level: string,
+  message: string,
+  context: Record<string, unknown> = {},
+): string {
   const timestamp = new Date().toISOString();
   // Sanitize the message to prevent log injection
   const sanitizedMessage = sanitizeForLogging(message);
   // Sanitize the context object
   const sanitizedContext = sanitizeObjectForLogging(context);
-  const contextStr = Object.keys(sanitizedContext).length > 0 ? ` ${JSON.stringify(sanitizedContext)}` : '';
+  const contextStr = Object.keys(sanitizedContext).length > 0
+    ? ` ${JSON.stringify(sanitizedContext)}`
+    : "";
   return `[${timestamp}] [${level}] ${sanitizedMessage}${contextStr}`;
 }
 
@@ -105,7 +111,7 @@ function formatLogMessage(level: string, message: string, context: Record<string
  */
 export function debug(message: string, context: Record<string, unknown> = {}): void {
   if (currentLogLevel <= LogLevel.DEBUG) {
-    console.debug(colors.dim + formatLogMessage('DEBUG', message, context) + colors.reset);
+    console.debug(colors.dim + formatLogMessage("DEBUG", message, context) + colors.reset);
   }
 }
 
@@ -117,7 +123,7 @@ export function debug(message: string, context: Record<string, unknown> = {}): v
  */
 export function info(message: string, context: Record<string, unknown> = {}): void {
   if (currentLogLevel <= LogLevel.INFO) {
-    console.info(colors.green + formatLogMessage('INFO', message, context) + colors.reset);
+    console.info(colors.green + formatLogMessage("INFO", message, context) + colors.reset);
   }
 }
 
@@ -129,7 +135,7 @@ export function info(message: string, context: Record<string, unknown> = {}): vo
  */
 export function warn(message: string, context: Record<string, unknown> = {}): void {
   if (currentLogLevel <= LogLevel.WARN) {
-    console.warn(colors.yellow + formatLogMessage('WARN', message, context) + colors.reset);
+    console.warn(colors.yellow + formatLogMessage("WARN", message, context) + colors.reset);
   }
 }
 
@@ -147,10 +153,10 @@ export function error(message: string, error?: Error, context: Record<string, un
       ...(error && {
         error_type: error.name,
         error_message: sanitizeForLogging(error.message),
-        error_stack: error.stack ? sanitizeForLogging(error.stack) : undefined
-      })
+        error_stack: error.stack ? sanitizeForLogging(error.stack) : undefined,
+      }),
     };
-    console.error(colors.red + formatLogMessage('ERROR', message, errorContext) + colors.reset);
+    console.error(colors.red + formatLogMessage("ERROR", message, errorContext) + colors.reset);
   }
 }
 
@@ -162,7 +168,9 @@ export function error(message: string, error?: Error, context: Record<string, un
  */
 export function success(message: string, context: Record<string, unknown> = {}): void {
   if (currentLogLevel <= LogLevel.INFO) {
-    console.info(colors.bright + colors.green + formatLogMessage('SUCCESS', message, context) + colors.reset);
+    console.info(
+      colors.bright + colors.green + formatLogMessage("SUCCESS", message, context) + colors.reset,
+    );
   }
 }
 
@@ -189,7 +197,7 @@ export function createLogger(component: string): {
     error: (message: string, error?: Error, context: Record<string, unknown> = {}) =>
       error(message, error, { component, ...context }),
     success: (message: string, context: Record<string, unknown> = {}) =>
-      success(message, { component, ...context })
+      success(message, { component, ...context }),
   };
 }
 
@@ -215,7 +223,6 @@ export function createBenchmarkLogger(operation: string): {
       const duration = endTime - startTime;
       success(`Completed operation: ${sanitizeForLogging(operation)}`, { duration_ms: duration });
       return duration;
-    }
+    },
   };
 }
-

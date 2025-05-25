@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Comprehensive testing framework with custom test runner
 - Unit tests for security, error handling, and utilities modules
 - Integration tests for complete benchmark workflows
@@ -27,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Docker build testing in CI pipeline
 
 ### Enhanced
+
 - Security module with comprehensive input validation and sanitization
 - Error handling with custom error classes and retry mechanisms
 - Logging system with structured output and sanitization
@@ -35,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README with updated features and security information
 
 ### Security
+
 - Log injection prevention with input sanitization
 - Path traversal protection in file operations
 - Container security with no-new-privileges and resource limits
@@ -43,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - URL validation for external endpoints
 
 ### Developer Experience
+
 - Easy setup with `make dev-setup`
 - Comprehensive test suite with `make test`
 - Quality assurance checks with `make qa`
@@ -51,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Detailed error messages and debugging support
 
 ### Documentation
+
 - Complete API reference with examples
 - Step-by-step getting started guide
 - Docker usage instructions
@@ -61,6 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2024-XX-XX (Previous Release)
 
 ### Added
+
 - Initial release of Honey Benchmark Swarm
 - Basic benchmark runner for multiple environments
 - Docker, Firecracker, and WASM runner support
@@ -77,6 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README with basic usage instructions
 
 ### Features
+
 - Multi-runner benchmarking (Docker, Firecracker, WASM)
 - Performance metrics (boot time, execution time, memory, CPU)
 - Fallback mechanisms for unavailable runners
@@ -89,19 +96,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Release Notes
 
 ### Version Numbering
+
 - **Major version** (X.0.0): Breaking changes or major new features
 - **Minor version** (0.X.0): New features, backward compatible
 - **Patch version** (0.0.X): Bug fixes, backward compatible
 
 ### Upgrade Guide
+
 When upgrading between versions, please check the migration guide in the documentation for any breaking changes or required configuration updates.
 
 ### Contributing
+
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on contributing to this project.
 
 ### Support
+
 For questions, issues, or feature requests, please:
+
 1. Check the documentation in the `docs/` directory
 2. Search existing GitHub issues
 3. Create a new issue with detailed information
-

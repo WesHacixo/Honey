@@ -111,29 +111,32 @@ HONEY_LOG_LEVEL=DEBUG deno run --allow-all bench/index.ts
 
 ## 🧪 Available Combs
 
-| Comb | Description | Use Case |
-|------|-------------|----------|
-| `build-static-site` | Builds a static website | Web development workflows |
-| `process-data` | Processes datasets | Data processing pipelines |
-| `api-server` | Runs HTTP API server | API performance testing |
-| `train-model` | Trains ML model | ML workflow benchmarking |
-| `fibonacci` | CPU-intensive calculations | Mathematical operations |
-| `memory-stress` | Memory allocation testing | Memory performance |
-| `file-io` | File system I/O testing | Storage performance |
+| Comb                | Description                | Use Case                  |
+| ------------------- | -------------------------- | ------------------------- |
+| `build-static-site` | Builds a static website    | Web development workflows |
+| `process-data`      | Processes datasets         | Data processing pipelines |
+| `api-server`        | Runs HTTP API server       | API performance testing   |
+| `train-model`       | Trains ML model            | ML workflow benchmarking  |
+| `fibonacci`         | CPU-intensive calculations | Mathematical operations   |
+| `memory-stress`     | Memory allocation testing  | Memory performance        |
+| `file-io`           | File system I/O testing    | Storage performance       |
 
 ## 🏃‍♂️ Runners
 
 ### Docker
+
 - **Best for:** Isolated, reproducible environments
 - **Security:** Container isolation, resource limits, no-new-privileges
 - **Requirements:** Docker daemon running
 
 ### Firecracker
+
 - **Best for:** Lightweight virtualization
 - **Security:** VM isolation, resource limits, API validation
 - **Requirements:** Firecracker binary and kernel/rootfs images
 
 ### WebAssembly (WASM)
+
 - **Best for:** Lightweight, fast execution
 - **Security:** Sandboxed execution, memory limits
 - **Requirements:** WASM-compiled combs
@@ -231,12 +234,12 @@ make test          # Run tests
 // combs/my-comb.egg.ts
 export async function main(params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
   console.log("Running my comb...");
-  
+
   // Your comb implementation here
-  
+
   return {
     success: true,
-    output: "My comb completed successfully"
+    output: "My comb completed successfully",
   };
 }
 
@@ -276,16 +279,16 @@ docker-compose down
 
 ### Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `HONEY_LOG_LEVEL` | Log level (DEBUG, INFO, WARN, ERROR) | `INFO` |
-| `HONEY_DOCKER_ENABLED` | Enable Docker runner | `true` |
-| `HONEY_DOCKER_TIMEOUT` | Docker operation timeout (ms) | `60000` |
-| `HONEY_FIRECRACKER_ENABLED` | Enable Firecracker runner | `true` |
-| `HONEY_WASM_ENABLED` | Enable WASM runner | `true` |
-| `HONEY_METRICS_ENABLED` | Enable metrics collection | `true` |
-| `HONEY_MONGODB_URI` | MongoDB connection URI | - |
-| `HONEY_PINECONE_API_KEY` | Pinecone API key | - |
+| Variable                    | Description                          | Default |
+| --------------------------- | ------------------------------------ | ------- |
+| `HONEY_LOG_LEVEL`           | Log level (DEBUG, INFO, WARN, ERROR) | `INFO`  |
+| `HONEY_DOCKER_ENABLED`      | Enable Docker runner                 | `true`  |
+| `HONEY_DOCKER_TIMEOUT`      | Docker operation timeout (ms)        | `60000` |
+| `HONEY_FIRECRACKER_ENABLED` | Enable Firecracker runner            | `true`  |
+| `HONEY_WASM_ENABLED`        | Enable WASM runner                   | `true`  |
+| `HONEY_METRICS_ENABLED`     | Enable metrics collection            | `true`  |
+| `HONEY_MONGODB_URI`         | MongoDB connection URI               | -       |
+| `HONEY_PINECONE_API_KEY`    | Pinecone API key                     | -       |
 
 ### Configuration File
 

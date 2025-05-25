@@ -23,7 +23,7 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
 
   // Simulate server running for a duration
   console.log(`Server running on port ${port}...`);
-  await new Promise(resolve => setTimeout(resolve, duration));
+  await new Promise((resolve) => setTimeout(resolve, duration));
 
   // Stop the server
   await stopServer(server);
@@ -32,7 +32,7 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
     success: true,
     output: `API server ran successfully for ${duration}ms on port ${port}`,
     port,
-    duration
+    duration,
   };
 }
 
@@ -89,21 +89,24 @@ async function handleConnection(conn: Deno.Conn): Promise<void> {
       if (path === "/" || path === "/health") {
         response = new Response(JSON.stringify({ status: "ok" }), {
           status: 200,
-          headers: { "Content-Type": "application/json" }
+          headers: { "Content-Type": "application/json" },
         });
       } else if (path === "/info") {
-        response = new Response(JSON.stringify({
-          name: "Honey API Server",
-          version: "1.0.0",
-          timestamp: new Date().toISOString()
-        }), {
-          status: 200,
-          headers: { "Content-Type": "application/json" }
-        });
+        response = new Response(
+          JSON.stringify({
+            name: "Honey API Server",
+            version: "1.0.0",
+            timestamp: new Date().toISOString(),
+          }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
       } else {
         response = new Response(JSON.stringify({ error: "Not found" }), {
           status: 404,
-          headers: { "Content-Type": "application/json" }
+          headers: { "Content-Type": "application/json" },
         });
       }
 
@@ -130,4 +133,3 @@ if (import.meta.main) {
   const result = await main();
   console.log(JSON.stringify(result, null, 2));
 }
-

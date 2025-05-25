@@ -2,16 +2,16 @@
  * Unit tests for security module
  */
 
-import { describe, Assert } from "./test_runner.ts";
+import { Assert, describe } from "./test_runner.ts";
 import {
-  validateCombName,
   sanitizeCombName,
   sanitizeForLogging,
-  validateFilePath,
+  validateCombName,
   validateContainerName,
-  validatePort,
+  validateFilePath,
   validateLocation,
-  validateRunner
+  validatePort,
+  validateRunner,
 } from "../layers/security.ts";
 
 await describe("Security Module", {
@@ -76,7 +76,7 @@ await describe("Security Module", {
       "data\r\n[ERROR] System compromised",
       "value\x1b[31mRed text injection\x1b[0m",
       "input\u0000null byte injection",
-      "test\u2028line separator injection"
+      "test\u2028line separator injection",
     ];
 
     for (const input of maliciousInputs) {
@@ -151,5 +151,5 @@ await describe("Security Module", {
     Assert.false(validateRunner(""));
     Assert.false(validateRunner("invalid"));
     Assert.false(validateRunner("docker\nfirecracker"));
-  }
+  },
 });

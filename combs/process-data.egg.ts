@@ -25,7 +25,7 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
     success: true,
     output: "Data processing completed successfully",
     stats: result,
-    processed_items: datasetSize
+    processed_items: datasetSize,
   };
 }
 
@@ -45,7 +45,7 @@ function generateDataset(size: number): Array<Record<string, unknown>> {
       id: i,
       value: Math.random() * 100,
       category: ["A", "B", "C"][Math.floor(Math.random() * 3)],
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -58,7 +58,9 @@ function generateDataset(size: number): Array<Record<string, unknown>> {
  * @param dataset Array of data items to process
  * @returns Processing statistics
  */
-async function processDataset(dataset: Array<Record<string, unknown>>): Promise<Record<string, unknown>> {
+async function processDataset(
+  dataset: Array<Record<string, unknown>>,
+): Promise<Record<string, unknown>> {
   console.log("Processing dataset...");
 
   // Simulate processing steps
@@ -78,19 +80,19 @@ async function processDataset(dataset: Array<Record<string, unknown>>): Promise<
 async function simulateProcessingSteps(dataset: Array<Record<string, unknown>>): Promise<void> {
   // Step 1: Data cleaning
   console.log("Step 1: Cleaning data...");
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await new Promise((resolve) => setTimeout(resolve, 100));
 
   // Step 2: Feature extraction
   console.log("Step 2: Extracting features...");
-  await new Promise(resolve => setTimeout(resolve, 150));
+  await new Promise((resolve) => setTimeout(resolve, 150));
 
   // Step 3: Normalization
   console.log("Step 3: Normalizing data...");
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await new Promise((resolve) => setTimeout(resolve, 100));
 
   // Step 4: Aggregation
   console.log("Step 4: Aggregating results...");
-  await new Promise(resolve => setTimeout(resolve, 200));
+  await new Promise((resolve) => setTimeout(resolve, 200));
 
   console.log("Processing completed!");
 }
@@ -108,13 +110,13 @@ function calculateStatistics(dataset: Array<Record<string, unknown>>): Record<st
 
   // Count items by category
   const categoryCounts: Record<string, number> = {};
-  dataset.forEach(item => {
+  dataset.forEach((item) => {
     const category = item.category as string;
     categoryCounts[category] = (categoryCounts[category] || 0) + 1;
   });
 
   // Find min and max values
-  const values = dataset.map(item => item.value as number);
+  const values = dataset.map((item) => item.value as number);
   const min = Math.min(...values);
   const max = Math.max(...values);
 
@@ -123,7 +125,7 @@ function calculateStatistics(dataset: Array<Record<string, unknown>>): Record<st
     average,
     min,
     max,
-    categories: categoryCounts
+    categories: categoryCounts,
   };
 }
 
@@ -132,4 +134,3 @@ if (import.meta.main) {
   const result = await main();
   console.log(JSON.stringify(result, null, 2));
 }
-

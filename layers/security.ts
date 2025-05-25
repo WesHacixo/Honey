@@ -24,7 +24,7 @@ export function validateCombName(combName: string): boolean {
  */
 export function sanitizeCombName(combName: string): string {
   // Replace any non-alphanumeric characters with underscores
-  return combName.replace(/[^a-zA-Z0-9-_]/g, '_');
+  return combName.replace(/[^a-zA-Z0-9-_]/g, "_");
 }
 
 /**
@@ -35,7 +35,7 @@ export function sanitizeCombName(combName: string): string {
  */
 export function validateLocation(location: string): boolean {
   // Only allow specific location values
-  const validLocations = ['local', 'cloud'];
+  const validLocations = ["local", "cloud"];
   return validLocations.includes(location);
 }
 
@@ -47,7 +47,7 @@ export function validateLocation(location: string): boolean {
  */
 export function validateRunner(runner: string): boolean {
   // Only allow specific runner values
-  const validRunners = ['docker', 'firecracker', 'wasm'];
+  const validRunners = ["docker", "firecracker", "wasm"];
   return validRunners.includes(runner);
 }
 
@@ -106,7 +106,7 @@ export function validatePort(port: number): boolean {
  */
 export function validateFilePath(path: string): boolean {
   // Prevent path traversal attacks
-  return !path.includes('..') && !path.includes('~') && !path.startsWith('/');
+  return !path.includes("..") && !path.includes("~") && !path.startsWith("/");
 }
 
 /**
@@ -116,15 +116,15 @@ export function validateFilePath(path: string): boolean {
  * @returns Sanitized string
  */
 export function sanitizeForLogging(input: string): string {
-  if (typeof input !== 'string') {
+  if (typeof input !== "string") {
     return String(input);
   }
 
   // Remove or replace control characters and other potentially dangerous characters
   return input
-    .replace(/[\n\r\t\v\f]/g, ' ') // Replace newlines, tabs, etc. with spaces
-    .replace(/[^\x20-\x7E]/g, '') // Remove non-printable ASCII characters
-    .replace(/[\\'"]/g, '\\$&'); // Escape quotes and backslashes
+    .replace(/[\n\r\t\v\f]/g, " ") // Replace newlines, tabs, etc. with spaces
+    .replace(/[^\x20-\x7E]/g, "") // Remove non-printable ASCII characters
+    .replace(/[\\'"]/g, "\\$&"); // Escape quotes and backslashes
 }
 
 /**
@@ -137,7 +137,7 @@ export async function validateDockerEnvironment(): Promise<boolean> {
     const process = Deno.run({
       cmd: ["docker", "--version"],
       stdout: "piped",
-      stderr: "piped"
+      stderr: "piped",
     });
 
     const status = await process.status();
@@ -154,7 +154,9 @@ export async function validateDockerEnvironment(): Promise<boolean> {
     if (versionMatch) {
       const major = parseInt(versionMatch[1], 10);
       if (major < 20) {
-        console.warn(`Docker version ${major}.x.x may not be fully supported. Version 20.0.0 or higher is recommended.`);
+        console.warn(
+          `Docker version ${major}.x.x may not be fully supported. Version 20.0.0 or higher is recommended.`,
+        );
       }
     }
 
@@ -171,35 +173,36 @@ export async function validateDockerEnvironment(): Promise<boolean> {
  * @param params The parameters to validate
  * @returns Object with validation result and error message if any
  */
-export function validateCombParams(params: Record<string, unknown>): { valid: boolean; error?: string } {
+export function validateCombParams(
+  params: Record<string, unknown>,
+): { valid: boolean; error?: string } {
   // Validate required parameters
-  if (!params.comb || typeof params.comb !== 'string') {
-    return { valid: false, error: 'Missing or invalid comb name' };
+  if (!params.comb || typeof params.comb !== "string") {
+    return { valid: false, error: "Missing or invalid comb name" };
   }
 
-  if (!params.runner || typeof params.runner !== 'string') {
-    return { valid: false, error: 'Missing or invalid runner' };
+  if (!params.runner || typeof params.runner !== "string") {
+    return { valid: false, error: "Missing or invalid runner" };
   }
 
-  if (!params.location || typeof params.location !== 'string') {
-    return { valid: false, error: 'Missing or invalid location' };
+  if (!params.location || typeof params.location !== "string") {
+    return { valid: false, error: "Missing or invalid location" };
   }
 
   // Validate comb name
   if (!validateCombName(params.comb as string)) {
-    return { valid: false, error: 'Invalid comb name format' };
+    return { valid: false, error: "Invalid comb name format" };
   }
 
   // Validate runner
   if (!validateRunner(params.runner as string)) {
-    return { valid: false, error: 'Invalid runner. Must be one of: docker, firecracker, wasm' };
+    return { valid: false, error: "Invalid runner. Must be one of: docker, firecracker, wasm" };
   }
 
   // Validate location
   if (!validateLocation(params.location as string)) {
-    return { valid: false, error: 'Invalid location. Must be one of: local, cloud' };
+    return { valid: false, error: "Invalid location. Must be one of: local, cloud" };
   }
 
   return { valid: true };
 }
-

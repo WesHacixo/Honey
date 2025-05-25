@@ -38,7 +38,10 @@ export async function loadComb(comb: string): Promise<Record<string, unknown>> {
  * @throws CombNotFoundError if the comb is not found
  * @throws Error if the comb does not export a main function
  */
-export async function executeComb(comb: string, params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
+export async function executeComb(
+  comb: string,
+  params: Record<string, unknown> = {},
+): Promise<Record<string, unknown>> {
   const module = await loadComb(comb);
 
   if (typeof module.main !== "function") {
@@ -177,7 +180,7 @@ export async function isCommandAvailable(command: string): Promise<boolean> {
     const process = Deno.run({
       cmd: ["which", command],
       stdout: "piped",
-      stderr: "piped"
+      stderr: "piped",
     });
 
     const status = await process.status();
@@ -207,13 +210,13 @@ export async function runCommand(cmd: string, args: string[] = []): Promise<{
     const process = Deno.run({
       cmd: [cmd, ...args],
       stdout: "piped",
-      stderr: "piped"
+      stderr: "piped",
     });
 
     const [status, stdout, stderr] = await Promise.all([
       process.status(),
       process.output(),
-      process.stderrOutput()
+      process.stderrOutput(),
     ]);
 
     process.close();
@@ -222,19 +225,19 @@ export async function runCommand(cmd: string, args: string[] = []): Promise<{
       success: status.success,
       stdout: new TextDecoder().decode(stdout),
       stderr: new TextDecoder().decode(stderr),
-      code: status.code
+      code: status.code,
     };
   } catch (error) {
     // Sanitize command and args for logging
     const sanitizedCmd = sanitizeForLogging(cmd);
-    const sanitizedArgs = args.map(arg => sanitizeForLogging(arg));
+    const sanitizedArgs = args.map((arg) => sanitizeForLogging(arg));
     logger.error(`Error running command ${sanitizedCmd} ${sanitizedArgs.join(" ")}:`, error);
 
     return {
       success: false,
       stdout: "",
       stderr: error.toString(),
-      code: -1
+      code: -1,
     };
   }
 }
@@ -246,7 +249,7 @@ export async function runCommand(cmd: string, args: string[] = []): Promise<{
  * @returns Promise that resolves after the specified duration
  */
 export function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -287,4 +290,3 @@ export async function directoryExists(path: string): Promise<boolean> {
     return false;
   }
 }
-

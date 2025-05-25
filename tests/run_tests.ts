@@ -11,7 +11,7 @@ import { parse } from "https://deno.land/std@0.208.0/flags/mod.ts";
 // Parse command line arguments
 const args = parse(Deno.args, {
   boolean: ["integration", "unit", "all"],
-  default: { integration: false, unit: false, all: true }
+  default: { integration: false, unit: false, all: true },
 });
 
 console.log("🧪 Running Honey Benchmark Swarm Test Suite\n");
@@ -38,7 +38,7 @@ if (runIntegration) {
     const dockerCheck = new Deno.Command("docker", {
       args: ["--version"],
       stdout: "null",
-      stderr: "null"
+      stderr: "null",
     });
 
     const { success } = await dockerCheck.output();
