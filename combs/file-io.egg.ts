@@ -3,23 +3,28 @@
  * Tests file system read/write performance
  */
 
-import { ensureDirectory } from "../layers/utils.ts";
-import { sanitizeForLogging } from "../layers/security.ts";
+import { ensureDirectory } from '../layers/utils.ts';
+import { sanitizeForLogging } from '../layers/security.ts';
 
-export async function main(params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
+export async function main(
+  params: Record<string, unknown> = {},
+): Promise<Record<string, unknown>> {
   const fileCount = (params.fileCount as number) || 100;
   const fileSize = (params.fileSize as number) || 1024; // bytes
-  const testDir = (params.testDir as string) || "./temp-io-test";
+  const testDir = (params.testDir as string) || './temp-io-test';
 
   // Input validation for security and performance
   if (fileCount < 1 || fileCount > 10000) {
-    throw new Error("File count must be between 1 and 10,000");
+    throw new Error('File count must be between 1 and 10,000');
   }
   if (fileSize < 1 || fileSize > 1048576) { // 1MB max
-    throw new Error("File size must be between 1 byte and 1MB");
+    throw new Error('File size must be between 1 byte and 1MB');
   }
-  if (!testDir || testDir.includes("..") || testDir.includes("/etc") || testDir.includes("/usr")) {
-    throw new Error("Invalid test directory path");
+  if (
+    !testDir || testDir.includes('..') || testDir.includes('/etc') ||
+    testDir.includes('/usr')
+  ) {
+    throw new Error('Invalid test directory path');
   }
 
   console.log(
@@ -39,10 +44,10 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
     await ensureDirectory(testDir);
 
     // Generate test data
-    const testData = "x".repeat(fileSize);
+    const testData = 'x'.repeat(fileSize);
 
     // Phase 1: Write files
-    console.log("📝 Writing files...");
+    console.log('📝 Writing files...');
     const writeStartTime = performance.now();
 
     for (let i = 0; i < fileCount; i++) {
@@ -56,7 +61,7 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
     const writeTime = writeEndTime - writeStartTime;
 
     // Phase 2: Read files
-    console.log("📖 Reading files...");
+    console.log('📖 Reading files...');
     const readStartTime = performance.now();
 
     for (let i = 0; i < fileCount; i++) {
@@ -64,7 +69,9 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
       const content = await Deno.readTextFile(filename);
 
       if (content.length !== fileSize) {
-        throw new Error(`File ${filename} has incorrect size: ${content.length} vs ${fileSize}`);
+        throw new Error(
+          `File ${filename} has incorrect size: ${content.length} vs ${fileSize}`,
+        );
       }
 
       filesRead++;
@@ -75,20 +82,24 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
     const readTime = readEndTime - readStartTime;
 
     // Phase 3: Cleanup
-    console.log("🗑️ Cleaning up...");
+    console.log('🗑️ Cleaning up...');
     await Deno.remove(testDir, { recursive: true });
 
     const endTime = performance.now();
     const totalTime = endTime - startTime;
 
-    console.log(`✅ Completed I/O test in ${sanitizeForLogging(totalTime.toFixed(2))}ms`);
+    console.log(
+      `✅ Completed I/O test in ${sanitizeForLogging(totalTime.toFixed(2))}ms`,
+    );
     console.log(
       `📊 Write: ${sanitizeForLogging(writeTime.toFixed(2))}ms, Read: ${
         sanitizeForLogging(readTime.toFixed(2))
       }ms`,
     );
     console.log(
-      `💾 Total data: ${sanitizeForLogging((totalBytesWritten / 1024).toFixed(2))}KB written, ${
+      `💾 Total data: ${
+        sanitizeForLogging((totalBytesWritten / 1024).toFixed(2))
+      }KB written, ${
         sanitizeForLogging((totalBytesRead / 1024).toFixed(2))
       }KB read`,
     );
@@ -112,8 +123,8 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
       },
       metrics: {
         cpuIntensive: false,
-        memoryUsage: "low",
-        ioUsage: "high",
+        memoryUsage: 'low',
+        ioUsage: 'high',
         diskSpace: totalBytesWritten,
       },
     };

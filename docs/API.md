@@ -2,7 +2,9 @@
 
 ## Overview
 
-Honey Benchmark Swarm provides a comprehensive API for benchmarking different runtime environments. This document covers all the modules, functions, and interfaces available.
+Honey Benchmark Swarm provides a comprehensive API for benchmarking different
+runtime environments. This document covers all the modules, functions, and
+interfaces available.
 
 ## Core Modules
 
@@ -34,16 +36,16 @@ interface BenchmarkOptions {
 **Example:**
 
 ```typescript
-import { runBenchmark } from "./bench/index.ts";
+import { runBenchmark } from './bench/index.ts';
 
 // Run default benchmark
-await runBenchmark("build-static-site");
+await runBenchmark('build-static-site');
 
 // Run with specific options
-await runBenchmark("process-data", {
-  runner: "docker",
-  location: "local",
-  params: { dataSize: "large" },
+await runBenchmark('process-data', {
+  runner: 'docker',
+  location: 'local',
+  params: { dataSize: 'large' },
 });
 ```
 
@@ -270,7 +272,11 @@ interface Logger {
   debug(message: string, context?: Record<string, unknown>): void;
   info(message: string, context?: Record<string, unknown>): void;
   warn(message: string, context?: Record<string, unknown>): void;
-  error(message: string, error?: Error, context?: Record<string, unknown>): void;
+  error(
+    message: string,
+    error?: Error,
+    context?: Record<string, unknown>,
+  ): void;
   success(message: string, context?: Record<string, unknown>): void;
 }
 ```
@@ -374,8 +380,10 @@ interface CombInterface {
 
 ```typescript
 // combs/my-custom-comb.egg.ts
-export async function main(params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
-  console.log("Running my custom comb...");
+export async function main(
+  params: Record<string, unknown> = {},
+): Promise<Record<string, unknown>> {
+  console.log('Running my custom comb...');
 
   // Your comb logic here
   const result = await performSomeWork(params);
@@ -400,32 +408,32 @@ if (import.meta.main) {
 ### Using the API Programmatically
 
 ```typescript
-import { runBenchmark } from "./bench/index.ts";
-import { createLogger } from "./layers/logging.ts";
+import { runBenchmark } from './bench/index.ts';
+import { createLogger } from './layers/logging.ts';
 
-const logger = createLogger("my-app");
+const logger = createLogger('my-app');
 
 try {
   // Run a specific benchmark
-  await runBenchmark("my-custom-comb", {
-    runner: "docker",
-    location: "local",
+  await runBenchmark('my-custom-comb', {
+    runner: 'docker',
+    location: 'local',
     params: {
-      dataSize: "large",
+      dataSize: 'large',
       iterations: 1000,
     },
   });
 
-  logger.success("Benchmark completed successfully");
+  logger.success('Benchmark completed successfully');
 } catch (error) {
-  logger.error("Benchmark failed", error);
+  logger.error('Benchmark failed', error);
 }
 ```
 
 ### Error Handling
 
 ```typescript
-import { TimeoutError, withRetry, withTimeout } from "./layers/errors.ts";
+import { TimeoutError, withRetry, withTimeout } from './layers/errors.ts';
 
 try {
   // Execute with timeout
@@ -434,7 +442,7 @@ try {
       return await someSlowOperation();
     },
     5000, // 5 second timeout
-    "slow operation",
+    'slow operation',
   );
 
   // Execute with retry
@@ -448,9 +456,9 @@ try {
   );
 } catch (error) {
   if (error instanceof TimeoutError) {
-    console.log("Operation timed out");
+    console.log('Operation timed out');
   } else {
-    console.log("Operation failed:", error.message);
+    console.log('Operation failed:', error.message);
   }
 }
 ```

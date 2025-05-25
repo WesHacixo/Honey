@@ -1,24 +1,14 @@
 {
-  "name": "honey",
-  "version": "0.1.0",
-  "description": "Benchmark system for evaluating different runtime environments",
-  "tasks": {
-    "benchmark": "deno run --allow-run --allow-net --allow-env --allow-read bench/index.ts",
-    "benchmark:docker": "deno run --allow-run --allow-net --allow-env --allow-read bench/index.ts --runner=docker",
-    "benchmark:firecracker": "deno run --allow-run --allow-net --allow-env --allow-read bench/index.ts --runner=firecracker",
-    "benchmark:wasm": "deno run --allow-run --allow-net --allow-env --allow-read bench/index.ts --runner=wasm",
-    "test": "deno test --allow-run --allow-net --allow-env --allow-read"
+  "lint": {
+    "rules": {
+      "tags": ["recommended"]
+    }
   },
   "fmt": {
-    "files": {
-      "include": ["**/*.ts"]
-    },
-    "options": {
-      "useTabs": false,
-      "lineWidth": 100,
-      "indentWidth": 2,
-      "singleQuote": false,
-      "proseWrap": "preserve"
-    }
+    "useTabs": false,
+    "lineWidth": 80,
+    "indentWidth": 2,
+    "singleQuote": true,
+    "semiColons": true
   }
 }

@@ -9,8 +9,10 @@
  * @param params Optional parameters for model training
  * @returns Training result
  */
-export async function main(params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
-  console.log("Training machine learning model...");
+export async function main(
+  params: Record<string, unknown> = {},
+): Promise<Record<string, unknown>> {
+  console.log('Training machine learning model...');
 
   // Get dataset size from params or use default
   const datasetSize = params.datasetSize as number || 1000;
@@ -26,7 +28,7 @@ export async function main(params: Record<string, unknown> = {}): Promise<Record
 
   return {
     success: true,
-    output: "Model training completed successfully",
+    output: 'Model training completed successfully',
     metrics: trainingResult,
     dataset_size: datasetSize,
     epochs,
@@ -96,7 +98,8 @@ async function trainModel(
       const label = sample.label as number;
 
       // Compute prediction
-      const prediction = features[0] * weights[0] + features[1] * weights[1] + bias;
+      const prediction = features[0] * weights[0] + features[1] * weights[1] +
+        bias;
 
       // Compute loss
       const loss = prediction - label;

@@ -3,22 +3,28 @@
  * Tests CPU-intensive mathematical operations
  */
 
-import { sanitizeForLogging } from "../layers/security.ts";
+import { sanitizeForLogging } from '../layers/security.ts';
 
-export function main(params: Record<string, unknown> = {}): Record<string, unknown> {
+export function main(
+  params: Record<string, unknown> = {},
+): Record<string, unknown> {
   const n = (params.n as number) || 35;
   const iterations = (params.iterations as number) || 1;
 
   // Input validation for security and performance
   if (n < 0 || n > 45) {
-    throw new Error("Fibonacci input must be between 0 and 45 for performance reasons");
+    throw new Error(
+      'Fibonacci input must be between 0 and 45 for performance reasons',
+    );
   }
   if (iterations < 1 || iterations > 100) {
-    throw new Error("Iterations must be between 1 and 100");
+    throw new Error('Iterations must be between 1 and 100');
   }
 
   console.log(
-    `🔢 Calculating Fibonacci(${sanitizeForLogging(n)}) ${sanitizeForLogging(iterations)} time(s)`,
+    `🔢 Calculating Fibonacci(${sanitizeForLogging(n)}) ${
+      sanitizeForLogging(iterations)
+    } time(s)`,
   );
 
   const startTime = performance.now();
@@ -46,8 +52,16 @@ export function main(params: Record<string, unknown> = {}): Record<string, unkno
       sanitizeForLogging(totalTime.toFixed(2))
     }ms`,
   );
-  console.log(`📊 Average time per calculation: ${sanitizeForLogging(avgTime.toFixed(2))}ms`);
-  console.log(`🎯 Fibonacci(${sanitizeForLogging(n)}) = ${sanitizeForLogging(results[0])}`);
+  console.log(
+    `📊 Average time per calculation: ${
+      sanitizeForLogging(avgTime.toFixed(2))
+    }ms`,
+  );
+  console.log(
+    `🎯 Fibonacci(${sanitizeForLogging(n)}) = ${
+      sanitizeForLogging(results[0])
+    }`,
+  );
 
   return {
     success: true,
@@ -59,8 +73,8 @@ export function main(params: Record<string, unknown> = {}): Record<string, unkno
     operationsPerSecond: 1000 / avgTime,
     metrics: {
       cpuIntensive: true,
-      memoryUsage: "low",
-      ioUsage: "none",
+      memoryUsage: 'low',
+      ioUsage: 'none',
     },
   };
 }

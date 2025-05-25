@@ -39,7 +39,13 @@ export class RunnerExecutionError extends HoneyError {
   public readonly stderr: string;
   public readonly exitCode: number;
 
-  constructor(runner: string, message: string, stdout = "", stderr = "", exitCode = -1) {
+  constructor(
+    runner: string,
+    message: string,
+    stdout = '',
+    stderr = '',
+    exitCode = -1,
+  ) {
     super(`Runner execution failed (${runner}): ${message}`);
     this.stdout = stdout;
     this.stderr = stderr;
@@ -99,8 +105,8 @@ export function createErrorResult(
   comb: string,
 ): Record<string, unknown> {
   // Extract stdout and stderr if available
-  let stdout = "";
-  let stderr = "";
+  let stdout = '';
+  let stderr = '';
   let exitCode = -1;
 
   if (error instanceof RunnerExecutionError) {
@@ -112,9 +118,9 @@ export function createErrorResult(
   return {
     success: false,
     error: error.message,
-    error_type: error.name,
+    'error_type': error.name,
     stdout,
-    stderr: stderr || error.stack || "",
+    stderr: stderr || error.stack || '',
     exit_code: exitCode,
     boot_time_ms: 0,
     exec_time_ms: 0,
@@ -204,10 +210,13 @@ export async function withRetry<T>(
  * @param error The error to log
  * @param context Additional context information
  */
-export function logError(error: Error, context: Record<string, unknown> = {}): void {
+export function logError(
+  error: Error,
+  context: Record<string, unknown> = {},
+): void {
   const errorInfo = {
     timestamp: new Date().toISOString(),
-    error_type: error.name,
+    'error_type': error.name,
     message: error.message,
     stack: error.stack,
     ...context,

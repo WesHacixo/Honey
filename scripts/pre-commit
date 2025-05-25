@@ -1,0 +1,35 @@
+#!/bin/sh
+# Pre-commit hook for Honey Benchmark Swarm
+# Ensures code is linted and formatted before each commit
+
+echo "Running pre-commit checks..."
+
+# Set PATH to include Deno
+export PATH="/root/.deno/bin:$PATH"
+
+# Check if deno is available
+if ! command -v deno >/dev/null 2>&1; then
+    echo "Error: Deno is not installed or not in PATH"
+    exit 1
+fi
+
+# Run formatter
+echo "Formatting code..."
+deno fmt
+
+# Run linter
+echo "Linting code..."
+if ! deno lint; then
+    echo "Linting failed. Please fix the issues before committing."
+    exit 1
+fi
+
+# Run type checking
+echo "Type checking..."
+if ! deno check mod.ts; then
+    echo "Type checking failed. Please fix the issues before committing."
+    exit 1
+fi
+
+echo "All pre-commit checks passed!"
+exit 0
