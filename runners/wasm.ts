@@ -104,7 +104,7 @@ async function executeWasmModule(
 
   // Execute the main function
   try {
-    const _result = await main(JSON.stringify(params));
+    await main(JSON.stringify(params));
 
     // In a real implementation, the result would be properly marshalled between WASM and JS
     // For now, we'll simulate a successful result

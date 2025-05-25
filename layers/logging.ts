@@ -161,22 +161,22 @@ export function warn(
 /**
  * Log an error message
  *
- * @param message The message to log
- * @param error The error object
+ * @param message The error message
+ * @param err The error object
  * @param context Additional context information
  */
 export function error(
   message: string,
-  error?: Error,
+  err?: Error,
   context: Record<string, unknown> = {},
 ): void {
   if (currentLogLevel <= LogLevel.ERROR) {
     const errorContext = {
       ...context,
-      ...(error && {
-        error_type: error.name,
-        error_message: sanitizeForLogging(error.message),
-        error_stack: error.stack ? sanitizeForLogging(error.stack) : undefined,
+      ...(err && {
+        error_type: err.name,
+        error_message: sanitizeForLogging(err.message),
+        error_stack: err.stack ? sanitizeForLogging(err.stack) : undefined,
       }),
     };
     console.error(
@@ -216,7 +216,7 @@ export function createLogger(component: string): {
   warn: (message: string, context?: Record<string, unknown>) => void;
   error: (
     message: string,
-    error?: Error,
+    err?: Error,
     context?: Record<string, unknown>,
   ) => void;
   success: (message: string, context?: Record<string, unknown>) => void;
@@ -230,9 +230,9 @@ export function createLogger(component: string): {
       warn(message, { component, ...context }),
     error: (
       message: string,
-      error?: Error,
+      err?: Error,
       context: Record<string, unknown> = {},
-    ) => error(message, error, { component, ...context }),
+    ) => error(message, err, { component, ...context }),
     success: (message: string, context: Record<string, unknown> = {}) =>
       success(message, { component, ...context }),
   };

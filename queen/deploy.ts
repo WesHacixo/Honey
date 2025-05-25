@@ -3,6 +3,7 @@
  * Deploys worker bee into specified runtime and tracks execution
  */
 
+import { BenchmarkMetrics } from '../bench/metrics.ts';
 import * as Docker from '../runners/docker.ts';
 import * as Firecracker from '../runners/firecracker.ts';
 import * as Wasm from '../runners/wasm.ts';
@@ -36,7 +37,7 @@ export interface CombParams {
  */
 export async function runComb(
   { comb, runner, location, params = {} }: CombParams,
-): Promise<Record<string, unknown>> {
+): Promise<BenchmarkMetrics> {
   const contextId = crypto.randomUUID();
   const start = Date.now();
 
@@ -102,6 +103,7 @@ export async function runComb(
 
   // Combine results with metadata
   return {
+    success: true,
     ...result,
     comb,
     runner,

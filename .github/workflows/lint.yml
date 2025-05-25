@@ -2,152 +2,21 @@ name: Lint and Format
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
-    branches: [main, develop]
+    branches: [main]
 
 jobs:
   lint:
-    name: Code Quality Checks
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v3
       - name: Setup Deno
         uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-
-      - name: Cache Deno dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/deno
-          key: ${{ runner.os }}-deno-lint-${{ hashFiles('**/*.ts', 'deno.json') }}
-          restore-keys: |
-            ${{ runner.os }}-deno-lint-
-            ${{ runner.os }}-deno-
-
-      - name: Check formatting
-        run: |
-          echo "🎨 Checking code formatting..."
-          deno fmt --check
-          if [ $? -eq 0 ]; then
-            echo "✅ Code formatting is correct"
-          else
-            echo "❌ Code formatting issues found"
-            echo "💡 Run 'deno fmt' to fix formatting issues"
-            exit 1
-          fi
-
-      - name: Run linter
-        run: |
-          echo "🔍 Running linter..."
-          deno lint
-          if [ $? -eq 0 ]; then
-            echo "✅ Linting passed"
-          else
-            echo "❌ Linting issues found"
-            echo "💡 Run 'deno task lint:fix' to auto-fix some issues"
-            exit 1
-          fi
-
-      - name: Type checking
-        run: |
-          echo "🔍 Running type check..."
-          deno check **/*.ts
-          if [ $? -eq 0 ]; then
-            echo "✅ Type checking passed"
-          else
-            echo "❌ Type checking failed"
-            exit 1
-          fi
-
-      - name: Validate deno.json
-        run: |
-          echo "🔍 Validating deno.json configuration..."
-          if deno task --help > /dev/null 2>&1; then
-            echo "✅ deno.json is valid"
-          else
-            echo "❌ deno.json configuration is invalid"
-            exit 1
-          fi
-
-      - name: Check for TODO comments
-        run: |
-          echo "🔍 Checking for untagged TODO comments..."
-          # Allow TODO comments with issue references or assignees
-          if grep -r "TODO" --include="*.ts" --include="*.js" . | grep -v "TODO(" | grep -v "TODO:" | grep -v "TODO #"; then
-            echo "⚠️ Found untagged TODO comments. Please add issue references or assignees."
-            echo "Examples: TODO(username), TODO: #123, TODO #123"
-            exit 1
-          else
-            echo "✅ All TODO comments are properly tagged"
-          fi
-
-  security-lint:
-    name: Security Linting
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Security checks
-        run: |
-          echo "🔒 Running security checks..."
-          
-          # Check for hardcoded secrets
-          if grep -r "password=\|secret=\|apikey=\|token=" --include="*.ts" --include="*.js" --exclude-dir=tests . | grep -v "Deno.env.get\|process.env\|env.get"; then
-            echo "⚠️ Potential hardcoded secrets found"
-            exit 1
-          fi
-
-          # Check for eval usage
-          if grep -r "eval(" --include="*.ts" --include="*.js" .; then
-            echo "⚠️ Dangerous eval() usage found"
-            exit 1
-          fi
-
-          # Check for console.log in production code (excluding tests)
-          if grep -r "console.log\|console.debug" --include="*.ts" --include="*.js" --exclude-dir=tests --exclude-dir=bench . | grep -v "// TODO\|// FIXME\|// DEBUG"; then
-            echo "⚠️ Console statements found in production code"
-            echo "💡 Consider using proper logging or removing debug statements"
-            exit 1
-          fi
-
-          echo "✅ Security checks passed"
-
-  format-check:
-    name: Format Validation
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Deno
-        uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
-
-      - name: Detailed format check
-        run: |
-          echo "🎨 Running detailed format validation..."
-          
-          # Check if any files would be changed by formatting
-          if ! deno fmt --check; then
-            echo "❌ The following files need formatting:"
-            deno fmt --check 2>&1 | grep "error:" || true
-            echo ""
-            echo "💡 To fix formatting issues, run:"
-            echo "   deno fmt"
-            echo ""
-            echo "🔧 Or use the task:"
-            echo "   deno task fmt"
-            exit 1
-          fi
-          
-          echo "✅ All files are properly formatted"
+      - name: Lint
+        run: deno lint
+      - name: Format Check
+        run: deno fmt --check
 

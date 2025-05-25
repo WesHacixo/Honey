@@ -143,6 +143,7 @@ export function sanitizeForLogging(input: unknown): string {
     const stringified = JSON.stringify(input);
     return stringified
       .replace(/[\n\r\t\v\f]/g, ' ') // Replace newlines, tabs, etc. with spaces
+      // deno-lint-ignore no-control-regex
       .replace(/[\x00-\x1F\x7F-\x9F]/g, ' ') // Replace control characters and extended control chars
       .replace(/[\u2028\u2029]/g, ' ') // Replace line/paragraph separators
       .replace(/[\\'"]/g, '\\$&'); // Escape quotes and backslashes
@@ -151,6 +152,7 @@ export function sanitizeForLogging(input: unknown): string {
   // Remove or replace control characters and other potentially dangerous characters
   return input
     .replace(/[\n\r\t\v\f]/g, ' ') // Replace newlines, tabs, etc. with spaces
+    // deno-lint-ignore no-control-regex
     .replace(/[\x00-\x1F\x7F-\x9F]/g, ' ') // Replace control characters and extended control chars
     .replace(/[\u2028\u2029]/g, ' ') // Replace line/paragraph separators
     .replace(/[\\'"]/g, '\\$&'); // Escape quotes and backslashes

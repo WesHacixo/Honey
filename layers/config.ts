@@ -98,6 +98,17 @@ const environments: Record<string, Partial<typeof defaultConfig>> = {
   test: {
     metrics: {
       enabled: false,
+      mongodb: {
+        enabled: false,
+        uri: 'mongodb://localhost:27017',
+        database: 'honey_metrics_test',
+      },
+      pinecone: {
+        enabled: false,
+        apiKey: '',
+        environment: 'us-west1-gcp',
+        index: 'honey-test',
+      },
     },
   },
   production: {
@@ -105,6 +116,12 @@ const environments: Record<string, Partial<typeof defaultConfig>> = {
     security: {
       validateInputs: true,
       sanitizeOutputs: true,
+      timeouts: {
+        default: 30000,
+        docker: 60000,
+        firecracker: 45000,
+        wasm: 15000,
+      },
     },
   },
 };
@@ -144,7 +161,7 @@ function deepMerge<T extends Record<string, unknown>>(
 
 // Helper function to check if value is an object
 function isObject(item: unknown): item is Record<string, unknown> {
-  return (item && typeof item === 'object' && !Array.isArray(item));
+  return !!(item && typeof item === 'object' && !Array.isArray(item));
 }
 
 // Load environment variables

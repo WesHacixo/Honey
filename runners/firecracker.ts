@@ -18,6 +18,7 @@ import {
 } from '../layers/errors.ts';
 import { createLogger } from '../layers/logging.ts';
 import config from '../layers/config.ts';
+import type { Config, FirecrackerVmConfig } from '../types.ts';
 
 // Create a logger for this module
 const logger = createLogger('firecracker-runner');
@@ -38,7 +39,7 @@ async function isFirecrackerAvailable(): Promise<boolean> {
 
     return result.success;
   } catch (_error) {
-    logger.error('Error checking for Firecracker:', error);
+    logger.error('Error checking for Firecracker:', _error);
     return false;
   }
 }
@@ -49,7 +50,7 @@ async function isFirecrackerAvailable(): Promise<boolean> {
  * @param comb The name of the comb to run
  * @returns The Firecracker configuration object
  */
-function createFirecrackerConfig(_comb: string): Record<string, unknown> {
+function createFirecrackerConfig(_comb: string): FirecrackerVmConfig {
   // Validate kernel and rootfs paths
   if (!validateFilePath(config.runners.firecracker.kernelPath)) {
     throw new Error(
@@ -96,15 +97,14 @@ function createFirecrackerConfig(_comb: string): Record<string, unknown> {
 }
 
 /**
- * Start a Firecracker microVM
- *
+ * Start a Firecracker instance
  * @param config The Firecracker configuration
  * @returns Process object for the Firecracker instance
  */
 async function startFirecracker(
-  config: Record<string, unknown>,
-): Promise<Deno.Process> {
-  const _socketPath = config.runners.firecracker.socketPath;
+  config: Config,
+): Promise<Deno.ChildProcess> {
+  const socketPath = config.runners.firecracker.socketPath;
 
   // Remove socket if it exists
   try {
@@ -148,7 +148,7 @@ async function startFirecracker(
 
   if (attempts >= maxAttempts) {
     process.kill('SIGTERM');
-    process.close();
+    process.kill();
     throw new RunnerExecutionError(
       'firecracker',
       `Socket ${
@@ -158,21 +158,18 @@ async function startFirecracker(
   }
 
   // Configure the microVM
-  await configureFirecracker(config);
+  const vmConfig = createFirecrackerConfig('default');
+  await configureFirecracker(vmConfig);
 
   return process;
 }
 
 /**
- * Configure a running Firecracker instance
- *
- * @param config The Firecracker configuration
+ * Configure the Firecracker VM
  */
 async function configureFirecracker(
-  config: Record<string, unknown>,
+  config: FirecrackerVmConfig,
 ): Promise<void> {
-  const _socketPath = config.runners.firecracker.socketPath;
-
   // Helper function to make API requests to Firecracker
   async function firecrackerApiRequest(
     method: string,
@@ -267,11 +264,8 @@ export async function run(
         // Measure boot time
         const bootStart = Date.now();
 
-        // Create Firecracker configuration
-        const vmConfig = createFirecrackerConfig(sanitizedComb);
-
         // Start Firecracker
-        const process = await startFirecracker(vmConfig);
+        const process = await startFirecracker(config);
 
         const bootTime = Date.now() - bootStart;
 
@@ -289,7 +283,7 @@ export async function run(
 
         // Stop the microVM
         process.kill('SIGTERM');
-        process.close();
+        process.kill();
 
         // Calculate total execution time
         const execTime = Date.now() - start;
@@ -314,7 +308,7 @@ export async function run(
   } catch (_error) {
     logger.error(
       `Error running ${sanitizeForLogging(sanitizedComb)} in Firecracker:`,
-      error,
+      _error,
     );
 
     // Fall back to simulation

@@ -1,6 +1,7 @@
 # 🍯 Honey Benchmark Swarm
 
-A comprehensive benchmark system for evaluating different runtime environments for agent workloads.
+A comprehensive benchmark system for evaluating different runtime environments
+for agent workloads.
 
 [![CI/CD Pipeline](https://github.com/WesHacixo/Honey/actions/workflows/ci.yml/badge.svg)](https://github.com/WesHacixo/Honey/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -9,17 +10,25 @@ A comprehensive benchmark system for evaluating different runtime environments f
 
 ## Overview
 
-Honey Benchmark Swarm is a system for running the same workload (called a "comb") across different runtime environments and comparing their performance. This helps determine the optimal execution environment for different types of agent workloads.
+Honey Benchmark Swarm is a system for running the same workload (called a
+"comb") across different runtime environments and comparing their performance.
+This helps determine the optimal execution environment for different types of
+agent workloads.
 
 ## ✨ Features
 
-- **Multiple Runners**: Execute combs in Docker, Firecracker microVMs, or WebAssembly
-- **Performance Metrics**: Measure boot time, execution time, memory usage, and CPU usage
-- **Fallback Mechanisms**: Gracefully degrade to simpler execution methods when a runner is unavailable
+- **Multiple Runners**: Execute combs in Docker, Firecracker microVMs, or
+  WebAssembly
+- **Performance Metrics**: Measure boot time, execution time, memory usage, and
+  CPU usage
+- **Fallback Mechanisms**: Gracefully degrade to simpler execution methods when
+  a runner is unavailable
 - **Extensible**: Easy to add new combs and runners
-- **Cloud/Local Comparison**: Compare performance between local and cloud environments
+- **Cloud/Local Comparison**: Compare performance between local and cloud
+  environments
 - **Security**: Input validation, resource limits, and isolation
-- **Error Handling**: Robust error handling with custom error types and recovery mechanisms
+- **Error Handling**: Robust error handling with custom error types and recovery
+  mechanisms
 - **Logging**: Structured logging with different log levels and sanitization
 - **Testing**: Comprehensive test suite with unit and integration tests
 - **CI/CD**: Automated testing, security scanning, and releases
@@ -177,7 +186,8 @@ honey/
 
 1. **Input Validation**: All user inputs are validated and sanitized
 2. **Log Injection Prevention**: Sanitization prevents log injection attacks
-3. **Path Traversal Protection**: File operations are secured against path traversal
+3. **Path Traversal Protection**: File operations are secured against path
+   traversal
 4. **Container Security**: Docker containers run with security restrictions
 5. **Resource Limits**: Memory and CPU limits prevent resource exhaustion
 6. **Isolated Execution**: Each runner provides appropriate isolation
@@ -200,7 +210,8 @@ make test-watch
 
 ## 📚 Documentation
 
-- **[Getting Started Guide](docs/GETTING_STARTED.md)** - Step-by-step setup and usage
+- **[Getting Started Guide](docs/GETTING_STARTED.md)** - Step-by-step setup and
+  usage
 - **[API Documentation](docs/API.md)** - Complete API reference
 - **[Changelog](CHANGELOG.md)** - Version history and changes
 
@@ -308,7 +319,8 @@ Modify `layers/config.ts` for persistent configuration changes.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
+for details.
 
 ## 🙏 Acknowledgments
 

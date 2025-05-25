@@ -11,6 +11,21 @@ import config from '../layers/config.ts';
 // Create a logger for this module
 const logger = createLogger('metrics');
 
+// Define interface for benchmark metrics
+export interface BenchmarkMetrics {
+  comb: string;
+  runner: string;
+  location: string;
+  success: boolean;
+  boot_time_ms?: number;
+  exec_time_ms?: number;
+  memory_usage?: string;
+  cpu_usage?: string;
+  agentId?: string;
+  timestamp?: string;
+  [key: string]: unknown;
+}
+
 // Import database layers
 // These would be imported from the agent_data_layer in the final integration
 // For now, we'll use placeholder functions
@@ -49,8 +64,11 @@ function embedToPinecone(
     // In a real implementation, this would connect to Pinecone and embed the text
     // For now, we'll just simulate success
     return crypto.randomUUID();
-  } catch (error) {
-    logger.error(`Failed to embed metrics in Pinecone:`, error);
+  } catch (error: unknown) {
+    logger.error(
+      `Failed to embed metrics in Pinecone:`,
+      error instanceof Error ? error : new Error(String(error)),
+    );
     return crypto.randomUUID();
   }
 }
@@ -60,17 +78,17 @@ function embedToPinecone(
  *
  * @param result The benchmark result to record
  */
-export function recordMetrics(result: Record<string, unknown>): void {
-  const record = {
+export function recordMetrics(result: BenchmarkMetrics): void {
+  const record: BenchmarkMetrics = {
     ...result,
     agentId: 'honey-benchmark',
     timestamp: new Date().toISOString(),
   };
 
   // Sanitize inputs for logging
-  const sanitizedComb = sanitizeForLogging(record.comb as string);
-  const sanitizedRunner = sanitizeForLogging(record.runner as string);
-  const sanitizedLocation = sanitizeForLogging(record.location as string);
+  const sanitizedComb = sanitizeForLogging(record.comb);
+  const sanitizedRunner = sanitizeForLogging(record.runner);
+  const sanitizedLocation = sanitizeForLogging(record.location);
 
   logger.info(
     `Recording metrics for ${sanitizedComb} on ${sanitizedRunner}@${sanitizedLocation}`,
@@ -98,8 +116,11 @@ export function recordMetrics(result: Record<string, unknown>): void {
     });
 
     logger.success(`Metrics recorded successfully for ${sanitizedComb}`);
-  } catch (error) {
-    logger.error(`Failed to record metrics:`, error);
+  } catch (error: unknown) {
+    logger.error(
+      `Failed to record metrics:`,
+      error instanceof Error ? error : new Error(String(error)),
+    );
   }
 }
 
@@ -109,11 +130,11 @@ export function recordMetrics(result: Record<string, unknown>): void {
  * @param results Array of benchmark results
  * @returns A formatted summary string
  */
-export function summarizeResults(results: Record<string, unknown>[]): string {
+export function summarizeResults(results: BenchmarkMetrics[]): string {
   const summary = ['# Benchmark Results Summary\n'];
 
   // Group results by comb
-  const combResults: Record<string, Record<string, unknown>[]> = {};
+  const combResults: Record<string, BenchmarkMetrics[]> = {};
 
   for (const result of results) {
     const comb = result.comb as string;

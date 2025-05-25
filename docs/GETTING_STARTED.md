@@ -2,7 +2,8 @@
 
 ## Quick Start
 
-Honey Benchmark Swarm is a powerful benchmarking system for evaluating different runtime environments. Get up and running in minutes!
+Honey Benchmark Swarm is a powerful benchmarking system for evaluating different
+runtime environments. Get up and running in minutes!
 
 ### Prerequisites
 

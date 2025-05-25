@@ -2,7 +2,9 @@
 
 ## Overview
 
-Honey Benchmark Swarm provides a comprehensive API for benchmarking different runtime environments. This document covers all the modules, functions, and interfaces available.
+Honey Benchmark Swarm provides a comprehensive API for benchmarking different
+runtime environments. This document covers all the modules, functions, and
+interfaces available.
 
 ## Core Modules
 

@@ -1,6 +1,7 @@
 # Development Guide
 
-This guide covers the development workflow, code quality standards, and tooling for the Honey benchmark system.
+This guide covers the development workflow, code quality standards, and tooling
+for the Honey benchmark system.
 
 ## 🚀 Quick Start
 

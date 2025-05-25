@@ -40,8 +40,8 @@ export async function run(
     throw new Error(`Invalid comb name: ${sanitizeForLogging(comb)}`);
   }
 
-  const _sanitizedComb = sanitizeCombName(comb);
-  const _sanitizedLocation = sanitizeForLogging(location);
+  const sanitizedComb = sanitizeCombName(comb);
+  const sanitizedLocation = sanitizeForLogging(location);
   const start = Date.now();
   const containerName = generateSecureContainerName(sanitizedComb);
 
@@ -62,9 +62,6 @@ export async function run(
     );
     return runDirectly(sanitizedComb, location);
   }
-
-  // Measure boot time
-  const _bootStart = Date.now();
 
   try {
     // Run the container with security options and resource limits
@@ -118,7 +115,7 @@ export async function run(
 async function runDockerContainer(
   containerName: string,
   comb: string,
-  location: string,
+  _location: string,
 ): Promise<{
   success: boolean;
   stdout: string;
@@ -127,9 +124,7 @@ async function runDockerContainer(
   memoryUsage: string;
   cpuUsage: string;
 }> {
-  const _bootStart = Date.now();
-  const _sanitizedComb = sanitizeForLogging(comb);
-  const _sanitizedLocation = sanitizeForLogging(location);
+  const bootStart = Date.now();
 
   try {
     // Run the container with security options and resource limits
@@ -252,8 +247,8 @@ async function runDirectly(
   location: string,
 ): Promise<Record<string, unknown>> {
   const start = Date.now();
-  const _sanitizedComb = sanitizeForLogging(comb);
-  const _sanitizedLocation = sanitizeForLogging(location);
+  const sanitizedComb = sanitizeForLogging(comb);
+  const sanitizedLocation = sanitizeForLogging(location);
 
   logger.info(
     `[DIRECT] Running ${sanitizedComb} directly in current process (${sanitizedLocation})...`,

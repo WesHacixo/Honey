@@ -19,12 +19,14 @@ const logger = createLogger('utils');
  */
 export async function loadComb(comb: string): Promise<Record<string, unknown>> {
   try {
-    const _sanitizedComb = sanitizeForLogging(comb);
     const combPath = join(Deno.cwd(), 'combs', `${comb}.egg.ts`);
     const module = await import(`file://${combPath}`);
     return module;
-  } catch (_error) {
-    logger.error(`Error loading comb ${sanitizeForLogging(comb)}:`, error);
+  } catch (_error: unknown) {
+    logger.error(
+      `Error loading comb ${sanitizeForLogging(comb)}:`,
+      _error instanceof Error ? _error : new Error(String(_error)),
+    );
     throw new CombNotFoundError(comb);
   }
 }
@@ -52,9 +54,12 @@ export async function executeComb(
 
   try {
     return await module.main(params);
-  } catch (_error) {
-    logger.error(`Error executing comb ${sanitizeForLogging(comb)}:`, error);
-    throw error;
+  } catch (_error: unknown) {
+    logger.error(
+      `Error executing comb ${sanitizeForLogging(comb)}:`,
+      _error instanceof Error ? _error : new Error(String(_error)),
+    );
+    throw _error instanceof Error ? _error : new Error(String(_error));
   }
 }
 
@@ -77,8 +82,11 @@ export function listCombs(): string[] {
     }
 
     return combs;
-  } catch (_error) {
-    logger.error('Error listing combs:', error);
+  } catch (_error: unknown) {
+    logger.error(
+      'Error listing combs:',
+      _error instanceof Error ? _error : new Error(String(_error)),
+    );
     return [];
   }
 }

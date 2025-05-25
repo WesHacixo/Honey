@@ -4,7 +4,11 @@
  */
 
 import { runComb } from '../queen/deploy.ts';
-import { recordMetrics, summarizeResults } from './metrics.ts';
+import {
+  BenchmarkMetrics,
+  recordMetrics,
+  summarizeResults,
+} from './metrics.ts';
 import {
   sanitizeCombName,
   sanitizeForLogging,
@@ -64,7 +68,7 @@ export async function runBenchmark(
   // Filter locations if specified
   const locations = options.location ? [options.location as string] : LOCATIONS;
 
-  const results: Record<string, unknown>[] = [];
+  const results: BenchmarkMetrics[] = [];
 
   // Run the comb in each environment
   for (const runner of runners) {
